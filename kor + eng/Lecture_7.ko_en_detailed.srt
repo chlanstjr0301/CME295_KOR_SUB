@@ -1,0 +1,10756 @@
+1
+00:00:05,760 --> 00:00:07,400
+여러분 안녕하세요.
+Hello, everyone.
+
+2
+00:00:07,400 --> 00:00:12,680
+그리고 CME 295 7번째 강의에 오신 것을 환영합니다.
+And welcome to
+lecture 7 of CME 295.
+
+3
+00:00:12,680 --> 00:00:19,320
+오늘은 실제로 사용할 수 있는 기법들에
+집중해서 살펴보겠습니다.
+So today, we're going to
+focus on practical techniques
+
+4
+00:00:19,320 --> 00:00:23,600
+우리의 LLM이 외부 세계와 상호작용하도록 하는
+방법을 다룹니다.
+to let our LLM interact
+with the outside world
+
+5
+00:00:23,600 --> 00:00:25,840
+다른 시스템들과 함께 쓰는 방법입니다.
+with other systems.
+
+6
+00:00:25,840 --> 00:00:30,840
+지금까지는 LLM이 오로지 독립적으로만 동작했죠.
+Because up until now, our
+LLM was purely on its own.
+
+7
+00:00:30,840 --> 00:00:31,940
+저희는 그 모델을 학습시켰고,
+We've trained it.
+
+8
+00:00:31,940 --> 00:00:36,480
+LLM이 수학 문제와 코딩 문제에서
+어떻게 추론할 수 있는지도 봤습니다.
+We've seen how it can reason
+on problem math, coding math,
+
+9
+00:00:36,480 --> 00:00:38,040
+코딩 문제도 포함됩니다.
+coding problems.
+
+10
+00:00:38,040 --> 00:00:43,000
+이제 우리가 하려는 것은, LLM을
+다른 시스템과 연결해서 활용하는 것입니다.
+And now, what we want to do is
+to use our LLM in the context
+
+11
+00:00:43,000 --> 00:00:45,040
+바로 이런 맥락에서 LLM을 씁니다.
+of other systems.
+
+12
+00:00:45,040 --> 00:00:49,200
+오늘 강의에서는 RAG,
+그리고
+So today's class,
+we'll focus on RAG,
+
+13
+00:00:49,200 --> 00:00:55,520
+여러분이 들어보셨을 툴 콜링, 에이전트에 대해
+중점적으로 다루겠습니다.
+that you may have heard,
+tool calling, and agents.
+
+14
+00:00:55,520 --> 00:00:58,360
+하지만 시작하기 전에, 평소처럼
+But before we
+start, as usual, I'm
+
+15
+00:00:58,360 --> 00:01:02,020
+지난 시간에 배운 내용을 먼저 짚고 넘어가겠습니다.
+going to recap what
+we did last time.
+
+16
+00:01:02,020 --> 00:01:07,740
+기억하신다면, 지난 강의에서는
+추론 모델에 집중해서 살펴봤습니다.
+So if you remember, last time,
+we focused on reasoning models.
+
+17
+00:01:07,740 --> 00:01:11,660
+그리고 추론 모델과
+And we saw the differences
+between reasoning model
+
+18
+00:01:11,660 --> 00:01:14,820
+우리가 말하는 일반적인 LLM의
+차이점도 살폈습니다.
+and what we call
+the vanilla LLM.
+
+19
+00:01:14,820 --> 00:01:20,500
+특히, 바로 직전 강의까지는
+And in particular, up until the
+lecture before last lecture,
+
+20
+00:01:20,500 --> 00:01:24,780
+프롬프트를 LLM에 입력하고,
+what we saw was we fed
+a prompt to the LLM,
+
+21
+00:01:24,780 --> 00:01:27,740
+그러면 LLM에 프롬프트를 입력하면
+직접적으로 답변이 바로 나왔었죠.
+and it gave us
+directly a response.
+
+22
+00:01:27,740 --> 00:01:32,260
+그런데 지난 시간에 살펴봤던 것은,
+LLM이 답변을 내기 전에
+But what we saw last time
+was that if we let the LLM
+
+23
+00:01:32,260 --> 00:01:36,420
+추론 과정을 거치게 하면,
+reason before
+outputting the response,
+
+24
+00:01:36,420 --> 00:01:39,500
+그렇게 했을 때 성능이
+향상될 수 있다는 점이었습니다.
+then we can gain
+some performance
+
+25
+00:01:39,500 --> 00:01:43,980
+이런 방식은 특히 수학이나 코딩과 같은
+추론 과제에서 효과가 있었습니다.
+when it comes to reasoning
+tasks, such as math and coding.
+
+26
+00:01:43,980 --> 00:01:47,540
+그래서 특히 추론 모델은
+어떻게 동작하는지 살펴보면,
+And so, in particular,
+reasoning models, what they do
+
+27
+00:01:47,540 --> 00:01:52,380
+프롬프트를 입력으로 받아서,
+is they take a prompt as input,
+and then what they output
+
+28
+00:01:52,380 --> 00:01:56,500
+일반적으로 사용자에게는 보이지 않는
+추론 체인과
+is both a reasoning
+chain, which is typically
+
+29
+00:01:56,500 --> 00:02:02,110
+그리고 최종적으로 답변을
+함께 출력하게 됩니다.
+hidden from the user,
+and then a response.
+
+30
+00:02:02,110 --> 00:02:06,110
+이런 내용을 바탕으로,
+우리가 어떻게 하면
+So with that, we
+saw how we could
+
+31
+00:02:06,110 --> 00:02:09,910
+모델을 좀 더 추론 모델답게
+학습시킬 수 있을지 살펴봤었죠.
+train a model to be more
+of a reasoning model.
+
+32
+00:02:09,910 --> 00:02:14,630
+그리고 중요한 강화학습 알고리즘 중
+하나를 봤습니다.
+And in particular, we
+saw a core RL algorithm
+
+33
+00:02:14,630 --> 00:02:19,150
+GRPO라는 알고리즘이었는데,
+이는 Group Relative Policy
+called GRPO, which stands
+for Group Relative Policy
+
+34
+00:02:19,150 --> 00:02:20,830
+Optimization의 약자입니다.
+Optimization.
+
+35
+00:02:20,830 --> 00:02:23,750
+그리고 이 알고리즘이 기존에
+살펴본 것들과 어떻게 다른지도 봤어요.
+And we saw that
+this algorithm had
+
+36
+00:02:23,750 --> 00:02:27,910
+특히 이전 방식들과 비교했을 때
+몇 가지 차이점이 있었습니다.
+some differences compared to
+the ones that we saw previously.
+
+37
+00:02:27,910 --> 00:02:31,270
+그 중 하나로,
+주목할 점이 있었는데요.
+And in particular,
+one notable aspect
+
+38
+00:02:31,270 --> 00:02:33,430
+바로 이 알고리즘은
+is that it does not have--
+
+39
+00:02:33,430 --> 00:02:37,950
+value function을
+학습하지 않는다는 점입니다.
+it does not train
+a value function.
+
+40
+00:02:37,950 --> 00:02:41,550
+여기 보이는 그림은
+GRPO가 어떻게 학습되는지를
+So here, this illustration
+shows a little bit
+
+41
+00:02:41,550 --> 00:02:43,790
+여기서는 GRPO가 어떻게 학습되는지 보여줍니다.
+how GRPO is trained.
+
+42
+00:02:43,790 --> 00:02:46,830
+먼저 쿼리를 입력으로 받습니다.
+So it takes a query as input.
+
+43
+00:02:46,830 --> 00:02:51,790
+그리고 각 출력에 대해 어드밴티지를 계산하는데,
+And then it computes an
+advantage for each output
+
+44
+00:02:51,790 --> 00:02:56,610
+동일한 프롬프트에 대해 다양한 완성 결과에 대해 보상을 계산하고,
+by computing the rewards
+for different completions
+
+45
+00:02:56,610 --> 00:02:58,290
+그 결과들을 비교하여 어드밴티지를 얻습니다.
+of a same prompt.
+
+46
+00:02:58,290 --> 00:03:00,450
+그리고 특정 값을 계산하는데,
+And then computing
+a quantity, which
+
+47
+00:03:00,450 --> 00:03:05,290
+이 값이 바로 다른 완성 결과의 보상과 비교한 어드밴티지입니다.
+is the advantage, that is
+relative to the other rewards
+
+48
+00:03:05,290 --> 00:03:09,450
+같은 그룹의 여러 완성 결과 중에서 상대적으로 측정한 값이죠.
+of that group of completions.
+
+49
+00:03:09,450 --> 00:03:12,730
+그리고 우리가
+And then we saw
+that if we applied
+
+50
+00:03:12,730 --> 00:03:17,210
+신중하게 선택된 보상을 사용해서 GRPO를 적용하면,
+GRPO with carefully
+chosen rewards, which
+
+51
+00:03:17,210 --> 00:03:23,890
+첫 번째로, 모델이 추론 과정을 출력하도록 보상하고,
+is one, rewarding the model for
+outputting a reasoning chain,
+
+52
+00:03:23,890 --> 00:03:27,370
+두 번째로는 좋은 응답을 생성하는 것에 대해 보상하면,
+and then second,
+rewarding the model
+
+53
+00:03:27,370 --> 00:03:29,690
+이렇게 모델이 좋은 답변을 만들 때 추가 보상을 줍니다.
+for producing a good response.
+
+54
+00:03:29,690 --> 00:03:34,730
+이렇게 RL 학습이 진행되면서,
+What we saw is that as the
+RL training progresses,
+
+55
+00:03:34,730 --> 00:03:40,330
+모델의 추론 문제 해결 능력이 향상되는 것을 볼 수 있습니다.
+we have an improvement of the
+model on these reasoning tasks.
+
+56
+00:03:40,330 --> 00:03:45,190
+그리고 그 예시로 수학 문제 같은 태스크가 있었습니다.
+And so we saw one of the
+tasks being math problems.
+
+57
+00:03:45,190 --> 00:03:49,330
+왼쪽 그래프를 보시면,
+So here on the left graph,
+you see the evolution
+
+58
+00:03:49,330 --> 00:03:53,430
+모델이 AIM 데이터셋과 같은
+어려운 수학 문제에서 성능이 어떻게 변하는지 볼 수 있습니다.
+of the performance of the model
+on the aim data set, which
+
+59
+00:03:53,430 --> 00:03:58,150
+이 AIM 데이터셋은 꽤 도전적인 수학 문제들로 이루어져 있습니다.
+is a challenging math problem.
+
+60
+00:03:58,150 --> 00:04:04,710
+우리는 이런 결과를 봤지만, 동시에 모델이
+And we saw that, but we
+also saw that the model
+
+61
+00:04:04,710 --> 00:04:10,950
+모델이 내놓는 답변이 점점 길어지는 현상이 나타났습니다.
+kept on outputting responses
+that were longer and longer.
+
+62
+00:04:10,950 --> 00:04:13,230
+특히, 우리가 확인한 것은
+And in particular,
+we saw that even
+
+63
+00:04:13,230 --> 00:04:17,390
+위 그래프 마지막 부분에서
+though towards the end
+of the graph above,
+
+64
+00:04:17,390 --> 00:04:19,950
+모델의 성능은 정체되는 반면,
+that the performance
+was plateauing.
+
+65
+00:04:19,950 --> 00:04:27,070
+출력의 길이는 계속 늘어났다는 점입니다.
+We saw that the output
+length was still increasing.
+
+66
+00:04:27,070 --> 00:04:32,190
+그래서 우리는 다시 GRPO에서 사용하는
+So then what we did was go back
+to the loss formulation that
+
+67
+00:04:32,190 --> 00:04:36,590
+손실 함수로 돌아가
+is used by GRPO and
+realize that there
+
+68
+00:04:36,590 --> 00:04:40,470
+여기에는 토큰이
+is a term that makes
+the contribution
+
+69
+00:04:40,470 --> 00:04:46,550
+짧은 답변에 있을 때와
+of a token different, if
+it is in a short response
+
+70
+00:04:46,550 --> 00:04:49,190
+긴 답변에 있을 때 기여도가 달라지는 항이 포함되어 있다는 것을 확인했습니다.
+or a long response.
+
+71
+00:04:49,190 --> 00:04:53,160
+이런 현상을 '길이 편향(length bias)'이라고 합니다.
+So this is a phenomenon
+called length bias.
+
+72
+00:04:53,160 --> 00:04:56,440
+이를 완화하기 위한 전략도
+And we saw some
+mitigation strategies
+
+73
+00:04:56,440 --> 00:04:59,960
+최근 몇 개월 사이 발표된 논문들에서
+that were explored by
+some papers that came out
+
+74
+00:04:59,960 --> 00:05:01,480
+여러가지로 제안되었습니다.
+in the past few months.
+
+75
+00:05:01,480 --> 00:05:08,360
+그 중 하나가 DAPO인데,
+So one was DAPO, which had
+a normalization factor that
+
+76
+00:05:08,360 --> 00:05:12,480
+이 방식은 토큰이 어디에 위치해 있든
+was not dependent on where
+the token was located
+
+77
+00:05:12,480 --> 00:05:14,800
+또는 어떤 문장에 있든 관계없이,
+and which sentence
+it was located.
+
+78
+00:05:14,800 --> 00:05:19,880
+정규화 항을 적용하는 방법입니다. 또 다른 논문인 'GRPO Done Right'는
+And the other one was this
+paper called "GRPO Done Right,"
+
+79
+00:05:19,880 --> 00:05:24,220
+이 정규화 항 자체를 아예 없애는 방식을 제안했습니다.
+which actually just removed
+the normalization term.
+
+80
+00:05:27,120 --> 00:05:29,600
+여기까지 이해되셨죠?
+All good on that?
+
+81
+00:05:29,600 --> 00:05:30,100
+좋습니다.
+Cool.
+
+82
+00:05:30,100 --> 00:05:32,080
+이 내용은 지난 시간에 다뤘던 부분입니다.
+So this was last time.
+
+83
+00:05:32,080 --> 00:05:34,120
+그리고 지난 시간에 우리가 얘기했던 것은
+And last time,
+what we said right
+
+84
+00:05:34,120 --> 00:05:37,120
+추론 수업을 시작하기 바로 전에
+before starting
+the reasoning class
+
+85
+00:05:37,120 --> 00:05:43,440
+기본 LLM의 장점과 약점을 정리해보자는 것이었습니다.
+was to enumerate the strengths
+and the weaknesses of vanilla
+
+86
+00:05:43,440 --> 00:05:45,240
+바로 그 LLM입니다.
+LLMs.
+
+87
+00:05:45,240 --> 00:05:49,700
+그래서 지난 강의는 전적으로
+So last lecture was
+all about focusing
+
+88
+00:05:49,700 --> 00:05:53,060
+기본 LLM의 제한적인 추론 능력을
+on how we can improve
+the limited reasoning
+
+89
+00:05:53,060 --> 00:05:57,020
+어떻게 개선할 수 있을지에 집중했습니다.
+capabilities of vanilla LLMs.
+
+90
+00:05:57,020 --> 00:06:01,620
+이번 강의에서는 두 가지를 다루겠습니다.
+And in this lecture, what
+we will do is two things.
+
+91
+00:06:01,620 --> 00:06:11,100
+먼저, 우리가 LLM을 계속 진화하는 지식 베이스와
+So the first one is see how we
+can connect our LLM to the ever
+
+92
+00:06:11,100 --> 00:06:15,340
+어떻게 연결할 수 있는지 살펴보고,
+evolving knowledge base,
+and, in particular,
+
+93
+00:06:15,340 --> 00:06:20,580
+특히 최신 정보에 어떻게 접근할 수 있는지 알아보겠습니다.
+see how we can have access
+to the latest information.
+
+94
+00:06:20,580 --> 00:06:23,500
+그리고 두 번째로, 우리 LLM이
+And then the second
+one is how our LLM
+
+95
+00:06:23,500 --> 00:06:26,220
+행동을 수행하는 데 어떻게 활용될 수 있는지도 다루겠습니다.
+can help us perform actions.
+
+96
+00:06:26,220 --> 00:06:28,580
+이 부분은 Shervine과 함께
+And we will see
+this with Shervine
+
+97
+00:06:28,580 --> 00:06:33,480
+툴 호출, 에이전트 워크플로우 같은 예시를 통해 살펴볼 겁니다.
+with things like tool calling
+and agentic workflows.
+
+98
+00:06:33,480 --> 00:06:33,980
+좋습니다.
+Cool.
+
+99
+00:06:33,980 --> 00:06:38,220
+그럼 이제 첫 번째 주제로 들어가 보겠습니다.
+So with that, let's
+start with the first one.
+
+100
+00:06:38,220 --> 00:06:41,740
+먼저 RAG라는 방법부터 살펴보겠습니다.
+And let's start with
+this method called RAG,
+
+101
+00:06:41,740 --> 00:06:44,500
+여러분도 한 번쯤 들어보셨을 RAG라는 방법입니다.
+that you may have heard.
+
+102
+00:06:44,500 --> 00:06:51,270
+여기 여러분이 학습시킨 모델이 있다고 가정해봅시다.
+So let's suppose you have a
+model that you have trained.
+
+103
+00:06:51,270 --> 00:06:55,990
+하지만 문제는, 여러분이 모델을 학습시킨 사전학습 데이터가
+But the problem is that the
+pre-training data on which you
+
+104
+00:06:55,990 --> 00:07:01,310
+예를 들어,
+have trained your
+model is, let's say,
+
+105
+00:07:01,310 --> 00:07:04,030
+한 달 전의 데이터라고 해보겠습니다.
+a month ago, let's suppose.
+
+106
+00:07:04,030 --> 00:07:06,910
+이제 여러분이 모델에게 프롬프트를 줘서
+Now, let's suppose you
+want to prompt your model
+
+107
+00:07:06,910 --> 00:07:10,430
+몇 주 전에 있었던 선거의
+about the winner of
+the elections that
+
+108
+00:07:10,430 --> 00:07:13,750
+당선자에 대해 묻는다고 가정해봅시다.
+happened a couple of weeks ago.
+
+109
+00:07:13,750 --> 00:07:17,070
+이 경우, 여러분의 모델은 답변을 할 수 없거나
+Well, your model will not
+be able to respond to you,
+
+110
+00:07:17,070 --> 00:07:22,830
+잘못된 답을 내놓게 됩니다. 왜냐하면 지금까지
+or it will output the incorrect
+answer because up until now,
+
+111
+00:07:22,830 --> 00:07:28,270
+우리의 LLM은 외부 정보와
+our LLM does not have any
+link to outside sources.
+
+112
+00:07:28,270 --> 00:07:30,630
+연결되어 있지 않고,
+It only relies on
+the knowledge that it
+
+113
+00:07:30,630 --> 00:07:32,830
+학습 과정에서 습득한 지식만 가지고 있기 때문입니다.
+has acquired during training.
+
+114
+00:07:32,830 --> 00:07:35,070
+따라서 모델이 내놓는 답변은
+So the response
+that it will give us
+
+115
+00:07:35,070 --> 00:07:38,950
+오직 학습 데이터에만
+will only be based
+on the data that
+
+116
+00:07:38,950 --> 00:07:42,230
+기반하게 됩니다. 즉, 데이터 컷오프 시점,
+has been trained up
+until the cutoff, which
+
+117
+00:07:42,230 --> 00:07:45,110
+이 예시에서는 한 달 전까지의 정보만 사용할 수 있습니다.
+is a month ago in this example.
+
+118
+00:07:45,110 --> 00:07:49,410
+이처럼, 우리의 LLM에는 큰 한계가 있습니다.
+And so we have this big
+limitation, which is our LLM
+
+119
+00:07:49,410 --> 00:07:53,930
+학습한 내용만 알 수 있다는 점입니다.
+only knows about things
+that it has been trained on.
+
+120
+00:07:53,930 --> 00:07:57,650
+여러분은 모든 모델이 비슷하다는 것을 알게 될 겁니다.
+And you will see that
+all the models out there.
+
+121
+00:07:57,650 --> 00:08:02,730
+여기서 예시로 OpenAI GPT-5를 들어보겠습니다.
+So here, I have an
+example with OpenAI GPT-5
+
+122
+00:08:02,730 --> 00:08:05,170
+모델 카드들을 자세히 보면,
+So if you look at
+their model cards,
+
+123
+00:08:05,170 --> 00:08:08,810
+항상 이런 식의 지식 컷오프 날짜가
+they always have these
+knowledge cutoff dates
+
+124
+00:08:08,810 --> 00:08:10,690
+어딘가에 명시되어 있는 것을 볼 수 있습니다.
+that is written somewhere.
+
+125
+00:08:10,690 --> 00:08:13,570
+예를 들어 GPT-5의 경우를 보면,
+And in the case, for
+instance of GPT-5,
+
+126
+00:08:13,570 --> 00:08:19,570
+지식 컷오프 날짜가 2024년 9월 30일로 되어 있습니다.
+the knowledge cutoff date
+is September 30, 2024,
+
+127
+00:08:19,570 --> 00:08:23,730
+즉, 그 이후에 일어난 일에 대해 단순하게 질문하면,
+which means that if you ask it
+in a very naive way, anything
+
+128
+00:08:23,730 --> 00:08:27,250
+베이스 모델은
+that happened after that,
+the base model will not
+
+129
+00:08:27,250 --> 00:08:30,570
+그대로는 답변할 수 없습니다.
+be able to answer you as is.
+
+130
+00:08:30,570 --> 00:08:34,530
+그럼 왜 그냥
+Well, you may tell
+me why not just
+
+131
+00:08:34,530 --> 00:08:40,575
+그 이후 데이터를 가지고 모델 학습을 이어가면 되지 않나요?
+continue training your model on
+data that happened after that?
+
+132
+00:08:40,575 --> 00:08:42,450
+사실 이 부분에 문제가 여러 가지 있는데요,
+Well, the problem with
+that-- actually, there
+
+133
+00:08:42,450 --> 00:08:44,750
+그런 점들이 있습니다.
+are several problems with this.
+
+134
+00:08:44,750 --> 00:08:49,310
+첫 번째 문제는,
+So the first problem is
+that it's very tricky
+
+135
+00:08:49,310 --> 00:08:52,670
+LLM의 지식을 바꾸는 것이 굉장히 까다롭다는 점입니다.
+to change the
+knowledge of an LLM
+
+136
+00:08:52,670 --> 00:08:55,710
+다른 부분에 대한 성능 저하 없이 바꾸기가 어렵거든요.
+without causing regression
+on other things.
+
+137
+00:08:55,710 --> 00:09:01,310
+그래서 보통 이런 작업은
+So this is typically a task that
+people, they try to avoid doing.
+
+138
+00:09:01,310 --> 00:09:04,550
+사람들이 되도록이면 피하려고 하는 일입니다.
+And the second thing is
+it's not very practical,
+
+139
+00:09:04,550 --> 00:09:09,630
+두 번째로는 실용적이지 않다는 점인데요,
+because you may very well
+have use cases that require
+
+140
+00:09:09,630 --> 00:09:12,670
+특정 용도에 맞춰 이 모델을 파인튜닝해야 할 수도 있기 때문입니다.
+you to fine tune this model.
+
+141
+00:09:12,670 --> 00:09:14,590
+예를 들어 여러분이 어떤 활용 사례를
+가지고 있다고 가정해봅시다.
+So let's suppose
+you have a use case
+
+142
+00:09:14,590 --> 00:09:17,070
+그리고 이 모델을 가지고 파인튜닝을 한번 했다고 해봅시다.
+one, you fine tune
+from this model.
+
+143
+00:09:17,070 --> 00:09:21,630
+그리고 아마 여러분은
+모델의 가중치를 업데이트해서
+And then somehow you want to
+update the weights of your model
+
+144
+00:09:21,630 --> 00:09:23,750
+새로운 지식을 주입하고 싶을 수도 있습니다.
+to inject some knowledge.
+
+145
+00:09:23,750 --> 00:09:28,710
+그렇게 하려면 여러분이 다루는 모든 활용 사례에 대해
+이 작업을 반복해야 합니다.
+Well, you somehow will have to
+do that for all the use cases
+
+146
+00:09:28,710 --> 00:09:33,630
+이렇게 하면 오버헤드가 늘어나고,
+유지보수 부담도 커지게 됩니다.
+that you are doing, which
+basically adds a lot of overhead
+
+147
+00:09:33,630 --> 00:09:37,990
+결국 여러분에게 많은 부담을 주고,
+관리해야 할 것도 많아집니다.
+for you and just adds
+a lot of maintenance.
+
+148
+00:09:37,990 --> 00:09:43,560
+그래서 보통 사람들은
+지식 주입을 위해 추가 학습을 잘 하지 않으려 합니다.
+So people, they typically prefer
+to not do additional training
+
+149
+00:09:43,560 --> 00:09:45,480
+추가 학습으로 지식을 주입하는 방식은 선호하지 않습니다.
+to inject knowledge.
+
+150
+00:09:45,480 --> 00:09:51,840
+그래서 또 다른 방법으로는
+프롬프트에 커트오프 날짜 이후 발생한 모든 정보를
+So one idea can be to
+somehow take your prompt
+
+151
+00:09:51,840 --> 00:09:56,600
+그냥 덧붙이는 방식도 생각해볼 수 있습니다.
+and just add anything that
+happens after the cutoff
+
+152
+00:09:56,600 --> 00:10:02,280
+이렇게 하면 모델이 이후의 일들을
+알 수 있게 할 수도 있겠죠.
+date as a way for your model
+to just know what happened.
+
+153
+00:10:02,280 --> 00:10:06,400
+하지만 이런 단순한 접근법에도
+문제가 있습니다.
+Well, the problem with
+that naive approach
+
+154
+00:10:06,400 --> 00:10:12,280
+아시다시피 컨텍스트 길이에는 한계가 있습니다.
+is that as you know
+context length is limited.
+
+155
+00:10:12,280 --> 00:10:15,320
+일반적으로 모델의 컨텍스트 길이는
+And so typically,
+models have on the order
+
+156
+00:10:15,320 --> 00:10:20,960
+수십만 개 토큰 정도 규모에 해당합니다.
+of magnitude of hundreds
+of thousands of tokens
+
+157
+00:10:20,960 --> 00:10:23,360
+이게 바로 컨텍스트 길이입니다.
+in context length.
+
+158
+00:10:23,360 --> 00:10:26,480
+혹시 여러분, 이게 대략
+어느 정도인지 아시나요?
+Do you know what
+that is roughly--
+
+159
+00:10:26,480 --> 00:10:28,140
+이게 대략 어느 수준에 해당하는지요?
+what it is roughly equal to?
+
+160
+00:10:34,480 --> 00:10:35,200
+네, 맞습니다.
+Yes.
+
+161
+00:10:35,200 --> 00:10:37,220
+하나의 토큰은 대략 네 글자에 해당합니다.
+So one token is equal
+to four characters.
+
+162
+00:10:37,220 --> 00:10:40,740
+이렇게 대략적으로 계산해 보면,
+So using this rough
+approximation,
+
+163
+00:10:40,740 --> 00:10:44,020
+수십만 개의 토큰이면 대략
+hundreds of thousands
+of tokens is roughly
+
+164
+00:10:44,020 --> 00:10:47,640
+수백 페이지, 즉 아주 큰 책 한 권 분량과 비슷합니다.
+like hundreds of pages,
+something like a very big book.
+
+165
+00:10:50,890 --> 00:10:53,460
+이렇게 많아 보여도, 사실
+순진하게 접근하기엔 충분하지 않습니다.
+It's big, but it's
+not enough for us
+
+166
+00:10:53,460 --> 00:10:56,140
+아주 단순한 방식으로는 한계가 있다는 거죠.
+to go in that very naive route.
+
+167
+00:10:56,140 --> 00:11:02,420
+다시 GPT-5로 돌아가 보면, 모델 카드에 들어가면
+So again, going back to GPT-5,
+so if you go to the model card,
+
+168
+00:11:02,420 --> 00:11:07,600
+knowledge cutoff 날짜가 2024년 9월로 설정되어 있습니다.
+you have the knowledge cutoff
+date, which is September 2024.
+
+169
+00:11:07,600 --> 00:11:09,140
+그리고 또 하나는 context window에 대한 정보입니다.
+You also have the
+context window.
+
+170
+00:11:09,140 --> 00:11:15,580
+이 모델의 경우 context window가 40만 토큰입니다.
+And in this case,
+it's 400,000 tokens.
+
+171
+00:11:15,580 --> 00:11:19,200
+만약에 context가 문제가 되지 않는다고 가정해 봅시다.
+So let's suppose actually,
+context is not a problem.
+
+172
+00:11:19,200 --> 00:11:21,940
+정말로 context에 제한이 없다고 생각해보죠.
+It's actually unlimited.
+
+173
+00:11:21,940 --> 00:11:25,380
+모든 정보를 context에 다 넣는다고 상상해봅시다.
+Let's imagine we actually put
+everything in the context.
+
+174
+00:11:25,380 --> 00:11:29,740
+그런데 이렇게 하면 문제가 생깁니다.
+Well, the problem
+then is that people
+
+175
+00:11:29,740 --> 00:11:35,420
+사람들이 알아낸 바에 따르면,
+관련 없는 정보가 많아지면
+noticed that if you feed a
+lot of irrelevant information
+
+176
+00:11:35,420 --> 00:11:41,200
+LLM의 성능이 오히려 떨어집니다.
+to your LLM, the performance of
+the LLM will actually degrade.
+
+177
+00:11:41,200 --> 00:11:44,560
+예를 들어, 누가 지난 선거의 승자인지 물었을 때,
+Meaning, that if for instance,
+you ask it about, I guess,
+
+178
+00:11:44,560 --> 00:11:46,760
+그런 질문에 대한 답을 구하려고 할 때,
+who was the winner of
+the last elections?
+
+179
+00:11:46,760 --> 00:11:50,240
+LLM에 이런저런 정보를 잔뜩 넣어주면
+And then you feed it
+a bunch of information
+
+180
+00:11:50,240 --> 00:11:55,070
+관련 없는 내용이 많을수록 LLM이 혼란스러워집니다.
+that are not relevant, your
+LLM will tend to be confused.
+
+181
+00:11:58,000 --> 00:12:02,320
+그래서 많은 사람들이 실제로 이런 테스트를 진행해봤습니다.
+And so people have
+run these tests.
+
+182
+00:12:02,320 --> 00:12:09,960
+이걸 '여러 건초 더미에서 바늘 찾기(needle in a haystack) 테스트'라고 부르는데요,
+That's called the needle in a
+haystack test, where the idea is
+
+183
+00:12:09,960 --> 00:12:16,840
+즉, LLM에게 아주 긴 프롬프트를 주고, 이것이 건초 더미 역할을 하게 됩니다.
+you give a big prompt to your
+LLM, which is your haystack,
+
+184
+00:12:16,840 --> 00:12:22,800
+그리고 그 프롬프트 안에 사실 하나를 삽입하는 거죠.
+and you place a
+fact in the prompt.
+
+185
+00:12:22,800 --> 00:12:26,120
+그 다음에 모델에게 그 사실이 무엇인지 묻는 방식입니다.
+And you ask your model
+what that fact was.
+
+186
+00:12:26,120 --> 00:12:30,460
+즉, 이 실험의 목적은 LLM이
+So the idea is for
+your LLM to know,
+
+187
+00:12:30,460 --> 00:12:34,560
+이 아주 긴 프롬프트 안에서
+I guess, among that
+huge prompt, where
+
+188
+00:12:34,560 --> 00:12:37,970
+어떤 정보가 중요한지, 즉 바늘이 어디에 있는지
+is the relevant information,
+which is the needle.
+
+189
+00:12:37,970 --> 00:12:40,410
+많은 사람들이 이렇게 시도해봤을 때,
+And so when people
+have tried doing
+
+190
+00:12:40,410 --> 00:12:44,290
+프롬프트의 길이를 다양하게 바꿔가며 실험해보고,
+this for several
+length of prompts
+
+191
+00:12:44,290 --> 00:12:49,210
+사실을 삽입하는 위치도 여러 군데로 바꿔가며 테스트했습니다.
+and tried different positions
+of where to put the facts,
+
+192
+00:12:49,210 --> 00:12:54,690
+이렇게 해보니 프롬프트의 길이와 사실을 삽입하는 위치가
+they have seen that the length
+of the prompt and the position
+
+193
+00:12:54,690 --> 00:12:59,770
+둘 다 매우 중요하다는 것을 확인할 수 있었습니다.
+at which you put the
+facts are both important.
+
+194
+00:12:59,770 --> 00:13:04,410
+여기 슬라이드에서는 히트맵을 보여주고 있는데요,
+So here on the slide,
+we have a heat map
+
+195
+00:13:04,410 --> 00:13:08,530
+이것은 GPT-4를 대상으로, 아마 1~2년 전에 수행된 실험입니다.
+that was performed for
+GPT-4, which was I guess one
+
+196
+00:13:08,530 --> 00:13:10,210
+1, 2년 전에 진행된 것이죠.
+or two years ago.
+
+197
+00:13:10,210 --> 00:13:13,530
+실험자는 문서 안의 여러 위치에 사실을 삽입했습니다.
+And what the person
+did was placed the fact
+
+198
+00:13:13,530 --> 00:13:15,550
+즉, 문서 내 다양한 위치에 사실을 넣은 겁니다.
+at different places
+in the document.
+
+199
+00:13:15,550 --> 00:13:18,890
+여기서 세로축은 문서의 깊이를,
+So this is document
+depth, and the x-axis
+
+200
+00:13:18,890 --> 00:13:22,850
+가로축은 프롬프트의 길이를 의미합니다.
+is the length of your prompt.
+
+201
+00:13:22,850 --> 00:13:25,850
+그리고 우리가 관찰한 것은,
+프롬프트가 일정 길이를 넘어가면
+And what we saw was
+that for prompts that
+
+202
+00:13:25,850 --> 00:13:28,650
+토큰 수가 일정 기준을 초과할 경우에
+exceeded a certain
+amount of tokens,
+
+203
+00:13:28,650 --> 00:13:33,010
+LLM이 올바른 정보를 찾는 데
+실제로 어려움을 겪는다는 점입니다.
+the LLM actually had trouble
+retrieving the correct piece
+
+204
+00:13:33,010 --> 00:13:35,230
+즉, 필요한 정보를 찾아내기 힘들어졌습니다.
+of information.
+
+205
+00:13:35,230 --> 00:13:37,790
+특히, 그 사실이 프롬프트의
+첫 번째 절반에 포함되어 있을 때 더 어려움을 겪었습니다.
+And in particular, it
+had trouble doing so
+
+206
+00:13:37,790 --> 00:13:44,310
+즉, 그 정보가 프롬프트 앞부분에 있을 때
+정확하게 찾아내는 데 어려움이 있었습니다.
+when the fact was somewhere in
+the first half of the prompt.
+
+207
+00:13:44,310 --> 00:13:49,030
+이것이 우리에게 시사하는 바는,
+만약 컨텍스트 길이에 제한이 없다고 하더라도
+So this just tells us that,
+even if, let's say, our context
+
+208
+00:13:49,030 --> 00:13:51,990
+우리는 여전히 문제가 발생할 수 있다는 것입니다.
+length was unlimited,
+we would still
+
+209
+00:13:51,990 --> 00:13:57,310
+이렇게 단순한 방식만으로는
+문제를 해결할 수 없습니다.
+have a problem by just going
+through that naive approach.
+
+210
+00:13:57,310 --> 00:13:59,150
+이게 또 다른 한 가지 이유입니다.
+So that's another reason.
+
+211
+00:13:59,150 --> 00:14:03,590
+그럼 이제 컨텍스트 길이가 무한하다고 가정해봅시다.
+So now, let's suppose,
+context length is unlimited.
+
+212
+00:14:03,590 --> 00:14:07,870
+그리고 앞서 언급한 문제가 없다고 생각해봅시다.
+Let's suppose the problem that
+I mentioned is not a problem.
+
+213
+00:14:07,870 --> 00:14:13,190
+그런데 또 다른 문제는 비용이 발생한다는 점입니다.
+Well, the other problem
+is that you pay.
+
+214
+00:14:13,190 --> 00:14:17,750
+특히 이런 LLM 호출은
+So in particular, these
+calls, these LLM calls,
+
+215
+00:14:17,750 --> 00:14:20,030
+토큰 단위로 비용이 청구됩니다.
+they are per token.
+
+216
+00:14:20,030 --> 00:14:25,150
+즉, 입력 프롬프트가 길수록 비용이 더 많이 듭니다.
+So the bigger your input
+prompt, the more you will pay.
+
+217
+00:14:25,150 --> 00:14:30,870
+그래서 프롬프트에 너무 많은 내용을 넣는 것은
+비용 면에서 바람직하지 않을 수 있습니다.
+So you have an incentive to not
+put too much in your prompt just
+
+218
+00:14:30,870 --> 00:14:33,090
+이런 관점에서도 마찬가지입니다.
+from that standpoint.
+
+219
+00:14:33,090 --> 00:14:37,090
+예를 들어, 다시 GPT-5를 예로 들면,
+And so for instance,
+again, going back to GPT-5,
+
+220
+00:14:37,090 --> 00:14:43,210
+수백만 토큰당 약 1달러 정도의
+규모로 비용이 발생합니다.
+order of magnitude is somewhere
+around $1 per million token.
+
+221
+00:14:43,210 --> 00:14:45,350
+그래서 사실 그렇게 비싸지는 않지만,
+So I guess it's
+not that expensive,
+
+222
+00:14:45,350 --> 00:14:50,050
+모든 프롬프트에 대해 그렇게 하면 비용이 꽤 쌓일 수 있습니다.
+but it can add up, if you do
+that for all your prompts.
+
+223
+00:14:50,050 --> 00:14:53,610
+이런 이유들로 인해, 저는 여러분이
+So for all these reasons,
+I hope I convinced you
+
+224
+00:14:53,610 --> 00:14:58,330
+좀 더 똑똑한 방식을 써야 한다고 생각하게 되었기를 바랍니다.
+that we need a more
+clever approach, where
+
+225
+00:14:58,330 --> 00:15:02,610
+즉, 새로운 정보를 한 번에 모두 프롬프트에 넣는 대신,
+instead of putting all the
+new information all at once
+
+226
+00:15:02,610 --> 00:15:07,130
+우리는 필요한 정보만 어떤 방식으로든
+in the prompt, what we
+do is we only somehow
+
+227
+00:15:07,130 --> 00:15:13,690
+찾아서 프롬프트에 넣는 것이죠.
+find the relevant information
+and put that in the prompt.
+
+228
+00:15:13,690 --> 00:15:16,850
+이것이 바로 RAG의 기본 아이디어입니다.
+So that is the idea behind RAG.
+
+229
+00:15:16,850 --> 00:15:22,450
+RAG는 Retrieval Augmented Generation의 약자입니다.
+RAG stands for Retrieval
+Augmented Generation.
+
+230
+00:15:22,450 --> 00:15:28,450
+여기서 핵심은 프롬프트에 관련된 정보를
+And the idea here is to augment
+the prompt with relevant
+
+231
+00:15:28,450 --> 00:15:30,540
+보완하는 것입니다.
+information.
+
+232
+00:15:30,540 --> 00:15:34,900
+여기서는 '관련'이라는 부분을 강조했습니다.
+And here, I put
+relevant in bold.
+
+233
+00:15:34,900 --> 00:15:37,580
+이게 바로 이 기술의 핵심 부분이라고 할 수 있는데,
+And this is the, I guess, the
+core part of this technique
+
+234
+00:15:37,580 --> 00:15:42,140
+어떻게 하면 프롬프트에 필요한 부분만 넣을 수 있을까요?
+is how can we get only the
+relevant part in the prompt?
+
+235
+00:15:42,140 --> 00:15:44,420
+이 부분은 잠시 후에 살펴보겠습니다.
+So we'll see that in a second.
+
+236
+00:15:44,420 --> 00:15:47,700
+아주 단순하게 설명하자면, 여러분이 질문을 입력으로 가지고 있다고 합시다.
+So just at a very high
+level, so you have,
+
+237
+00:15:47,700 --> 00:15:49,920
+예를 들어, 질문이 하나 있다고 해보죠.
+let's say, a question as input.
+
+238
+00:15:49,920 --> 00:15:53,740
+이 경우에는, '누가 이번 지방선거에서 이겼나요?'와 같은 질문입니다.
+So in this case, who was
+the winner of, let's say,
+
+239
+00:15:53,740 --> 00:15:56,700
+누가 지방선거의 승자인가요?
+the local election?
+
+240
+00:15:56,700 --> 00:16:00,780
+여기서 아이디어는, 어떤 식으로든
+The idea here is
+to somehow fetch
+
+241
+00:16:00,780 --> 00:16:04,180
+정확하거나 관련된 정보를
+가져오고,
+the correct or the relevant
+piece of information
+
+242
+00:16:04,180 --> 00:16:08,490
+그 내용을 여기서 보강해서
+답변을 출력하는 것이죠.
+and then augment that here in
+order to output your answer.
+
+243
+00:16:11,180 --> 00:16:14,780
+이게 전체적인 아이디어입니다.
+So that's the rough idea.
+
+244
+00:16:14,780 --> 00:16:19,820
+지금까지 이 방식이 이해되시나요?
+So does this method
+make sense so far?
+
+245
+00:16:19,820 --> 00:16:21,120
+네.
+Yeah.
+
+246
+00:16:21,120 --> 00:16:21,620
+좋아요.
+OK.
+
+247
+00:16:21,620 --> 00:16:22,140
+좋습니다.
+Cool.
+
+248
+00:16:22,140 --> 00:16:24,700
+이게 바로 RAG의 기본 개념입니다.
+So that is the idea behind RAG.
+
+249
+00:16:24,700 --> 00:16:28,800
+이제 좀 더 자세히 살펴보겠습니다.
+And now, we're going to
+go into more details.
+
+250
+00:16:28,800 --> 00:16:31,640
+방금 설명한 내용이 기본적인 아이디어고,
+So what I mentioned
+is the rough idea.
+
+251
+00:16:31,640 --> 00:16:34,240
+여기서 RAG의 주요 세 단계에 대해
+강조하고 싶습니다.
+And here, I just
+want to emphasize
+
+252
+00:16:34,240 --> 00:16:36,800
+첫 번째는 프롬프트를 주고,
+on the three main steps of RAG.
+
+253
+00:16:36,800 --> 00:16:40,240
+여기에 답하는 데 도움이 되는
+관련 정보를 찾아야 한다는 점입니다.
+So first one is you
+have your prompt,
+
+254
+00:16:40,240 --> 00:16:45,680
+즉, 첫 단계는 관련 문서를
+가져오는 것입니다.
+and you somehow want to retrieve
+a relevant piece of information
+
+255
+00:16:45,680 --> 00:16:48,920
+이렇게 하면 답변을 생성할 때
+도움이 됩니다.
+that will help you in
+answering your prompt.
+
+256
+00:16:48,920 --> 00:16:53,880
+여기서는 첫 번째로
+관련 문서를 검색합니다.
+So here, the first step is to
+retrieve relevant documents.
+
+257
+00:16:53,880 --> 00:16:57,320
+프롬프트를 하나의 개체로
+생각할 수 있어요.
+And so you can think of your
+prompt as being one entity.
+
+258
+00:16:57,320 --> 00:17:02,080
+또 다른 공간이 있을 수 있는데, 예를 들어
+And then you can have some
+other space, which maybe, I
+
+259
+00:17:02,080 --> 00:17:06,839
+지식베이스처럼 모든 문서가 저장된
+장소가 있다고 볼 수 있습니다.
+don't know, knowledge base,
+where all your documents live.
+
+260
+00:17:06,839 --> 00:17:12,079
+여기서 중요한 것은 해당 공간에서
+관련 문서를 어떻게든 가져오는 것입니다.
+And so the idea is to somehow
+fetch the relevant documents.
+
+261
+00:17:12,079 --> 00:17:14,160
+그래서 이 단계가 바로 '검색' 단계입니다.
+So this is the retrieve step.
+
+262
+00:17:14,160 --> 00:17:16,839
+두 번째 단계는, 관련 정보를 가져온 다음에
+The second step is
+once you have fetched
+
+263
+00:17:16,839 --> 00:17:21,040
+그 정보를 이용해 프롬프트를 보강하는 것입니다.
+the relevant information,
+you augment your prompt.
+
+264
+00:17:21,040 --> 00:17:24,140
+즉, 가져온 정보를 활용하는 거죠.
+So you take that retrieved info.
+
+265
+00:17:24,140 --> 00:17:28,109
+그 정보를 프롬프트에 넣고,
+질문을 하게 됩니다.
+You just put it in your prompt,
+and then ask the question.
+
+266
+00:17:28,109 --> 00:17:31,010
+예를 들어, 지역 선거의 경우를 생각해봅시다.
+So in the local
+election example,
+
+267
+00:17:31,010 --> 00:17:35,890
+마치 '이번 선거의 승자가 누구인가요?'라고 묻는 것과 같습니다.
+it's as if I was saying, who
+is the winner of this election?
+
+268
+00:17:35,890 --> 00:17:39,670
+그리고 나서 관련된 정보를 검색하죠.
+And then I retrieve the
+relevant piece of information.
+
+269
+00:17:39,670 --> 00:17:44,670
+이제 프롬프트는 '이번 선거의 승자가 누구인가요?'와 같습니다.
+And now, the prompt becomes, who
+is the winner of this election?
+
+270
+00:17:44,670 --> 00:17:47,990
+그리고 '참고로, 이번 선거는 언제 열렸고, 어쩌고저쩌고.'라는 정보가 추가됩니다.
+And by the way, this election
+was held, blah, blah, blah.
+
+271
+00:17:47,990 --> 00:17:49,810
+그리고 이 사람이 승자라는 정보도 포함됩니다.
+And this was the winner.
+
+272
+00:17:49,810 --> 00:17:53,530
+이렇게 보강된 프롬프트를 LLM에 입력하게 됩니다.
+And this is what we're
+feeding to our LLM.
+
+273
+00:17:53,530 --> 00:17:59,490
+즉, 사실상 정답을 프롬프트 안에 넣어서 전달하는 셈입니다.
+So in other words, we're giving
+the answer in the prompt.
+
+274
+00:17:59,490 --> 00:18:05,130
+세 번째 단계에서는,
+그 프롬프트를 LLM에 입력하게 됩니다.
+And the third step is to
+feed that prompt to the LLM
+
+275
+00:18:05,130 --> 00:18:06,630
+그리고 LLM이 그에 대한 응답을 생성하게 됩니다.
+to generate the response.
+
+276
+00:18:06,630 --> 00:18:07,130
+이해되시죠?
+Yeah?
+
+277
+00:18:20,570 --> 00:18:21,110
+맞아요.
+Exactly.
+
+278
+00:18:21,110 --> 00:18:24,590
+여기서 한 가지 생각해볼 점은,
+So the question is, you
+may very well somehow
+
+279
+00:18:24,590 --> 00:18:28,150
+검색 단계에서 제대로 관련 정보를 못 찾을 수도 있다는 점입니다.
+do a bad job at
+retrieval stage, so yes.
+
+280
+00:18:28,150 --> 00:18:31,550
+그래서 검색 단계가 아주 중요하다고 할 수 있습니다.
+So this is why the retrieval
+stage is so important.
+
+281
+00:18:31,550 --> 00:18:35,070
+이제 우리가 집중할 부분은,
+어떻게 하면 이 단계가 잘 동작하도록 할 수 있을지입니다.
+And we're going to focus on
+what we can do to make sure
+
+282
+00:18:35,070 --> 00:18:37,330
+특히 그 한 부분이 잘 작동하도록 만드는 방법에 대해 살펴보겠습니다.
+that one part does well.
+
+283
+00:18:41,550 --> 00:18:45,490
+그리고 어떻게 하면 우리 세팅이나
+다양한 방법들을 평가할 수 있을지도 볼 겁니다.
+We'll see how we can
+evaluate, I guess,
+
+284
+00:18:45,490 --> 00:18:48,090
+우리의 구성을 비롯해 여러 방법을 어떻게 평가할 수 있을지 알아보겠습니다.
+our setup and different methods.
+
+285
+00:18:48,090 --> 00:18:50,550
+RAG에 대해서 이야기할 때는, 주로
+But when we talk
+about RAG, we're
+
+286
+00:18:50,550 --> 00:18:53,350
+리트리벌 부분을 최대한 잘 만들기 위해 집중합니다.
+mainly focusing on
+making the retrieval
+
+287
+00:18:53,350 --> 00:18:57,950
+즉, 리트리벌 단계를 최대한 잘 만들려고 하는 것이죠.
+parts as good as it can.
+
+288
+00:18:57,950 --> 00:18:58,550
+좋습니다.
+Cool.
+
+289
+00:18:58,550 --> 00:19:02,190
+그리고 다시 한번 강조하고 싶은 게 있습니다.
+And I just want to
+emphasize once again
+
+290
+00:19:02,190 --> 00:19:04,710
+왜 이걸 RAG라고 부르는지입니다.
+on why it's called RAG.
+
+291
+00:19:04,710 --> 00:19:11,110
+즉, Retrieve, Augment, Generate의 앞글자를 따서
+So you have retrieve,
+augment, generate--
+
+292
+00:19:11,110 --> 00:19:13,350
+RAG가 됩니다.
+RAG.
+
+293
+00:19:13,350 --> 00:19:13,990
+좋습니다.
+Cool.
+
+294
+00:19:13,990 --> 00:19:16,890
+그리고 말씀하셨듯이, 첫 번째 단계인
+And as you pointed
+out, the first step,
+
+295
+00:19:16,890 --> 00:19:19,970
+리트리벌 단계가 매우 중요합니다.
+which is the retrieval
+step is very important,
+
+296
+00:19:19,970 --> 00:19:24,930
+그래서 이 부분에 조금 더 시간을 들여 다루려고 합니다.
+which is why we'll spend a
+little bit of time over there.
+
+297
+00:19:24,930 --> 00:19:29,490
+우리가 해야 할 첫 번째 단계는,
+So I guess the
+first step is for us
+
+298
+00:19:29,490 --> 00:19:37,730
+우리가 필요로 할 수도 있는 문서 집합을
+정리하고 깨끗하게 만드는 일입니다.
+to somehow clean the set of
+documents that we may need.
+
+299
+00:19:37,730 --> 00:19:43,550
+외부 정보를 참고하고 싶을 때는,
+So I said, we may want to
+look into outside information,
+
+300
+00:19:43,550 --> 00:19:48,730
+그런 정보들을 어떻게 모으거나 정렬해서
+어딘가에 저장해야 합니다.
+but we need to somehow sort that
+order that put that somewhere.
+
+301
+00:19:48,730 --> 00:19:53,890
+이 전체 과정을 보통 지식 베이스라고 부릅니다.
+And this whole thing is usually
+called a knowledge base.
+
+302
+00:19:53,890 --> 00:19:56,890
+지식 베이스를 구축하기 위해서,
+So in order to form
+our knowledge base,
+
+303
+00:19:56,890 --> 00:20:00,730
+우리가 보통 하는 일은 필요한 문서들을 모으는 것입니다.
+what we do is typically
+collect the set of documents
+
+304
+00:20:00,730 --> 00:20:04,810
+이때 유용할 수 있는 문서들을 수집하게 되죠.
+that are or may be useful.
+
+305
+00:20:04,810 --> 00:20:08,610
+문서를 모은 뒤에는, 이제 이 문서들을
+And once we do that, what
+we do is we divide them
+
+306
+00:20:08,610 --> 00:20:12,250
+우리가 흔히 '청크(chunk)'라고 부르는 단위로 나눕니다.
+into, what we call, chunks.
+
+307
+00:20:12,250 --> 00:20:15,050
+청크란, 문서의 일부분이라고 생각하시면 됩니다.
+So a chunk is you
+can think of it
+
+308
+00:20:15,050 --> 00:20:18,650
+즉, 문서의 일부를 떼어내는 것이죠.
+as a subset of
+the document which
+
+309
+00:20:18,650 --> 00:20:22,260
+이때 청크는 최대 길이가 정해져 있고,
+has a given maximum
+length, which is
+
+310
+00:20:22,260 --> 00:20:25,580
+보통 이 길이는 토큰 수로 측정됩니다.
+are measured in number of
+tokens, which is typically
+
+311
+00:20:25,580 --> 00:20:29,180
+일반적으로는 수백 개의 토큰 단위가 됩니다.
+on the order of
+hundreds of tokens.
+
+312
+00:20:29,180 --> 00:20:34,500
+여기서 중요한 점은, 'retrieval'이라는 말을 들으면
+And the idea here is
+whenever you hear retrieval,
+
+313
+00:20:34,500 --> 00:20:37,260
+임베딩을 떠올릴 수 있어야 한다는 겁니다.
+you should think
+about embeddings.
+
+314
+00:20:37,260 --> 00:20:43,260
+여기서는 각각의 청크마다
+And here, what we do is we
+compute embeddings corresponding
+
+315
+00:20:43,260 --> 00:20:46,660
+해당 청크에 대한 임베딩을 계산하게 됩니다.
+to each of these chunks.
+
+316
+00:20:46,660 --> 00:20:50,020
+이제 지식 베이스를 만들 때,
+Now, when you create
+your knowledge base,
+
+317
+00:20:50,020 --> 00:20:54,020
+조정해야 할 하이퍼파라미터들이 몇 가지 있습니다.
+there are a few hyperparameters
+that you need to tweak.
+
+318
+00:20:54,020 --> 00:20:59,060
+가장 먼저 고려해야 할 것은 임베딩의 크기입니다.
+So the first one, obviously,
+is the size of the embedding.
+
+319
+00:20:59,060 --> 00:21:02,020
+일반적으로, 만약 문서가 좀 더 복잡하거나
+So typically, you would
+want a bigger size,
+
+320
+00:21:02,020 --> 00:21:03,900
+더 많은 뉘앙스를 담고 있다면 임베딩 크기를 더 크게 설정할 수 있습니다.
+if, let's say, your
+documents are maybe
+
+321
+00:21:03,900 --> 00:21:07,460
+문서가 더 미묘하거나 복잡한 경우에는
+more nuanced, more complex.
+
+322
+00:21:07,460 --> 00:21:10,300
+임베딩 차원을 더 크게 설정할 수도 있습니다.
+But then if you
+have a higher size,
+
+323
+00:21:10,300 --> 00:21:12,720
+하지만 임베딩 사이즈가 커지면 저장 공간이 더 필요하게 됩니다.
+maybe it will take more space.
+
+324
+00:21:12,720 --> 00:21:15,000
+추론 시 연산량도 더 많아질 수 있습니다.
+Maybe you'll have more
+computation at inference time.
+
+325
+00:21:15,000 --> 00:21:16,320
+즉, 어느 정도 트레이드오프가 있다는 거죠.
+So I guess it's a trade-off.
+
+326
+00:21:16,320 --> 00:21:20,640
+임베딩 사이즈가 너무 크면 오히려 비효율적일 수 있습니다.
+You don't necessarily want
+too big of an embedding size.
+
+327
+00:21:20,640 --> 00:21:23,160
+여기에서는 보통 임베딩 사이즈가
+So here, typically,
+embedding sizes
+
+328
+00:21:23,160 --> 00:21:25,780
+수천 단위로 설정됩니다.
+are on the order of thousands.
+
+329
+00:21:25,780 --> 00:21:30,520
+예를 들면 1,500 정도가 일반적입니다.
+So for instance, like
+1,500 something like this.
+
+330
+00:21:30,520 --> 00:21:32,440
+다음은 청크 크기에 대한 설정입니다.
+So then you have the chunk size.
+
+331
+00:21:32,440 --> 00:21:39,120
+청크 크기는 여기서 나누는 조각이 얼마나 큰지를 의미합니다.
+Chunk size is how big your
+little pieces here are.
+
+332
+00:21:39,120 --> 00:21:42,760
+청크가 너무 작으면 문맥이 잘릴 수 있기 때문에
+So you don't want them to be
+too small, because, otherwise,
+
+333
+00:21:42,760 --> 00:21:45,840
+텍스트가 문맥에서 벗어날 수 있습니다.
+the text may be out of context.
+
+334
+00:21:45,840 --> 00:21:47,500
+반대로 너무 크면
+You don't want it
+to be too large,
+
+335
+00:21:47,500 --> 00:21:50,480
+임베딩이 실제 내용을 제대로 반영하지 못할 수 있습니다.
+because maybe the embedding
+will not represent,
+
+336
+00:21:50,480 --> 00:21:52,920
+즉, 내부의 의미를 충분히 담지 못하게 됩니다.
+in a meaningful
+way, what is inside.
+
+337
+00:21:52,920 --> 00:21:55,080
+여기서도 역시 트레이드오프가 존재합니다.
+So again, it's a trade-off.
+
+338
+00:21:55,080 --> 00:21:57,880
+그래서 보통은
+But typically,
+people they choose
+
+339
+00:21:57,880 --> 00:22:01,600
+사람들이 청크 크기를 500 토큰, 즉 수백 토큰 단위로 많이 선택합니다.
+chunk size of around 500
+tokens, like, on the order
+
+340
+00:22:01,600 --> 00:22:05,040
+보통 수백 토큰 정도로 설정하는 것이 일반적입니다.
+of hundreds of tokens.
+
+341
+00:22:05,040 --> 00:22:07,180
+그리고 또 하나, 아 맞다.
+질문이 있네요.
+And then you also
+have a-- oh yeah.
+
+342
+00:22:07,180 --> 00:22:08,400
+질문 있으신가요?
+You have a question.
+
+343
+00:22:08,400 --> 00:22:10,880
+네, 말씀하세요.
+Yeah?
+
+344
+00:22:10,880 --> 00:22:13,740
+질문은, 임베딩 모델을 별도로 학습하느냐는 것이군요.
+So the question is, do you train
+an embedding model for this.
+
+345
+00:22:13,740 --> 00:22:16,000
+여기에는 두 가지 선택지가 있습니다.
+So you have two
+choices, either you
+
+346
+00:22:16,000 --> 00:22:20,140
+대부분 사람들이 하듯, 사전학습된 임베딩 모델을 쓸 수도 있고
+can use a pre-trained embedding
+model, which people typically
+
+347
+00:22:20,140 --> 00:22:23,860
+아니면 직접 학습시킬 수도 있습니다.
+do, or you can train your own.
+
+348
+00:22:23,860 --> 00:22:26,830
+이 부분은 다음 슬라이드에서 조금 더 자세히 살펴보겠습니다.
+We will see that in a bit
+more detail in a few slides.
+
+349
+00:22:34,100 --> 00:22:37,000
+그리고 또 다른 질문은 임베딩 모델의 목적이 무엇이냐는 겁니다.
+So the question is, what is the
+purpose of the embedding model?
+
+350
+00:22:37,000 --> 00:22:38,480
+이것도 곧 설명드리겠습니다.
+So we will see this in a second.
+
+351
+00:22:38,480 --> 00:22:45,020
+간단히 말하면, 임베딩 모델은
+청크들을 적절히 표현하려는 것입니다.
+But long story short, it
+tries to represent chunks,
+
+352
+00:22:45,020 --> 00:22:48,120
+즉, 궁극적으로 달성하려는 목표를
+잘 이룰 수 있도록 임베딩을 만드는 것이죠.
+such that it achieves
+your end goal,
+
+353
+00:22:48,120 --> 00:22:52,440
+여기서 목표란, 관련 있는 문서를 찾아오는 것입니다.
+which is to fetch
+relevant documents.
+
+354
+00:22:52,440 --> 00:22:54,440
+임베딩 모델이 어떻게 학습되는지는
+잠시 뒤에 조금 더 살펴보겠습니다.
+So we will see a little
+bit how they're trained.
+
+355
+00:22:54,440 --> 00:22:55,990
+전체적으로 이런 개념이라고 보시면 됩니다.
+But this is the general idea.
+
+356
+00:22:58,500 --> 00:22:59,960
+좋습니다.
+Cool.
+
+357
+00:22:59,960 --> 00:23:00,720
+이제 이 부분은 여기까지입니다.
+So that's this.
+
+358
+00:23:00,720 --> 00:23:04,420
+그리고 세 번째 하이퍼파라미터가 있습니다.
+And then we have a
+third hyperparameter,
+
+359
+00:23:04,420 --> 00:23:07,500
+그건 바로 청크 간에 얼마나
+겹치게 할 것인가입니다.
+which is how much
+overlap you want
+
+360
+00:23:07,500 --> 00:23:11,020
+청크들 사이에 어느 정도 중첩을 둘지 정해야 합니다.
+to have in between your chunks.
+
+361
+00:23:11,020 --> 00:23:17,690
+여기서 아주 단순하게 구간을 나누면,
+So here, when you do the
+division, in a very naive way,
+
+362
+00:23:17,690 --> 00:23:20,030
+각 구간이 완전히 독립적으로 나뉘고,
+you have everything be
+independent, no overlap
+
+363
+00:23:20,030 --> 00:23:21,150
+서로 겹치는 부분이 없습니다.
+in between.
+
+364
+00:23:21,150 --> 00:23:24,350
+하지만 일반적으로는,
+이전 청크의 일부가
+But typically,
+you have some part
+
+365
+00:23:24,350 --> 00:23:26,190
+현재 청크를 이해하는 데
+필요한 경우가 많기 때문에,
+that is from the
+previous chunk that
+
+366
+00:23:26,190 --> 00:23:29,630
+이렇게 이전 청크와 관련된
+부분이 포함되기도 합니다.
+is relevant to understand
+the current chunk, which
+
+367
+00:23:29,630 --> 00:23:32,870
+그래서 일부 겹침을 두는 것이
+좋은 이유가 여기에 있습니다.
+is why we want to have
+some overlap, which
+
+368
+00:23:32,870 --> 00:23:35,530
+그래서 실제로 많은 경우에
+이렇게 겹침을 둡니다.
+is why people, they
+typically also have that.
+
+369
+00:23:35,530 --> 00:23:38,800
+보통은 수백 개 토큰 정도가
+겹치는 식으로 설정합니다.
+So it's typically in the
+low hundreds of tokens.
+
+370
+00:23:41,870 --> 00:23:42,770
+좋습니다.
+Cool.
+
+371
+00:23:42,770 --> 00:23:45,670
+이제 여러분이 지식베이스를
+가지고 있다고 가정해 봅시다.
+So let's suppose you
+have your knowledge base.
+
+372
+00:23:45,670 --> 00:23:49,470
+이제 질문은, 주어진 프롬프트에 대해
+Now, the question
+is, given a prompt,
+
+373
+00:23:49,470 --> 00:23:53,790
+어떻게 관련 있는 문서를
+검색할 수 있을까요?
+how can you retrieve
+relevant documents?
+
+374
+00:23:53,790 --> 00:23:59,990
+여기에 대한 답은, 일반적으로
+두 단계로 진행한다는 것입니다.
+And the answer to that is we
+typically proceed in two steps.
+
+375
+00:23:59,990 --> 00:24:02,270
+혹시 여러분 중에 추천 시스템이나
+So I'm not sure
+if any of you has
+
+376
+00:24:02,270 --> 00:24:07,070
+검색 시스템에 대한 백그라운드가
+있는 분이 있을지 모르겠네요.
+a background in recommendation
+systems or search.
+
+377
+00:24:07,070 --> 00:24:07,650
+혹시 있으신가요?
+Does any?
+
+378
+00:24:07,650 --> 00:24:08,710
+네.
+Yeah.
+
+379
+00:24:08,710 --> 00:24:12,370
+여기서 다루는 방법들이 추천 시스템이나
+검색에서 쓰이는 방식과 매우 비슷합니다.
+So the methods we're seeing here
+are very similar to that space.
+
+380
+00:24:12,370 --> 00:24:15,590
+그래서 LLM 커뮤니티의 분들도
+So I guess people in
+the LLM community.
+
+381
+00:24:15,590 --> 00:24:19,410
+LLM 커뮤니티에서는 이런 아이디어와 기법들을 차용해서
+They have borrowed ideas and
+just leveraged some techniques
+
+382
+00:24:19,410 --> 00:24:20,850
+적극적으로 활용해왔습니다.
+that we have over there.
+
+383
+00:24:20,850 --> 00:24:24,530
+이런 구조는 추천 시스템에서도
+And this is typically, a
+setting that will also have
+
+384
+00:24:24,530 --> 00:24:27,210
+자주 사용되는 방식입니다.
+for recommendation problems.
+
+385
+00:24:27,210 --> 00:24:29,770
+여기에는 두 단계가 있습니다.
+So we have two stages.
+
+386
+00:24:29,770 --> 00:24:35,730
+첫 번째 단계는 보통 후보 검색(candidate retrieval)이라고 합니다.
+So the first stage is typically
+called candidate retrieval.
+
+387
+00:24:35,730 --> 00:24:38,850
+이 단계에서는 아주 많은 데이터 조각들 중에서
+And the goal here
+is to go from a set
+
+388
+00:24:38,850 --> 00:24:43,530
+필요 없는 것들을 걸러내고
+of many, many, many
+chunks, and filter it down
+
+389
+00:24:43,530 --> 00:24:49,650
+가능성이 높은 후보군만 남기게 됩니다.
+to a much smaller set of
+potentially relevant candidates.
+
+390
+00:24:49,650 --> 00:24:51,970
+이 과정에서 우리가 하는 일은
+So during that stage,
+what we're trying to do
+
+391
+00:24:51,970 --> 00:24:58,130
+리콜을 최대화하고, 일단 거칠게 좁혀주는 것입니다.
+is to somehow maximize recall,
+just do a rough operation,
+
+392
+00:24:58,130 --> 00:25:02,450
+즉, 최대한 많은 관련 후보들을
+so that we get as many
+potentially relevant candidates
+
+393
+00:25:02,450 --> 00:25:04,690
+포함하는 것이 목표입니다.
+as possible.
+
+394
+00:25:04,690 --> 00:25:09,850
+그리고 두 번째 단계가 있는데, 이 단계는 선택적입니다.
+And then we have a second stage,
+which is sometimes optional.
+
+395
+00:25:09,850 --> 00:25:15,350
+이 단계에서는 정말 중요한 문서가
+But this stage is to really make
+sure we have the top documents
+
+396
+00:25:15,350 --> 00:25:17,750
+최상위에 오도록 확인하는 과정입니다.
+being really the relevant ones.
+
+397
+00:25:17,750 --> 00:25:21,190
+이 과정을 랭킹(ranking)이라고 부릅니다.
+And this one is called ranking.
+
+398
+00:25:21,190 --> 00:25:27,590
+여기서는 관련성이 높을 것으로 보이는
+So the idea here is based on
+the list of potentially relevant
+
+399
+00:25:27,590 --> 00:25:30,830
+문서 목록을 받아서,
+documents, to really
+rank them in a way
+
+400
+00:25:30,830 --> 00:25:36,630
+진짜로 중요한 문서가 맨 위로 오도록 순서를 정합니다.
+that really the relevant ones
+come at the top and so on.
+
+401
+00:25:36,630 --> 00:25:38,830
+그리고 보통 이 단계에서는
+And typically,
+during that stage,
+
+402
+00:25:38,830 --> 00:25:42,350
+모델이나 어떤 방법을 사용하게 됩니다.
+we're going to use a
+model, a method that's
+
+403
+00:25:42,350 --> 00:25:46,350
+이때는 연산이 조금 더 많이 필요한 경우가 많습니다.
+going to be a bit more compute
+intensive because we have
+
+404
+00:25:46,350 --> 00:25:50,310
+이유는 첫 번째 단계에 비해
+a much smaller set of
+candidates to rank compared
+
+405
+00:25:50,310 --> 00:25:52,830
+랭킹을 매겨야 할 후보군이 훨씬 적기 때문입니다.
+to the first one.
+
+406
+00:25:52,830 --> 00:25:55,590
+아까 임베딩을 어떻게 만들어야 하는지에 대한 질문으로 돌아가 보면,
+So going back to your
+question on how do we
+
+407
+00:25:55,590 --> 00:25:57,290
+임베딩을 어떤 방식으로 만드는 게 좋을지라는 이야기가 나오죠.
+want our embeddings to be?
+
+408
+00:25:57,290 --> 00:26:00,870
+여기에서는 임베딩이 첫 번째 단계에 크게 영향을 줍니다.
+So here, it will really
+impact the first stage.
+
+409
+00:26:00,870 --> 00:26:02,370
+이 부분은 잠시 후에 다시 살펴보겠습니다.
+And we will see
+that in a second.
+
+410
+00:26:02,370 --> 00:26:04,970
+하지만 두 번째 단계 역시 상당히 중요합니다.
+But the second stage is
+also quite important.
+
+411
+00:26:08,440 --> 00:26:09,820
+좋습니다.
+Cool.
+
+412
+00:26:09,820 --> 00:26:10,660
+여기까지 괜찮으신가요?
+So far so good?
+
+413
+00:26:10,660 --> 00:26:15,240
+2단계 접근 방식에 대해 모두 이해하셨나요?
+Is everyone clear with
+the two-stage approach?
+
+414
+00:26:15,240 --> 00:26:15,740
+네.
+Yeah.
+
+415
+00:26:27,040 --> 00:26:27,860
+아주 좋은 질문입니다.
+Very good question.
+
+416
+00:26:27,860 --> 00:26:30,860
+질문은, 단순하게 청킹을 하느냐는 것이었습니다.
+So the question is, do we
+chunk things in a naive way,
+
+417
+00:26:30,860 --> 00:26:33,600
+즉, 그냥 토큰 개수만을 기준으로
+as in we just go with
+the number of tokens
+
+418
+00:26:33,600 --> 00:26:35,100
+내용에 상관없이 잘라버리는지에 대한 질문이었습니다.
+regardless of what happens?
+
+419
+00:26:35,100 --> 00:26:36,800
+정말 훌륭한 질문입니다.
+So it's a great question.
+
+420
+00:26:36,800 --> 00:26:41,840
+그리고 답변은, 이런 문제를 완화시켜줄 수 있는 확장 방법들을 곧 살펴볼 예정이라는 것입니다.
+And the answer is that we
+will see some extensions that
+
+421
+00:26:41,840 --> 00:26:46,360
+비합리적으로 청크를 나눴을 때 생기는 문제를
+완화하는 확장 기법들도 살펴보겠습니다.
+will mitigate the problem of
+when you chunk it in a way that
+
+422
+00:26:46,360 --> 00:26:48,760
+만약 너무 단순하게,
+비논리적으로 청크를 나눴을 때,
+does not make sense
+in a naive way,
+
+423
+00:26:48,760 --> 00:26:51,540
+어떻게든 그 맥락을 반영해야 합니다.
+you want to somehow
+put that into context.
+
+424
+00:26:51,540 --> 00:26:53,680
+이와 관련된 방법도
+함께 살펴볼 예정입니다.
+And we will see a
+method that does that.
+
+425
+00:26:53,680 --> 00:26:57,415
+몇 장 뒤에서
+그 내용을 소개하겠습니다.
+So in a few slides,
+we will see that.
+
+426
+00:26:57,415 --> 00:26:59,540
+그리고 질문이 정말 좋은 이유가 또 있는데,
+But I think your question
+is also a great question,
+
+427
+00:26:59,540 --> 00:27:02,440
+문서의 종류에 따라 달라지기 때문입니다.
+because depending on the kind
+of document that we have,
+
+428
+00:27:02,440 --> 00:27:05,720
+예를 들어 JSON 파일이나
+for instance, if we have,
+I don't know, like a JSON
+
+429
+00:27:05,720 --> 00:27:10,660
+마크다운 파일처럼, 다뤄야 하는 파일에 따라
+file or a markdown or depending
+on the file that you need
+
+430
+00:27:10,660 --> 00:27:14,900
+청크를 나눌 때 각 파일이 가지고 있는
+to chunk, you also need to be
+aware of the structure that
+
+431
+00:27:14,900 --> 00:27:16,460
+내부 구조도 고려해야 합니다.
+is within those files.
+
+432
+00:27:16,460 --> 00:27:18,500
+그래서 여기에도
+미묘한 부분이 있습니다.
+So there is also
+some nuance there
+
+433
+00:27:18,500 --> 00:27:20,160
+이 부분은 자세히 다루진 않겠지만,
+that we will not
+go into details,
+
+434
+00:27:20,160 --> 00:27:23,100
+이런 점이 있다는 것을 짚고 넘어가고 싶습니다.
+but I just want
+to call that out.
+
+435
+00:27:23,100 --> 00:27:25,980
+아무튼, 정말 좋은 질문이었습니다.
+But, yeah, great question.
+
+436
+00:27:25,980 --> 00:27:29,120
+다른 질문 있으신가요?
+Any other questions?
+
+437
+00:27:29,120 --> 00:27:29,620
+좋아요.
+OK.
+
+438
+00:27:29,620 --> 00:27:30,180
+네, 좋습니다.
+Cool.
+
+439
+00:27:30,180 --> 00:27:36,900
+이제 두 가지 주요 검색 단계가 정리됐으니,
+So now that we're clear on the
+two main stages of retrieval,
+
+440
+00:27:36,900 --> 00:27:40,380
+이제 각각의 단계별로 자세히 살펴보겠습니다.
+we're going to focus on
+each one of these steps.
+
+441
+00:27:40,380 --> 00:27:46,020
+앞서 말씀드린 것처럼, 첫 번째 단계는 후보 검색입니다.
+So as I mentioned, the first
+step is candidate retrieval.
+
+442
+00:27:46,020 --> 00:27:51,820
+여기서 우리가 하고자 하는 것은,
+아주 방대한 지식 베이스 중에서
+So here, what we want is among
+that potentially huge knowledge
+
+443
+00:27:51,820 --> 00:27:56,200
+어떤 방식으로든 이를 걸러내서,
+base to somehow
+filter it down to,
+
+444
+00:27:56,200 --> 00:28:02,100
+예를 들어서, 100개 이상의 관련될 수 있는 후보만 뽑는 것입니다.
+let's say, over 100 potentially
+relevant candidates.
+
+445
+00:28:02,100 --> 00:28:06,270
+이 단계에서는
+지식 베이스 초기화 과정에서 계산된 임베딩을 활용합니다.
+So here, what we do is well,
+we will leverage the embeddings
+
+446
+00:28:06,270 --> 00:28:12,750
+지식 베이스를 초기화하면서 계산된 임베딩을 사용하게 됩니다.
+that I guess computed during the
+knowledge base initialization.
+
+447
+00:28:12,750 --> 00:28:20,390
+그리고 이제, 관련성이 높아 보이는 후보들을
+And we will try to fetch
+potentially relevant candidates
+
+448
+00:28:20,390 --> 00:28:25,390
+시맨틱 유사도 검색을 통해 가져오게 됩니다.
+by doing a semantic
+similarity search.
+
+449
+00:28:25,390 --> 00:28:28,530
+임베딩을 어떻게 비교하는지 기억나시나요?
+So do you recall how
+we compare embeddings?
+
+450
+00:28:31,150 --> 00:28:31,990
+네.
+Yes.
+
+451
+00:28:31,990 --> 00:28:33,990
+코사인 유사도가 보통
+So cosine similarity
+is typically
+
+452
+00:28:33,990 --> 00:28:36,910
+임베딩을 비교하는 좋은 방법 중 하나입니다.
+one way one good way
+to compare embeddings.
+
+453
+00:28:36,910 --> 00:28:43,230
+여기서 핵심은 쿼리를 임베딩으로 표현하는 것입니다.
+So the idea here is to represent
+our query with an embedding.
+
+454
+00:28:43,230 --> 00:28:48,110
+우리는 이미 모든 청크의 임베딩을 가지고 있습니다.
+We already have embeddings
+of all our chunks.
+
+455
+00:28:48,110 --> 00:28:55,310
+그래서 여기서는 이 유사도 검색을 통해
+가장 관련성 높은 청크들을 찾아내려는 것입니다.
+So the idea here is to somehow
+find the most relevant chunks
+
+456
+00:28:55,310 --> 00:29:00,270
+유사도 검색을 하고, 상위에 뜨는 것들만 골라내게 됩니다.
+by doing this similarity
+search and filtering out
+
+457
+00:29:00,270 --> 00:29:03,330
+즉, 가장 먼저 나오는 것들만 선별하는 것이죠.
+the ones that come at the top.
+
+458
+00:29:03,330 --> 00:29:07,410
+여기서 아이디어는 쿼리와 청크가 있고,
+So the idea here is you have
+your query, you have your chunk.
+
+459
+00:29:07,410 --> 00:29:10,690
+둘 다 임베딩을 찾아냅니다.
+both of them, you
+find an embedding.
+
+460
+00:29:10,690 --> 00:29:13,690
+그리고 나서 유사도 연산을 수행하는 것입니다.
+And then you perform a
+similarity operation,
+
+461
+00:29:13,690 --> 00:29:17,410
+이때 주로 사용하는 것이 코사인 유사도입니다.
+which is most of the
+time cosine similarity.
+
+462
+00:29:17,410 --> 00:29:20,450
+그리고 이렇게 해서 유사도 점수를 얻게 됩니다.
+And you obtain a
+similarity score.
+
+463
+00:29:20,450 --> 00:29:26,370
+여기서는 상위, 예를 들어 100개 정도만 남기고,
+So the idea here is you
+just keep top, I don't 100,
+
+464
+00:29:26,370 --> 00:29:28,970
+그것들을 사용하게 됩니다.
+and you go with that.
+
+465
+00:29:28,970 --> 00:29:31,450
+여기서 한 가지 짚고 넘어가고 싶은 게 있습니다.
+So I just want to
+call out that there
+
+466
+00:29:31,450 --> 00:29:35,250
+이 단계에서 약간의 복잡성이 있을 수 있습니다.
+is some complexity
+in that stage,
+
+467
+00:29:35,250 --> 00:29:40,010
+지식 베이스의 크기가 매우 클 수도 있기 때문입니다.
+because your knowledge base
+can potentially be huge.
+
+468
+00:29:40,010 --> 00:29:43,610
+그래서 보통 사람들이 어떻게 하냐면,
+So what people do
+is typically use
+
+469
+00:29:43,610 --> 00:29:48,090
+보통 우리가 approximate nearest neighbor method라고 부르는 방식을 사용합니다.
+what we call approximate
+nearest neighbor methods.
+
+470
+00:29:48,090 --> 00:29:50,830
+이런 기능을 지원하는 라이브러리를 들어보신 분도 있을 겁니다.
+So you may have heard of
+some libraries that do that.
+
+471
+00:29:50,830 --> 00:29:54,570
+그래서 이런 기법들이 여기서 주로 쓰인다는 점을 말씀드리고 싶습니다.
+So typically, this is something
+that will be relevant here.
+
+472
+00:29:54,570 --> 00:29:56,110
+여기서 자세한 내용까지는 다루지 않을 거고요,
+We're not going to
+go into details,
+
+473
+00:29:56,110 --> 00:29:57,890
+이 부분만 참고로 말씀드렸습니다.
+but I just want
+to call that out.
+
+474
+00:29:57,890 --> 00:30:03,350
+여기서 중요한 건, 지식 베이스를 만들 때
+So here, the idea here is that
+when you build your knowledge
+
+475
+00:30:03,350 --> 00:30:08,910
+임베딩들을 어떤 방식으로든 분할하게 된다는 점입니다.
+base, you somehow
+partition the embeddings
+
+476
+00:30:08,910 --> 00:30:15,270
+이렇게 하면 단순한 선형 탐색을 피할 수 있습니다.
+in a way that will avoid-- like
+make you avoid doing like just
+
+477
+00:30:15,270 --> 00:30:18,070
+이게 바로 핵심 아이디어입니다.
+a naive linear search.
+
+478
+00:30:18,070 --> 00:30:19,430
+네, 이런 방식입니다.
+So that's the idea.
+
+479
+00:30:19,430 --> 00:30:24,090
+그리고 ANN 기법, 즉
+But you may see some
+techniques like ANN techniques,
+
+480
+00:30:24,090 --> 00:30:26,630
+approximate nearest neighbor 기법들도 종종 사용됩니다.
+approximate nearest
+neighbor techniques.
+
+481
+00:30:26,630 --> 00:30:30,710
+이런 방식의 기법들이 주로 여기서 사용됩니다.
+And these are typically
+happening here.
+
+482
+00:30:30,710 --> 00:30:33,990
+또 한 가지 짚고 넘어가고 싶은 부분이 있습니다.
+So another thing that
+I want to point out
+
+483
+00:30:33,990 --> 00:30:39,590
+여기서 일반적으로 사용되는 아키텍처의 이름이 있습니다.
+is the name of the architecture
+that we typically use here
+
+484
+00:30:39,590 --> 00:30:41,950
+여러분도 이 용어를 들어보셨을 겁니다.
+that you may also hear.
+
+485
+00:30:41,950 --> 00:30:47,270
+이를 설명하려면, 이 임베딩들이
+And for that, we need to
+recall that these embeddings,
+
+486
+00:30:47,270 --> 00:30:50,650
+실제로는 모델을 거쳐서 얻어진다는 사실을 기억해야 합니다.
+they're actually obtained by
+passing them through a model.
+
+487
+00:30:50,650 --> 00:30:53,590
+그래서 보통 인코더만 사용합니다.
+So typically encoder only.
+
+488
+00:30:53,590 --> 00:30:58,030
+그래서 BI 인코더라는 용어를 들으셨을 수 있습니다.
+So you may hear the
+term BI encoder.
+
+489
+00:30:58,030 --> 00:31:01,680
+이 BI 인코더는 우리가
+And this one refers
+to the fact that we
+
+490
+00:31:01,680 --> 00:31:04,840
+쿼리를 인코더에 넣고,
+are passing the query
+through an encoder
+
+491
+00:31:04,840 --> 00:31:08,060
+또한 문서 조각도 인코더에 넣는 방식을 뜻합니다.
+and then passing the
+chunk through an encoder.
+
+492
+00:31:08,060 --> 00:31:11,640
+즉 두 입력 모두 서로 독립적으로 처리됩니다.
+So both of them are independent.
+
+493
+00:31:11,640 --> 00:31:13,780
+그리고 이렇게 얻은 임베딩을 비교하게 됩니다.
+And we're comparing
+the embeddings.
+
+494
+00:31:16,780 --> 00:31:18,780
+이와 관련해서 제가 여러분께 질문하고 싶었던 게 있습니다.
+So this is another question
+I wanted to ask you.
+
+495
+00:31:18,780 --> 00:31:22,360
+하지만 아쉽게도 기회를 못 잡았습니다.
+But I guess I didn't
+get the chance to.
+
+496
+00:31:22,360 --> 00:31:26,520
+혹시 기억나실지 모르겠지만, 아마 2강이나 3강에서
+If you remember, I think
+lecture two or three,
+
+497
+00:31:26,520 --> 00:31:30,680
+우리가 BERT 모델에 대해 살펴본 적이 있습니다.
+we had seen the BERT model.
+
+498
+00:31:30,680 --> 00:31:35,080
+그래서 보통은 BERT와 같은 모델을
+And so typically, you would have
+something like a BERT-like model
+
+499
+00:31:35,080 --> 00:31:41,440
+이런 문서를 인코딩하는 데 사용합니다.
+that you would use to
+encode these documents.
+
+500
+00:31:41,440 --> 00:31:43,360
+자, 다시 원래 질문으로 돌아가서, 어떻게 하면
+So going back to your
+question, how do you
+
+501
+00:31:43,360 --> 00:31:44,500
+이 임베딩을 어떻게 계산할까요?
+compute these embeddings?
+
+502
+00:31:44,500 --> 00:31:47,740
+여기 꼭 읽어보시면 좋은 논문이 하나 있습니다.
+So there is a paper that I
+highly recommend reading.
+
+503
+00:31:47,740 --> 00:31:52,640
+바로 Sentence BERT라는 논문인데요.
+Actually, that's
+called Sentence BERT.
+
+504
+00:31:52,640 --> 00:31:55,000
+이 논문에서 자세히 설명하고 있습니다.
+And so that paper explains--
+
+505
+00:31:55,000 --> 00:31:57,360
+먼저, 이 논문은 이름에서 알 수 있듯 BERT의 확장 버전입니다.
+so it's, first of all,
+it's an extension of BERT,
+
+506
+00:31:57,360 --> 00:31:59,580
+BERT의 확장판인 것이죠.
+as the name suggests.
+
+507
+00:31:59,580 --> 00:32:03,700
+그리고 이 확장은
+And it's an
+extension that allows
+
+508
+00:32:03,700 --> 00:32:07,720
+각 쿼리나 문서 시퀀스마다 임베딩을
+you to compute an
+embedding per, let's say,
+
+509
+00:32:07,720 --> 00:32:11,260
+계산할 수 있도록 해줍니다.
+sequence for your query,
+for your document, that
+
+510
+00:32:11,260 --> 00:32:17,980
+그리고 이 임베딩은 유사도 검색에 적합하도록 설계되어 있습니다.
+is tailored to be used for
+similarity search purposes.
+
+511
+00:32:17,980 --> 00:32:22,180
+여기서 핵심 아이디어는
+So the idea here is to
+have a loss function that
+
+512
+00:32:22,180 --> 00:32:25,300
+코사인 유사도를 높게 하는 쪽으로
+will incentivize
+having a high cosine
+
+513
+00:32:25,300 --> 00:32:29,580
+관련 있는 엔티티들은 코사인 유사도를 높게 하고,
+similarity for relevant
+entities and low cosine
+
+514
+00:32:29,580 --> 00:32:34,060
+관련 없는 엔티티들은 코사인 유사도를 낮게 학습시키는 손실 함수를 쓰는 것입니다.
+similarity for entities
+that are not relevant.
+
+515
+00:32:34,060 --> 00:32:37,140
+관심 있으시면 꼭 논문을 참고해 보시기 바랍니다.
+So yeah, so feel free
+to check that paper out,
+
+516
+00:32:37,140 --> 00:32:39,380
+여러분 모두 BERT에 대해 알고 있으니
+if you know BERT,
+which I know right now,
+
+517
+00:32:39,380 --> 00:32:42,060
+이 논문을 읽는 데 어렵지 않을 거예요.
+you do, it's quite easy to read.
+
+518
+00:32:42,060 --> 00:32:45,340
+정말 추천합니다.
+So highly recommend.
+
+519
+00:32:45,340 --> 00:32:47,860
+여기까지 괜찮으신가요?
+So far so good?
+
+520
+00:32:47,860 --> 00:32:48,620
+네?
+Yeah?
+
+521
+00:32:48,620 --> 00:32:49,120
+네, 괜찮으신가요?
+Yeah?
+
+522
+00:32:54,380 --> 00:32:56,040
+질문은, 기본적으로
+So the question is,
+what is the default
+
+523
+00:32:56,040 --> 00:32:58,100
+유사도를 어떻게 계산하느냐는 겁니다.
+way to compute the similarity?
+
+524
+00:32:58,100 --> 00:33:00,520
+네, 기본적으로 코사인 유사도를 씁니다.
+So yes, it's cosine similarity.
+
+525
+00:33:00,520 --> 00:33:03,600
+그런데 구현에 따라서는
+But again, you will see in
+different implementations
+
+526
+00:33:03,600 --> 00:33:06,680
+다른 거리 계산법을 쓰기도 합니다.
+that people can use
+other distances.
+
+527
+00:33:06,680 --> 00:33:09,800
+여러분도 그런 거리들이
+서로 어떻게 연결되는지 한 번 생각해 보세요.
+And I would encourage
+you to think about how
+
+528
+00:33:09,800 --> 00:33:12,080
+이런 거리들이 어떻게 연관되는지도요.
+they relate to one another.
+
+529
+00:33:12,080 --> 00:33:15,520
+예를 들어 L2 거리도 볼 수 있습니다.
+So you will see, for
+instance, the L2 distance.
+
+530
+00:33:15,520 --> 00:33:19,560
+하지만 모든 벡터의 노름이 1이면
+But then if everything
+has a norm of 1,
+
+531
+00:33:19,560 --> 00:33:22,320
+많은 계산이 간단해집니다.
+there's a lot of
+simplifications that can happen.
+
+532
+00:33:22,320 --> 00:33:24,320
+그래서 약간씩 다른 변형도 볼 수 있지만,
+So you may see some
+variants, but I
+
+533
+00:33:24,320 --> 00:33:29,040
+대부분은 코사인 유사도를 변형한 것들이라고 보시면 됩니다.
+would say they're all more
+or less cosine similarities.
+
+534
+00:33:29,040 --> 00:33:32,320
+좋은 질문이었습니다.
+Yeah, great question.
+
+535
+00:33:32,320 --> 00:33:33,420
+좋습니다.
+Cool.
+
+536
+00:33:33,420 --> 00:33:36,240
+이제 여전히 후보 문서 탐색 단계에 있습니다.
+So we're still at the
+candidate retrieval stage.
+
+537
+00:33:36,240 --> 00:33:43,320
+앞서 본 것은 문서를 찾는 한 가지 방법이었죠.
+And what we saw was one
+way of retrieving documents
+
+538
+00:33:43,320 --> 00:33:45,160
+유사도, 즉
+from a similarity--
+
+539
+00:33:45,160 --> 00:33:48,100
+정확히 말하면 의미적 유사성 기준으로 문서를 찾는 방법입니다.
+sorry from a semantic
+similarity standpoint.
+
+540
+00:33:48,100 --> 00:33:51,160
+그런데 의미적 유사성이라는 게 어떤 의미인지 궁금할 수 있죠.
+So by the way, what does
+semantic similarity mean?
+
+541
+00:33:51,160 --> 00:33:57,250
+이 말은, 우리가 찾고자 하는 문서나 엔티티가
+It means is finding documents
+or finding entities that
+
+542
+00:33:57,250 --> 00:34:01,250
+동일한 의미를 갖거나 관련성이 높다는 뜻입니다.
+have the same meaning
+or that are relevant,
+
+543
+00:34:01,250 --> 00:34:04,450
+그리고 이런 임베딩을 계산할 때,
+but in the way that we
+compute these embeddings,
+
+544
+00:34:04,450 --> 00:34:12,849
+우리는 특정 키워드가 일치하도록
+we're not enforcing any
+kind of keyword match,
+
+545
+00:34:12,849 --> 00:34:16,090
+일부러 맞추는 것은 아니기 때문에,
+like when we retrieve
+documents in this way,
+
+546
+00:34:16,090 --> 00:34:19,929
+이런 방식으로 문서를 검색하면,
+it can very well be that the
+documents that are matched,
+
+547
+00:34:19,929 --> 00:34:26,810
+서로 겹치는 단어가 하나도 없어도
+의미는 같을 수 있습니다.
+they do not have any word in
+common, but they mean the same.
+
+548
+00:34:26,810 --> 00:34:30,730
+그런데 때로는,
+Well, sometimes
+you want to ensure
+
+549
+00:34:30,730 --> 00:34:33,510
+검색할 때 내가 찾고자 하는 내용이
+that what you're looking for,
+what you're searching for,
+
+550
+00:34:33,510 --> 00:34:38,730
+프롬프트에 들어 있는 키워드를 반드시 포함하길 원할 때도 있습니다.
+is exactly containing the
+keywords that is in your prompt.
+
+551
+00:34:38,730 --> 00:34:41,130
+이럴 땐 또 다른 방법을
+And in that case, you
+would want to have
+
+552
+00:34:41,130 --> 00:34:44,610
+사용할 수 있습니다.
+a second way of doing things.
+
+553
+00:34:44,610 --> 00:34:48,530
+여러분 BM25라는 걸 들어본 적이 있을 겁니다.
+So you may have
+seen BM25 out there.
+
+554
+00:34:48,530 --> 00:34:56,429
+BM25는 실제로 휴리스틱 기반의
+관련성 점수입니다.
+So BM25 is a relevant score that
+is actually a heuristic score.
+
+555
+00:34:56,429 --> 00:35:00,910
+이 점수는 쿼리와 문서 간의
+It is based on some
+function of the overlap
+
+556
+00:35:00,910 --> 00:35:09,070
+단어가 얼마나 겹치는지에 따라 결정됩니다.
+between what is in your query
+and what is in your document.
+
+557
+00:35:09,070 --> 00:35:14,630
+그래서 이런 점수가 필요한 상황이 있고,
+And so that one is actually
+quite handy for cases, where
+
+558
+00:35:14,630 --> 00:35:18,270
+정말로 쿼리에 들어간
+you have a query
+where you absolutely
+
+559
+00:35:18,270 --> 00:35:24,430
+키워드를 반드시 포함한 문서를 원할 때
+아주 유용합니다.
+want to have documents that
+contain keywords of this query.
+
+560
+00:35:24,430 --> 00:35:27,430
+여기에 방금 전에 아주 잠깐 다뤘던
+예시가 하나 있습니다.
+So here, I have an example that
+I actually passed super briefly
+
+561
+00:35:27,430 --> 00:35:28,690
+이 예시는 앞에서 아주 간단히 언급한 것이기도 합니다.
+for the previous one.
+
+562
+00:35:28,690 --> 00:35:30,510
+그리고 이 예시로 다시 돌아오겠습니다.
+And we will come back to it.
+
+563
+00:35:30,510 --> 00:35:36,030
+가령, 테디베어가 두 개 있다고 해봅시다.
+But let's suppose we have
+let's say two teddy bears.
+
+564
+00:35:36,030 --> 00:35:40,910
+한 마리는 Cuddly이고, 다른 한 마리는 Huggy라고 부르겠습니다.
+One is named Cuddly and the
+other one is named Huggy.
+
+565
+00:35:40,910 --> 00:35:44,590
+여러분이 원하는 것은 Cuddly가 어디에 있는지 알아내는 것입니다.
+So what you want is to
+figure out where is Cuddly.
+
+566
+00:35:44,590 --> 00:35:47,830
+이게 바로 여러분의 쿼리입니다.
+So this is your query.
+
+567
+00:35:47,830 --> 00:35:51,770
+BM25를 사용한다면,
+So if you use BM25,
+well, the answers
+
+568
+00:35:51,770 --> 00:35:56,810
+여러분이 얻게 되는 답변은,
+that you are going to
+get are by definition
+
+569
+00:35:56,810 --> 00:36:03,410
+쿼리에 들어 있던 단어들과 일부 겹치는 내용을 포함하게 됩니다.
+going to contain some overlap of
+words that were in your query.
+
+570
+00:36:03,410 --> 00:36:06,650
+즉, 여기서는 예를 들어
+And so here, you
+will have, let's say
+
+571
+00:36:06,650 --> 00:36:10,290
+Cuddly가 어디 있는지 담고 있는 문서들을 얻게 됩니다.
+documents that contain,
+let's say where cuddly is.
+
+572
+00:36:10,290 --> 00:36:15,810
+하지만 만약 여러분이 오직 의미적 유사도만을 이용해 검색한다면,
+But if let's say you only
+used these semantic similarity
+
+573
+00:36:15,810 --> 00:36:20,970
+그런 보장은 없습니다.
+search, you would not
+have that guarantee.
+
+574
+00:36:20,970 --> 00:36:27,330
+단지 의미적으로 유사한 문서들만 얻게 될 것입니다.
+You would only have documents
+that are semantically similar.
+
+575
+00:36:27,330 --> 00:36:31,170
+그리고 그런 문서들은
+And those they
+are not guaranteed
+
+576
+00:36:31,170 --> 00:36:33,850
+반드시 쿼리의 키워드를 포함하는 것은 아닙니다.
+to contain keywords
+of your prompts.
+
+577
+00:36:33,850 --> 00:36:36,190
+이 차이를 설명하기 위해 예를 들어 보겠습니다.
+And so just to illustrate that.
+
+578
+00:36:36,190 --> 00:36:39,530
+여기서 Huggy와 Cuddly는,
+So here, Huggy and Cuddly,
+they can be thought
+
+579
+00:36:39,530 --> 00:36:42,970
+의미적으로 유사하다고 볼 수 있습니다.
+of semantically similar.
+
+580
+00:36:42,970 --> 00:36:45,610
+그래서 실제로는 Cuddly가 포함되지 않을 수도 있습니다.
+So you will probably
+not have cuddly--
+
+581
+00:36:45,610 --> 00:36:49,980
+꼭 cuddly라는 단어가 포함되어 있지는 않을 수도 있습니다.
+you will not necessarily
+have cuddly in there.
+
+582
+00:36:49,980 --> 00:36:51,360
+이 점을 설명하기 위한 예시였습니다.
+Just to illustrate that.
+
+583
+00:36:51,360 --> 00:36:56,260
+이것이 바로 요즘 사람들이
+And that is the reason
+why nowadays, what people
+
+584
+00:36:56,260 --> 00:37:02,300
+자신들의 사용 사례를 살펴보고,
+do is to look at the use cases
+that they have and think about
+
+585
+00:37:02,300 --> 00:37:07,620
+여기에 휴리스틱을 추가해서 관련성 점수를 계산하는 것이
+whether having some heuristic,
+as well in the relevance score
+
+586
+00:37:07,620 --> 00:37:10,180
+자신들의 상황에 유용한지 고민하는 이유입니다.
+is useful for their use case.
+
+587
+00:37:10,180 --> 00:37:14,740
+그래서 어떤 분들은 임베딩 기반 검색과
+So some people, they go
+with the hybrid combination
+
+588
+00:37:14,740 --> 00:37:19,780
+휴리스틱 기반 검색을 결합해서 사용하는데요,
+of this embedding-based search
+and the heuristic-based search.
+
+589
+00:37:19,780 --> 00:37:23,980
+즉, 임베딩과 BM25를 함께 활용하는 방법을 쓰기도 합니다.
+So some combination
+of embeddings and BM25
+
+590
+00:37:23,980 --> 00:37:26,420
+이렇게 하면 경우에 따라서는
+in which case you may have.
+
+591
+00:37:26,420 --> 00:37:29,200
+더 적합한 문서를 찾을 수도 있습니다.
+Even more relevant documents,
+depending on your use case.
+
+592
+00:37:32,660 --> 00:37:34,620
+이해되시나요?
+Does that make sense?
+
+593
+00:37:34,620 --> 00:37:36,220
+네.
+Yeah.
+
+594
+00:37:36,220 --> 00:37:39,180
+자, 이제 아까 말씀하셨던
+So now I'll come back to
+what you mentioned about
+
+595
+00:37:39,180 --> 00:37:42,740
+청크를 단순하게 자르는 방법이
+whether cutting
+chunks in a naive way
+
+596
+00:37:42,740 --> 00:37:46,200
+항상 일관된 결과로 이어지는지에 대해 다시 이야기해보겠습니다.
+will necessarily lead you
+to things that are coherent.
+
+597
+00:37:46,200 --> 00:37:47,700
+네, 그 말씀이 맞아요.
+Well, you're completely right.
+
+598
+00:37:47,700 --> 00:37:51,240
+항상 일관된 결과가 나오지는 않습니다.
+Sometimes you will not.
+
+599
+00:37:51,240 --> 00:37:53,700
+하지만 이 질문에 답하기 전에,
+But before we answer
+this question,
+
+600
+00:37:53,700 --> 00:38:00,800
+사실 우리는 또 다른 이슈를 먼저 짚고 넘어갈 텐데요,
+we actually are going to address
+another concern, which is that
+
+601
+00:38:00,800 --> 00:38:06,960
+보통 사람들이 뭔가를 물어보고 싶을 때,
+typically, when people
+want to ask about something
+
+602
+00:38:06,960 --> 00:38:11,160
+LLM에 입력하는 쿼리는
+in their LLM, the
+query that they input
+
+603
+00:38:11,160 --> 00:38:15,160
+지식베이스에 들어있는 내용과는
+성격이 좀 다릅니다.
+is of a different
+nature compared to what
+
+604
+00:38:15,160 --> 00:38:17,040
+즉, 지식베이스에 있는 내용과 쿼리는 다르죠.
+is in the knowledge base.
+
+605
+00:38:17,040 --> 00:38:20,200
+여러분의 쿼리는 보통 짧거나,
+So your query is typically
+going to be maybe something
+
+606
+00:38:20,200 --> 00:38:22,880
+질문 형식일 때가 많습니다.
+short, maybe a question.
+
+607
+00:38:22,880 --> 00:38:26,260
+반면 문서에 들어있는 정보는
+대부분 더 깁니다.
+But what is in your documents
+is typically going to be longer.
+
+608
+00:38:26,260 --> 00:38:28,480
+여러 문장으로 이루어져 있는 경우가 많죠.
+These are like
+sentences and sentences.
+
+609
+00:38:28,480 --> 00:38:34,960
+그래서 정말 잘 생각해 보면,
+다음과 같은 문제가 있습니다.
+So if you really think about
+it, if you use the same encoder
+
+610
+00:38:34,960 --> 00:38:40,120
+같은 인코더를 써서 쿼리와 문서를
+둘 다 임베딩하게 되면,
+to embed your query and
+to embed your documents,
+
+611
+00:38:40,120 --> 00:38:45,050
+이 두 임베딩은 사실 직접적으로
+비교하기가 쉽지 않습니다.
+well, these two embeddings,
+they're not super comparable,
+
+612
+00:38:45,050 --> 00:38:47,370
+하나는 질문용이고,
+다른 하나는 문서용이기 때문이죠.
+because one is for a
+question and the other one
+
+613
+00:38:47,370 --> 00:38:50,370
+즉, 하나는 문서 임베딩입니다.
+is for a document.
+
+614
+00:38:50,370 --> 00:38:54,970
+이런 문제를 보완하려고 고안된
+확장 방법이 하나 있습니다.
+So there's one extension that
+tries to mitigate that issue.
+
+615
+00:38:54,970 --> 00:38:56,910
+해당 논문은 아래에 링크를 걸어두었습니다.
+And I link the paper down there.
+
+616
+00:38:56,910 --> 00:38:59,690
+이 방법의 이름이 'height'입니다.
+So it's called the height.
+
+617
+00:38:59,690 --> 00:39:05,970
+이 방법은 프롬프트와 관련된 임베딩을
+바로 구하는 대신,
+So what it does is instead
+of computing the embedding
+
+618
+00:39:05,970 --> 00:39:13,290
+먼저 가짜 문서를 생성합니다.
+related to the prompt, it will
+first generate a fake document.
+
+619
+00:39:13,290 --> 00:39:18,970
+즉, LLM을 호출해서 프롬프트를 기반으로
+가짜 문서를 만드는 거죠.
+So it's just an LLM call, a fake
+document based on that prompt.
+
+620
+00:39:18,970 --> 00:39:23,170
+그리고 그 가짜 문서를 임베딩합니다.
+And then embeds
+that fake document
+
+621
+00:39:23,170 --> 00:39:24,400
+관련된 청크를 찾기 위해서입니다.
+to find relevant chunks.
+
+622
+00:39:27,010 --> 00:39:29,050
+그래서 이 방법이 잘 될 수도 있고, 아닐 수도 있습니다.
+So it may or may not work.
+
+623
+00:39:29,050 --> 00:39:33,070
+모든 사람이 항상 사용하는 방식은 아닙니다.
+It's not used all
+the time by everyone.
+
+624
+00:39:33,070 --> 00:39:34,930
+그래서 한 번 시도해볼 만한
+방법이라고 할 수 있습니다.
+So I would say
+just something that
+
+625
+00:39:34,930 --> 00:39:37,030
+직접 해보고 효과가 있는지 확인하면 좋을 것 같아요.
+is good to try to
+see if that works.
+
+626
+00:39:37,030 --> 00:39:40,530
+하지만 이 방법이 이런 문제를 완화하는 한 가지 방법이고,
+But this is one way
+of mitigating this,
+
+627
+00:39:40,530 --> 00:39:44,150
+또 다른 방법은 인코더를 따로 두어서
+another way could be
+to simply have encoders
+
+628
+00:39:44,150 --> 00:39:49,590
+한쪽에서는 쿼리를 인코딩하고,
+that are specifically trained
+to encode the query on one side
+
+629
+00:39:49,590 --> 00:39:53,250
+다른 쪽에서는 도큐먼트를 인코딩하는 것입니다.
+and encode the documents
+on the other side.
+
+630
+00:39:53,250 --> 00:39:56,790
+즉, 동일한 인코더를 사용하지 않는 방식이죠.
+In other words, to not
+use the same encoder.
+
+631
+00:39:56,790 --> 00:39:58,870
+보통은 유지보수 문제 때문에
+이렇게 하진 않습니다.
+People typically don't
+do that, just because
+
+632
+00:39:58,870 --> 00:40:00,050
+주로 관리상의 이유 때문이죠.
+of maintenance purposes.
+
+633
+00:40:00,050 --> 00:40:01,717
+하지만 이것도 또 하나의 대안이 될 수 있습니다.
+But this could also
+be another solution.
+
+634
+00:40:04,270 --> 00:40:07,350
+이제 마지막으로, 여러분이 질문한 내용으로 넘어가 보겠습니다.
+So now, finally going
+to your question
+
+635
+00:40:07,350 --> 00:40:11,230
+바로 이렇게 나누어진 청크들을
+어떻게 이해할 수 있는지에 관한 질문입니다.
+regarding how we can make
+sense of these chunks.
+
+636
+00:40:11,230 --> 00:40:12,730
+만약 이 청크들이 맥락과 상관없이
+추출된다면
+If they are taken
+out of context,
+
+637
+00:40:12,730 --> 00:40:14,630
+내용을 제대로 이해하지 못할 수도 있습니다.
+they may not make sense.
+
+638
+00:40:14,630 --> 00:40:23,950
+그래서 여기서는, 각 청크를 이해할 수 있도록
+And so here, the idea here is to
+prepend some piece of text that
+
+639
+00:40:23,950 --> 00:40:30,630
+필요한 내용을 요약해서 앞에 붙여주는 아이디어가 있습니다.
+just sums up what you need to in
+order to understand that chunk.
+
+640
+00:40:30,630 --> 00:40:34,350
+즉, 전체 문서가 있다고 생각해보면,
+So here, the idea is that
+you have all your documents.
+
+641
+00:40:34,350 --> 00:40:37,550
+예를 들어, 하나의 문서를 n개의 청크로 나눈다고 해봅시다.
+Let's say you have one
+document, that you divide it
+
+642
+00:40:37,550 --> 00:40:39,730
+이렇게 문서를 n개의 청크로 분할하는 거죠.
+into n chunks.
+
+643
+00:40:39,730 --> 00:40:44,610
+여기서 핵심은, 이 청크들을 개별적으로 보는 대신에
+The idea here is instead
+of considering these chunks
+
+644
+00:40:44,610 --> 00:40:51,530
+각 청크에 관련된 문맥 정보를
+계산해 주는 것이라는 점입니다.
+separately, you're going to
+compute some kind of context
+
+645
+00:40:51,530 --> 00:40:54,970
+이 문맥은 각 청크와 관련이 있고,
+that is relevant to
+each chunk, and that
+
+646
+00:40:54,970 --> 00:40:56,720
+전체 문서를 기반으로 하게 됩니다.
+is based on the whole document.
+
+647
+00:40:59,570 --> 00:41:01,850
+그럼 이걸 어떻게 할 수 있을까요?
+So how are you going to do that?
+
+648
+00:41:01,850 --> 00:41:03,970
+다시 말해, LLM에 요청하는 겁니다.
+Again, the LLM call.
+
+649
+00:41:03,970 --> 00:41:07,090
+보통은 전체 문서를 가지고 있다고 할 때,
+So what you do is
+typically, have, let's say,
+
+650
+00:41:07,090 --> 00:41:08,230
+이렇게 전체 문서가 있습니다.
+the whole document.
+
+651
+00:41:08,230 --> 00:41:11,950
+그리고 문맥을 부여하고 싶은 청크도 있겠죠.
+And then you have the chunk
+that you want to contextualize.
+
+652
+00:41:11,950 --> 00:41:14,970
+그러면 모델에게 요청을 하는 겁니다.
+And you ask your model,
+well, please give me
+
+653
+00:41:14,970 --> 00:41:21,090
+이 청크를 이해하기 위한 간결한 문맥을
+간단히 제공해 달라고 요청하는 거죠.
+a short succinct context to
+just make sense of that chunk.
+
+654
+00:41:21,090 --> 00:41:25,090
+여기서, 이렇게 하면
+LLM 호출이 꽤 많아질 수 있겠죠.
+And now you may tell me, well,
+that's a lot of LLM calls.
+
+655
+00:41:25,090 --> 00:41:27,890
+청크 수도 상당히 많을 수 있으니까요.
+You have potentially
+a lot of chunks.
+
+656
+00:41:27,890 --> 00:41:31,050
+이런 방식은
+비용이 꽤 많이 듭니다.
+And that's just going
+to be very pricey.
+
+657
+00:41:31,050 --> 00:41:37,540
+이를 더 저렴하게 할 수 있는
+하나의 전략이 있습니다.
+Well, there's one strategy
+to make this less expensive,
+
+658
+00:41:37,540 --> 00:41:40,920
+아마 들어본 적 있을 수도 있는데요.
+and I'm not sure if
+you've heard that option.
+
+659
+00:41:40,920 --> 00:41:44,340
+이걸 '프롬프트 캐싱(prompt caching)'이라고 합니다.
+It's called prompt caching.
+
+660
+00:41:44,340 --> 00:41:47,620
+이제 여러분은 LLM이 어떻게 동작하는지
+잘 알고 있을 겁니다.
+So now that you very
+well how LLMs work,
+
+661
+00:41:47,620 --> 00:41:52,540
+여러분도 아시다시피, LLM은 주로 디코더 전용 구조를 사용합니다.
+you know, typically, these
+are decoder only and so on.
+
+662
+00:41:52,540 --> 00:42:02,340
+그래서 프롬프트의 접두사를 모두 동일하게 쓴다면,
+So you know that if you
+use the same prefix for all
+
+663
+00:42:02,340 --> 00:42:05,820
+같은 부분에 대해서는 계속해서
+your prompts, well,
+it's going to be
+
+664
+00:42:05,820 --> 00:42:08,620
+똑같은 연산을 반복해서 수행하게 됩니다.
+the same computations that
+you just do again and again
+
+665
+00:42:08,620 --> 00:42:10,380
+계속 반복이죠.
+and again.
+
+666
+00:42:10,380 --> 00:42:14,460
+그래서 여기서 중요한 아이디어는, 딱 한 번만 연산을 해두고
+So the idea here is
+you just do it once.
+
+667
+00:42:14,460 --> 00:42:18,740
+관련된 모든 활성값(activation)을 저장하는 것입니다.
+And you save all the
+relevant activations.
+
+668
+00:42:18,740 --> 00:42:21,320
+그리고 다시 계산하지 말고,
+And instead of
+computing them again,
+
+669
+00:42:21,320 --> 00:42:25,060
+그 값을 그냥 찾아서 사용하면 됩니다.
+you're just going to look
+them up, just do a lookup,
+
+670
+00:42:25,060 --> 00:42:26,970
+그 다음부터는 남은 부분만 디코드하면 되죠.
+and then decode the rest.
+
+671
+00:42:30,020 --> 00:42:32,700
+이해 되시나요?
+Does that make sense?
+
+672
+00:42:32,700 --> 00:42:35,340
+네.
+Yeah.
+
+673
+00:42:35,340 --> 00:42:37,460
+여기서 말하는 activation은 언어모델에서 나온 활성값을 말하죠?
+The question is activation
+from a language model.
+
+674
+00:42:37,460 --> 00:42:41,440
+네, 맞아요. 프롬프트를 모델에 입력하면
+Yes, because when you feed
+a prompt to your model
+
+675
+00:42:41,440 --> 00:42:44,720
+답변을 생성하게 되는데,
+and you ask it to
+generate a response,
+
+676
+00:42:44,720 --> 00:42:48,360
+모델이 해야 할 일은 이 모든 입력을 받아들여서
+what the model needs to do is
+well, to take all of this input
+
+677
+00:42:48,360 --> 00:42:51,700
+각 레이어의 활성값을 계산하고,
+and then compute the
+activations of all the layers,
+
+678
+00:42:51,700 --> 00:42:54,760
+생성 과정에 이 값을 활용하는 겁니다.
+and then have for the
+generation process
+
+679
+00:42:54,760 --> 00:42:59,120
+그리고 여기서 어텐션 메커니즘이 전체 컴포넌트에 적용되죠.
+to have this attention across
+all these other components.
+
+680
+00:42:59,120 --> 00:43:03,520
+이 모델이 디코더 전용이라는 건,
+Well, given that it's
+decoder only meaning,
+
+681
+00:43:03,520 --> 00:43:07,120
+오른쪽으로만 진행된다는 뜻입니다.
+it's only left to right.
+
+682
+00:43:07,120 --> 00:43:10,280
+여러분이 입력하는 값이 같다면,
+The thing that you
+input, if it's the same,
+
+683
+00:43:10,280 --> 00:43:14,340
+결국 같은 활성값이 나오게 됩니다.
+then it will lead to
+the same activations.
+
+684
+00:43:14,340 --> 00:43:14,840
+네, 그렇습니다.
+Yeah.
+
+685
+00:43:20,640 --> 00:43:22,800
+여기서 질문은, 만약 여러분이 closed 모델을 사용할 때
+The question is, what if
+you have a closed model
+
+686
+00:43:22,800 --> 00:43:25,120
+프롬프트 캐싱 옵션이 있다면,
+이 부분을 간단히 살펴보겠습니다.
+where prompt caching,
+and I'm going
+
+687
+00:43:25,120 --> 00:43:28,240
+이 내용은 한 슬라이드로 정리해서 말씀드리겠습니다.
+to just talk about
+this in just one slide,
+
+688
+00:43:28,240 --> 00:43:35,940
+프롬프트 캐싱은 closed 모델이나 서비스 제공자들이 제공하는 옵션입니다.
+is an option that is closed
+models or providers offer?
+
+689
+00:43:35,940 --> 00:43:39,380
+그들이 여러분에게 하는 말은 이런 겁니다.
+And what they tell
+you is, well, this
+
+690
+00:43:39,380 --> 00:43:42,660
+모든 프롬프트의 접두사가 동일하다면
+is the same prefix
+for all your prompts.
+
+691
+00:43:42,660 --> 00:43:44,820
+이 기능을 이용해서 비용을 낮출 수 있다는 겁니다.
+So what we're going to
+do is we're just going
+
+692
+00:43:44,820 --> 00:43:47,900
+즉, 여러분이 더 적은 비용으로 사용할 수 있게 해준다는 거죠.
+to make it cheaper for you.
+
+693
+00:43:47,900 --> 00:43:52,020
+모델 가격 안내 페이지를 보면
+So if you look at the
+model pricing page,
+
+694
+00:43:52,020 --> 00:43:56,820
+일반 입력에 대한 가격이 나와 있습니다.
+you will see that there is
+a price for regular inputs.
+
+695
+00:43:56,820 --> 00:43:59,740
+여기서 캐시되지 않은 입력에 대한 요금이죠.
+So inputs that are not cached.
+
+696
+00:43:59,740 --> 00:44:04,540
+그리고 캐시된 입력 토큰마다 부과되는 가격도 볼 수 있습니다.
+And then you have the price
+per cached input token.
+
+697
+00:44:04,540 --> 00:44:07,460
+여기 예를 들어 OpenAI 모델의 경우를 보면
+And here, you see for the
+let's say, OpenAI model,
+
+698
+00:44:07,460 --> 00:44:11,540
+캐시된 토큰은 가격이 10분의 1입니다.
+it's 110th of the price.
+
+699
+00:44:11,540 --> 00:44:14,460
+제가 이 이야기를 통해 드리고 싶은 말은,
+So I guess, what do I
+want to tell you by this?
+
+700
+00:44:14,460 --> 00:44:17,860
+프롬프트를 좀 더 효율적으로 구성하라는 겁니다.
+Well, just try to be
+smart with the prompts
+
+701
+00:44:17,860 --> 00:44:21,340
+그리고 프롬프트에서 반복적으로 사용될 만한
+내용들을 한데 모아두는 것이 좋습니다.
+and try to gather
+all the things that
+
+702
+00:44:21,340 --> 00:44:25,380
+이런 반복될 가능성이 높은 부분을 프롬프트의 앞부분에 두세요.
+are likely to be repeated
+across prompts in the beginning.
+
+703
+00:44:25,380 --> 00:44:32,670
+그래야 이런 캐시 할인 혜택을
+효과적으로 활용할 수 있습니다.
+So that you can leverage
+this nice percentage off.
+
+704
+00:44:32,670 --> 00:44:35,190
+이해되시죠?
+Does that make sense?
+
+705
+00:44:35,190 --> 00:44:35,690
+좋아요.
+OK.
+
+706
+00:44:35,690 --> 00:44:38,150
+좋습니다.
+Cool.
+
+707
+00:44:38,150 --> 00:44:38,790
+훌륭합니다.
+Great.
+
+708
+00:44:38,790 --> 00:44:43,150
+지금까지 우리는 수천, 어쩌면 수백만 개에 달하는 청크를
+수백 개 정도의 관련된 청크로 줄일 수 있는 과정을 살펴봤습니다.
+So up until now,
+we have seen how
+
+709
+00:44:43,150 --> 00:44:46,830
+또 수천 개, 혹은 그 이상에서
+we can go from potentially
+thousands or even, let's say,
+
+710
+00:44:46,830 --> 00:44:52,110
+수백 개의 중요한 청크로
+축소하는 방법에 대해 이야기했죠.
+millions of chunks up to,
+or down to, let's say,
+
+711
+00:44:52,110 --> 00:44:55,670
+이렇게 관련 있을 법한 청크들로
+축소시킬 수 있습니다.
+hundreds of potentially
+relevant chunks.
+
+712
+00:44:55,670 --> 00:44:59,070
+이제 우리가 해야 할 일은
+이 청크들을 좀 더 의미 있는 방식으로 정렬하는 것입니다.
+Now, what we want to
+do is to sort them
+
+713
+00:44:59,070 --> 00:45:01,270
+좀 더 의미 있게 정렬해보려는 거죠.
+in a more meaningful way.
+
+714
+00:45:01,270 --> 00:45:03,450
+그리고 이 두 번째 과정은 선택 사항에 가깝습니다.
+And the second part
+is more optional,
+
+715
+00:45:03,450 --> 00:45:08,150
+사실 첫 번째 단계만으로도 충분할 때가 있기 때문입니다.
+because maybe sometimes this
+first cut that we've done
+
+716
+00:45:08,150 --> 00:45:12,550
+그래도 두 번째 단계를 거치는 이유는
+may be good enough, but I
+guess this second step is
+
+717
+00:45:12,550 --> 00:45:15,150
+최종 점수를 조금 더
+의도적으로 부여하는 과정이기 때문입니다.
+about being more
+intentional in how
+
+718
+00:45:15,150 --> 00:45:21,610
+이렇게 해야 정말로 최종적으로 남길
+상위 k개 청크를 뽑아낼 수 있습니다.
+we give the final score to be
+able to really select the final,
+
+719
+00:45:21,610 --> 00:45:24,310
+즉, 결국 상위 k개의 청크를 고를 수 있게 되는 거죠.
+let's say, top k chunks.
+
+720
+00:45:24,310 --> 00:45:30,450
+그래서 두 번째 단계는 랭킹, 또는 다시 랭킹하는 과정이라고 부릅니다.
+So the second stage is called
+ranking or even re-ranking.
+
+721
+00:45:30,450 --> 00:45:33,450
+리랭킹이라고 부르는 이유는, 첫 번째 단계에서도
+이미 랭킹이 한 번 되기 때문입니다.
+Re-ranking because, I
+guess, with the first step,
+
+722
+00:45:33,450 --> 00:45:35,410
+즉, 이미 어느 정도 순위가 정해진 상태입니다.
+you already have some ranking.
+
+723
+00:45:35,410 --> 00:45:37,610
+그래서 다시 한 번 랭킹을 조정하는 것이죠.
+So we're re-ranking.
+
+724
+00:45:37,610 --> 00:45:41,250
+이때 우리가 하는 일은
+아주 간단한 연산을 사용하는 대신
+And what we're doing
+is instead of using
+
+725
+00:45:41,250 --> 00:45:44,290
+임베딩 간의 유사도 연산처럼
+빠른 방식 대신에
+this very quick
+operation, similarity
+
+726
+00:45:44,290 --> 00:45:48,770
+우리가 계산해 두었던 임베딩들 사이의
+유사도 연산 대신,
+operation between embeddings
+that we've computed,
+
+727
+00:45:48,770 --> 00:45:50,570
+조금 더 정교한 방법을
+사용해 보겠습니다.
+we're going to use
+something that is maybe
+
+728
+00:45:50,570 --> 00:45:53,250
+더 발전된 방식을 쓴다는 의미죠.
+a bit more sophisticated.
+
+729
+00:45:53,250 --> 00:45:57,730
+이제 쿼리와 청크를 별개로 생각하는 대신,
+So instead of considering
+the query and the chunk
+
+730
+00:45:57,730 --> 00:46:01,330
+우리는 어떻게 할 거냐면
+separately, what
+we're going to do
+
+731
+00:46:01,330 --> 00:46:08,010
+둘 다 인코더에 함께 넣어서
+처리할 것입니다.
+is to actually put them both
+in the encoder, both of them,
+
+732
+00:46:08,010 --> 00:46:11,210
+그리고 그 결과로
+관련성 점수를 얻어냅니다.
+and have a relevance
+score out of that.
+
+733
+00:46:11,210 --> 00:46:15,170
+이런 방식이 조금 더 의미 있는 이유는,
+So the reason why it may be a
+little bit more meaningful to do
+
+734
+00:46:15,170 --> 00:46:18,850
+모델이 쿼리와 청크 모두를
+동시에 볼 수 있기 때문입니다.
+it this way is that
+you have a model that
+
+735
+00:46:18,850 --> 00:46:24,130
+그래서 두 입력을 같이 받아서
+점수를 계산하게 됩니다.
+takes a look at both your query
+and your chunk at the same time
+
+736
+00:46:24,130 --> 00:46:27,390
+즉, 그 점수를 산출해주는 거죠.
+and gives you a score.
+
+737
+00:46:27,390 --> 00:46:30,750
+반면, 첫 번째 단계에서는
+쿼리용 임베딩과
+Whereas in the first step,
+you had one embedding
+
+738
+00:46:30,750 --> 00:46:34,430
+청크용 임베딩이 각각 따로 있어서
+for the query and one
+embedding for the chunk,
+
+739
+00:46:34,430 --> 00:46:37,910
+모델이 두 입력 사이의 상호작용을
+반영하지 못했습니다.
+which didn't have that
+interaction that a model could
+
+740
+00:46:37,910 --> 00:46:40,110
+즉, 그런 상호작용을 모델이
+포착할 수 없었던 거죠.
+capture.
+
+741
+00:46:40,110 --> 00:46:43,510
+또한 이 방식은 현업에서도 많이 사용되고 있습니다.
+And you will also see
+out there that this setup
+
+742
+00:46:43,510 --> 00:46:47,910
+이 방식을 크로스 인코더(cross-encoder) 방식이라고 부릅니다.
+is called cross-encoder
+setup because you
+
+743
+00:46:47,910 --> 00:46:52,890
+두 입력 모두 인코더에 함께 들어가기 때문입니다.
+have both your inputs
+fed to your encoder.
+
+744
+00:46:52,890 --> 00:46:55,910
+그래서 입력 간에 교차 상호작용이 발생합니다.
+So there's some
+cross interactions.
+
+745
+00:46:55,910 --> 00:47:00,370
+처음 접근법은 바이 인코더(bi-encoder) 방식이었죠.
+So if you remember the first
+approach is a bi-encoder setup.
+
+746
+00:47:00,370 --> 00:47:02,200
+지금 설명한 것은 크로스 인코더 방식입니다.
+And this one is a cross-encoder.
+
+747
+00:47:09,490 --> 00:47:09,990
+네, 맞아요.
+Yeah.
+
+748
+00:47:09,990 --> 00:47:11,740
+질문은, 실제로 두 입력 사이에서 어텐션을 계산하느냐는 것이군요.
+The question is, you
+will actually compute
+
+749
+00:47:11,740 --> 00:47:13,530
+네, 두 입력 사이의 어텐션을 실제로 계산합니다.
+the attention between the two.
+
+750
+00:47:13,530 --> 00:47:17,230
+네, 맞습니다.
+Yes, absolutely.
+
+751
+00:47:17,230 --> 00:47:22,810
+여기서 Sentence Transformers 쪽도 좋은 문서를 많이 제공합니다.
+And here, sentence there they
+have a lot of good documents.
+
+752
+00:47:22,810 --> 00:47:24,730
+그래서 해당 문서를 꼭 읽어보시길 추천합니다.
+So I highly recommend
+just reading their docs.
+
+753
+00:47:24,730 --> 00:47:28,280
+슬라이드 맨 아래에 링크가 있습니다.
+They're at the
+bottom of the slide.
+
+754
+00:47:28,280 --> 00:47:29,400
+좋습니다.
+Cool.
+
+755
+00:47:29,400 --> 00:47:35,000
+이 과정을 관련이 있을 수 있는 모든 청크에 대해 적용합니다.
+Well, you do that on all your
+potentially relevant chunks.
+
+756
+00:47:35,000 --> 00:47:38,000
+이렇게 하면 각 청크마다 점수가 계산됩니다.
+So you have this
+score that is computed
+
+757
+00:47:38,000 --> 00:47:42,040
+이 점수는 각 프롬프트에 대해 각각의 청크와 연결됩니다.
+for each of these
+chunks with the prompts.
+
+758
+00:47:42,040 --> 00:47:46,840
+그리고 마지막에는 최종적으로 랭킹을 얻게 됩니다.
+And then you finally
+obtain the ranking.
+
+759
+00:47:46,840 --> 00:47:51,720
+이제 질문은, 이 랭킹이 만족스러운가 하는 것입니다.
+And now the question is, are
+you happy with the ranking?
+
+760
+00:47:51,720 --> 00:47:53,620
+그리고 그 질문에 답하기 위해서
+And in order to
+answer that question,
+
+761
+00:47:53,620 --> 00:47:58,400
+자신의 성능을
+정량화할 방법이 필요합니다.
+you need a way to
+quantify your performance.
+
+762
+00:47:58,400 --> 00:48:02,760
+이 부분을 다음 5분 동안
+함께 살펴보겠습니다.
+And that's where we're going to
+see in the next five minutes.
+
+763
+00:48:02,760 --> 00:48:06,360
+이를 위해 일반적으로 어떤
+평가지표를 사용하는지 알아보겠습니다.
+What are the metrics that
+we typically use to do that?
+
+764
+00:48:06,360 --> 00:48:09,240
+이 내용은 사실
+검색이나 추천 시스템에서도
+So again, this is
+very similar to if you
+
+765
+00:48:09,240 --> 00:48:11,140
+비슷하게 적용됩니다.
+do search or recommendation.
+
+766
+00:48:11,140 --> 00:48:14,560
+해당 분야에 경험이 있다면
+So in case you have
+a background there,
+
+767
+00:48:14,560 --> 00:48:18,000
+여러 공통점을 발견할 수 있을 겁니다.
+you will see some commonalities.
+
+768
+00:48:18,000 --> 00:48:20,680
+그럼 이제 전체 구조를 설명하겠습니다.
+So here's the setup.
+
+769
+00:48:20,680 --> 00:48:23,360
+여러 개의 청크가 있다고 가정해봅시다.
+You have a bunch of chunks.
+
+770
+00:48:23,360 --> 00:48:27,100
+먼저 1단계, 2단계를 진행합니다.
+You do this first
+and second step.
+
+771
+00:48:27,100 --> 00:48:28,940
+그리고 마지막에는
+And at the end of
+the day, you will
+
+772
+00:48:28,940 --> 00:48:32,480
+상위 k개의 청크가
+선정됩니다.
+have k chunks that
+will come at the top,
+
+773
+00:48:32,480 --> 00:48:37,220
+그리고 이 청크들이
+관련성이 있다고 판단될 겁니다.
+that you will qualify
+as being relevant.
+
+774
+00:48:37,220 --> 00:48:40,460
+이제 실제로 관련성이 있는
+청크들과 비교하고 싶겠죠.
+And you want to compare
+that with respect
+
+775
+00:48:40,460 --> 00:48:44,060
+실제로 관련된 청크와
+비교하게 됩니다.
+to actually relevant chunks.
+
+776
+00:48:44,060 --> 00:48:48,380
+즉, 이것은 레이블이 있다고 생각할 수 있습니다.
+마치
+So you can think of it as
+you have label like, same as
+
+777
+00:48:48,380 --> 00:48:49,920
+이진 분류(binary classification)와 비슷합니다.
+in binary classification.
+
+778
+00:48:49,920 --> 00:48:52,480
+관련 있는 것과, 관련 없는 것이 있고,
+So you have relevant
+and not relevant,
+
+779
+00:48:52,480 --> 00:48:54,180
+그 중에서 일부를
+관련 있다고 예측하는 거죠.
+and you predict some
+that are relevant
+
+780
+00:48:54,180 --> 00:48:58,180
+그리고 자신이 얼마나 잘하고 있는지
+알아보고 싶을 겁니다.
+and you want to know
+well you're doing.
+
+781
+00:48:58,180 --> 00:49:00,540
+자, 이게 바로 그 설정입니다.
+So this is the setup.
+
+782
+00:49:00,540 --> 00:49:04,420
+랭킹 문제로 오면,
+Well, when it comes
+to ranking, you
+
+783
+00:49:04,420 --> 00:49:08,700
+이 정보를 어떻게든
+포함해야 합니다.
+need to somehow incorporate
+this information
+
+784
+00:49:08,700 --> 00:49:12,820
+내가 해당 항목을 랭킹에서 얼마나
+상위에 뒀는지도 고려해야 하죠.
+of how high in the
+ranking you've put stuff.
+
+785
+00:49:12,820 --> 00:49:14,820
+여기서, n개의 청크를
+가장 중요한 것부터 덜 중요한 것까지 정렬했다고 해봅시다.
+So here, let's
+suppose that you have
+
+786
+00:49:14,820 --> 00:49:21,240
+그리고 이 n개의 청크가
+중요도 순으로 정렬되어 있다고 가정하겠습니다.
+ranked this n chunks from most
+important to least important.
+
+787
+00:49:21,240 --> 00:49:24,870
+즉, 첫 번째, 두 번째, 세 번째... 이런 식으로 순서가 있습니다.
+So let's suppose you have
+first, second, third, and so on,
+
+788
+00:49:24,870 --> 00:49:27,390
+계속 그렇게 이어집니다.
+and so forth.
+
+789
+00:49:27,390 --> 00:49:31,430
+그리고 여러분은 오직 상위 k개만 신경 씁니다.
+And you only care
+about the first k,
+
+790
+00:49:31,430 --> 00:49:34,070
+왜냐하면 랙(RAG) 환경에서는
+because in the rack
+setting, you typically
+
+791
+00:49:34,070 --> 00:49:37,030
+보통 상위 k개의 관련된 문서를
+가져오기 때문입니다.
+retrieve the top k
+that are relevant.
+
+792
+00:49:37,030 --> 00:49:41,670
+그리고 이렇게 뽑은 상위 k개를
+프롬프트에 넣게 됩니다.
+And you put all these
+top k in your prompt.
+
+793
+00:49:41,670 --> 00:49:47,230
+여기서 가장 대표적으로 사용하는 평가지표가 바로 NDCG입니다.
+Well, the first metric that you
+will likely use is called NDCG.
+
+794
+00:49:49,990 --> 00:49:51,090
+알파벳이 굉장히 많네요.
+It's a lot of letters.
+
+795
+00:49:51,090 --> 00:49:53,550
+NDCG가 무슨 의미인지
+이제 설명해 드리겠습니다.
+I'm going to just
+explain what that means.
+
+796
+00:49:53,550 --> 00:50:01,310
+NDCG는 내 랭킹이 얼마나 좋은지
+수치화하려는 메트릭입니다.
+So NDCG tries to quantify
+how good your ranking is
+
+797
+00:50:01,310 --> 00:50:04,470
+여기서는 관련된 문서를
+어디에 랭킹시켰는지를 고려하죠.
+by taking into
+consideration where
+
+798
+00:50:04,470 --> 00:50:08,830
+즉, 여러분이 관련 있는 문서를 어디에 랭킹시켰는지를 보는 겁니다.
+you ranked relevant documents.
+
+799
+00:50:08,830 --> 00:50:12,230
+그래서 다소 복잡해 보일 수 있는
+공식이 등장하지만,
+So you have this formula
+that may seem scary,
+
+800
+00:50:12,230 --> 00:50:16,290
+사실 NDCG가 하려는 일은
+꽤 직관적입니다.
+but it's actually quite
+simple what it's trying to do.
+
+801
+00:50:16,290 --> 00:50:23,170
+즉, 이 지표는 점수가 높아지도록 유도합니다.
+So it's trying to incentivize
+the score to be higher.
+
+802
+00:50:23,170 --> 00:50:27,850
+관련된 문서를
+If your ranking the
+relevant documents
+
+803
+00:50:27,850 --> 00:50:31,050
+더 앞 순위에 배치할수록
+closer to the first position.
+
+804
+00:50:31,050 --> 00:50:38,130
+이 지표는 처음 k개의 위치에 대해
+합을 계산하는 방식입니다.
+So what it does, is it is the
+sum over the first k positions
+
+805
+00:50:38,130 --> 00:50:39,970
+여러분이 매긴 순위에 따라 합산합니다.
+that you're ranked.
+
+806
+00:50:39,970 --> 00:50:42,170
+각 위치별로,
+And it is looking
+at whether what
+
+807
+00:50:42,170 --> 00:50:47,410
+그 위치에 배치된 문서가
+관련 문서인지 여부를 따집니다.
+you've ranked for each of these
+positions is relevant or not.
+
+808
+00:50:47,410 --> 00:50:50,730
+예를 들어, 첫 번째 위치를 확인합니다.
+So for instance, it
+checks the first position.
+
+809
+00:50:50,730 --> 00:50:52,350
+첫 번째 위치가 관련 있는지 없는지를 봅니다.
+First position is
+irrelevant or not.
+
+810
+00:50:52,350 --> 00:50:55,450
+관련이 있으면 1이고,
+So relevance-- if it's
+relevant, it's one.
+
+811
+00:50:55,450 --> 00:51:01,450
+이 값은 순위에 따른 함수로 나타난
+어떤 값의 역수입니다.
+So it's one over some quantity
+that is a function of the rank.
+
+812
+00:51:01,450 --> 00:51:05,170
+이 과정을 모든 순위에 대해 반복합니다.
+And it does that
+for all the ranks.
+
+813
+00:51:05,170 --> 00:51:09,450
+즉, 관련 문서를
+더 높은 순위에 놓을수록 점수가 더 높아집니다.
+So the score will
+be higher if you
+
+814
+00:51:09,450 --> 00:51:13,490
+관련 문서를 상위 순위에 랭크할수록 점수가 올라갑니다.
+rank relevant documents high.
+
+815
+00:51:13,490 --> 00:51:16,890
+바로 이 점이 이 지표의 핵심 목표입니다.
+So that's basically the
+goal of this metric.
+
+816
+00:51:16,890 --> 00:51:21,630
+여기서 이 부분이 바로
+Discounted Cumulative Gain입니다.
+So this part is the
+discounted cumulative gain.
+
+817
+00:51:21,630 --> 00:51:23,630
+Cumulative Gain이라고 부르는 이유는,
+So it's cumulative
+gain because you're
+
+818
+00:51:23,630 --> 00:51:28,470
+여러분이 처음 k개의 순위 안에
+관련 문서를 넣었는지 살피기 때문입니다.
+looking at basically, if
+you had relevant documents
+
+819
+00:51:28,470 --> 00:51:33,430
+이 부분이 누적(Cumulative) 요소이고,
+in your first k positions,
+which is cumulative part,
+
+820
+00:51:33,430 --> 00:51:36,910
+Discounted라는 의미는
+더 앞 순위에 있을수록 더 유리하게 작용하기 때문입니다.
+it's discounted because
+it's better for you
+
+821
+00:51:36,910 --> 00:51:40,970
+관련 문서가 1번 위치에 있는 것이
+to have a relevant
+document in position one,
+
+822
+00:51:40,970 --> 00:51:42,990
+예를 들어, k번째 위치에 있는 것보다 더 좋기 때문입니다.
+let's say, than position k.
+
+823
+00:51:42,990 --> 00:51:48,150
+이 점은 분모에서 확인할 수 있습니다.
+And you can see that
+in the denominator.
+
+824
+00:51:48,150 --> 00:51:50,610
+자, 그럼 왜 NDCG라고 부를까요?
+Now, why do we say NDCG?
+
+825
+00:51:50,610 --> 00:51:53,230
+여기서 정규화 부분은 무엇일까요?
+What is the normalization part?
+
+826
+00:51:53,230 --> 00:51:57,710
+이 지표는 관련 문서의 개수에 따라
+Well, this metric can take
+a lot of different values,
+
+827
+00:51:57,710 --> 00:52:00,790
+정말 다양한 값을 가질 수 있습니다.
+depending on how many
+relevant documents there are.
+
+828
+00:52:00,790 --> 00:52:06,370
+그래서 사람들이 취하는 방법은, 소위
+So what people do is they
+compute the quote, unquote,
+
+829
+00:52:06,370 --> 00:52:10,390
+‘이상적 또는 최적, 혹은 상한’
+"ideal or optimal
+or upper bound"
+
+830
+00:52:10,390 --> 00:52:13,670
+DCG를 각 쿼리에 대해 계산하는 것입니다.
+DCG that you can get
+for a given query,
+
+831
+00:52:13,670 --> 00:52:19,960
+이 값을 ideal DCG라고 하고,
+and they call that ideal DCG,
+and they just normalized DCG
+
+832
+00:52:19,960 --> 00:52:20,560
+DCG를 ideal DCG로 나누어 정규화합니다.
+over IDCG.
+
+833
+00:52:23,320 --> 00:52:27,360
+이렇게 하는 이유는
+So the reason why
+they do that is they
+
+834
+00:52:27,360 --> 00:52:29,920
+최적 순위를 맞췄을 때
+want you to score
+a score of one,
+
+835
+00:52:29,920 --> 00:52:34,120
+점수가 1이 되도록 하려는 것입니다.
+if you are matching
+the optimal ranking.
+
+836
+00:52:34,120 --> 00:52:37,060
+즉, 점수에 의미를 부여하기 위함입니다.
+They basically want to
+make the score meaningful.
+
+837
+00:52:39,600 --> 00:52:42,460
+이해가 되시죠?
+So does this make sense?
+
+838
+00:52:42,460 --> 00:52:42,960
+네?
+Yeah?
+
+839
+00:52:52,440 --> 00:52:55,940
+그럼 이제, 어떻게 relevance score를 계산하는지 알아보겠습니다.
+So the question is, how do they
+compute the relevance score?
+
+840
+00:52:55,940 --> 00:52:59,160
+1단계, 2단계로 생각해볼 수 있습니다.
+So you can think
+step one and step two
+
+841
+00:52:59,160 --> 00:53:03,280
+이 과정을 두 단계로 볼 수 있습니다.
+as being a two-step
+process for you
+
+842
+00:53:03,280 --> 00:53:08,040
+즉, 어떤 문서가 관련 있는지 판단하는 두 단계의 과정이죠.
+to say which documents you
+are saying are relevant.
+
+843
+00:53:08,040 --> 00:53:11,440
+이 두 단계가 끝나면,
+So at the end of
+this two-step stage,
+
+844
+00:53:11,440 --> 00:53:16,340
+여러분이 관련 있다고 판단한 것들이 여기에 모입니다.
+the ones that you say
+are relevant are here.
+
+845
+00:53:16,340 --> 00:53:20,900
+이제 보통, 검색된 각 청크마다 점수가 부여됩니다.
+Now, you typically have a
+score for each retrieved chunk.
+
+846
+00:53:20,900 --> 00:53:25,220
+이제 이 청크들을 점수에 따라 정렬하게 됩니다.
+So you're going to
+sort these chunks.
+
+847
+00:53:25,220 --> 00:53:30,580
+점수를 기준으로 내림차순으로 정렬하는 거죠.
+You're going to sort them by
+the score in a descending order.
+
+848
+00:53:30,580 --> 00:53:33,100
+여기서 사용하는 relevance, 즉 관련성 정보는
+And the relevance here
+that you're going to use
+
+849
+00:53:33,100 --> 00:53:34,400
+실제 레이블을 의미합니다.
+is the actual label.
+
+850
+00:53:34,400 --> 00:53:39,300
+즉, 해당 청크가 실제로 관련이 있는지 확인하는 겁니다.
+So is the chunk actually
+relevant or not?
+
+851
+00:53:39,300 --> 00:53:44,340
+k개의 검색된 청크를 보고,
+So you're going to look at
+your k retrieved chunks,
+
+852
+00:53:44,340 --> 00:53:46,400
+각각에 대해 실제로 관련이 있는지 생각해보면 됩니다.
+and you're going to
+ask yourself, OK,
+
+853
+00:53:46,400 --> 00:53:48,597
+예를 들어, 첫 번째 청크가 정말 관련이 있을까요?
+is the first chunk
+actually relevant?
+
+854
+00:53:48,597 --> 00:53:49,430
+그래서 여러분은 레이블을 갖게 됩니다.
+So you have a label.
+
+855
+00:53:49,430 --> 00:53:52,620
+어떤 것이 관련이 있고 어떤 것은 아닌지 알 수 있겠죠.
+You know which ones are
+relevant, which ones are not.
+
+856
+00:53:52,620 --> 00:53:54,803
+이 중에서 관련이 있다고 평가된 것들이
+And these ones are
+going to be the ones
+
+857
+00:53:54,803 --> 00:53:55,970
+공식에 사용되는 청크가 됩니다.
+you will use in the formula.
+
+858
+00:53:58,540 --> 00:53:59,840
+네, 이게 바로 정답 레이블입니다.
+Yes, that's the ground truth.
+
+859
+00:53:59,840 --> 00:54:00,380
+맞아요.
+Exactly.
+
+860
+00:54:00,380 --> 00:54:00,880
+네.
+Yeah.
+
+861
+00:54:04,600 --> 00:54:05,100
+좋아요.
+Cool.
+
+862
+00:54:05,100 --> 00:54:07,500
+이해 되시나요?
+Does that make sense?
+
+863
+00:54:07,500 --> 00:54:08,980
+네.
+Yeah.
+
+864
+00:54:08,980 --> 00:54:09,480
+좋습니다.
+OK.
+
+865
+00:54:09,480 --> 00:54:10,660
+훌륭해요.
+Great.
+
+866
+00:54:10,660 --> 00:54:12,540
+여러 지표들이 더 있습니다.
+So you have a bunch
+of other metrics.
+
+867
+00:54:12,540 --> 00:54:16,280
+그중에 'reciprocal rank'라는 것이 있어요.
+You have another one that's
+called the reciprocal rank.
+
+868
+00:54:16,280 --> 00:54:19,440
+이 지표는 훨씬 더 단순합니다.
+So this one is much simpler.
+
+869
+00:54:19,440 --> 00:54:27,120
+관련된 문서들 중에서 가장 높은 순위의 역수를 사용합니다.
+It takes the inverse
+of the highest rank
+
+870
+00:54:27,120 --> 00:54:29,980
+즉, 모든 관련 문서 중에서 가장 높은 순위의 역수를 취하는 거죠.
+of all the relevant documents.
+
+871
+00:54:29,980 --> 00:54:34,720
+예를 들어 상위 k개의 문서 중에서
+So if let's suppose in
+your top k documents,
+
+872
+00:54:34,720 --> 00:54:38,040
+첫 번째 관련 문서가 있다고 해봅시다.
+let's suppose the first
+relevant document, let's say,
+
+873
+00:54:38,040 --> 00:54:40,320
+그 문서가 2번째 순위에 있다고 가정해보죠.
+comes at rank number two.
+
+874
+00:54:40,320 --> 00:54:43,200
+이 경우 순위는 2가 됩니다.
+Then rank will be equal to two.
+
+875
+00:54:43,200 --> 00:54:47,800
+즉, 이 지표는 이후에 나오는 다른 관련 문서들은 신경 쓰지 않습니다.
+So it basically does not care
+about any relevant documents
+
+876
+00:54:47,800 --> 00:54:51,800
+첫 번째 관련 문서 이후의 문서는 고려하지 않아요.
+that are past that
+first relevant document.
+
+877
+00:54:51,800 --> 00:54:54,000
+이런 식으로 훨씬 더 간단한 지표라고 볼 수 있습니다.
+So this is just like
+a simpler metric
+
+878
+00:54:54,000 --> 00:54:56,440
+그리고 이 지표는 일반적으로 상관관계가 높게 나타납니다.
+that typically correlates well.
+
+879
+00:54:56,440 --> 00:54:59,280
+그래서 사람들이 이 지표를 많이 사용합니다.
+So that's why people use it.
+
+880
+00:54:59,280 --> 00:55:01,160
+그리고 물론 여러분이 익숙한 고전적인 분류 지표들도 있습니다.
+And then, of course,
+you're familiar
+
+881
+00:55:01,160 --> 00:55:04,320
+그리고 여러분이 익숙한 고전적인 분류 평가 지표가 있습니다.
+with the classic
+classification metrics--
+
+882
+00:55:04,320 --> 00:55:06,440
+바로 리콜(recall)과 정밀도(precision)죠.
+recall and precision.
+
+883
+00:55:06,440 --> 00:55:09,480
+기억하실지 모르겠지만, 만약 두 개의 클래스가 있다면
+So if you remember, if
+you have two classes,
+
+884
+00:55:09,480 --> 00:55:14,290
+하나는 양성 클래스고, 다른 하나는 음성 클래스입니다.
+you have the positive class,
+you have the negative class.
+
+885
+00:55:14,290 --> 00:55:18,330
+리콜은 실제 양성인 데이터들을
+So recall, what it
+does is it takes
+
+886
+00:55:18,330 --> 00:55:24,290
+전부 대상으로 삼아서
+a look at all the actually
+positive observations,
+
+887
+00:55:24,290 --> 00:55:28,650
+이 중에서 우리가 실제로 양성이라고 예측한 것이
+and it tries to ask itself among
+all these actually positive
+
+888
+00:55:28,650 --> 00:55:34,370
+몇 개인지를 보는 지표입니다.
+samples, which are the ones that
+you actually predicted positive?
+
+889
+00:55:34,370 --> 00:55:36,570
+여러분이 잘 아는 그 리콜 개념입니다.
+That's the recall
+that you all know.
+
+890
+00:55:36,570 --> 00:55:40,770
+이 개념과 비슷한 랭킹 지표도 있습니다.
+And there is, I guess, a
+ranking equivalent, which
+
+891
+00:55:40,770 --> 00:55:44,950
+관련 있는 모든 문서들 중에서,
+is out of all the documents
+that are relevant,
+
+892
+00:55:44,950 --> 00:55:49,850
+실제로 관련 있는 문서, 즉 양성 클래스에 해당하는 것들 중에
+actually relevant, so this is
+like your positive class, which
+
+893
+00:55:49,850 --> 00:55:55,330
+우리가 관련 있다고 예측한 것이 무엇인지 보는 겁니다.
+are the ones that you actually
+predicted as being relevant?
+
+894
+00:55:55,330 --> 00:56:01,450
+즉, top k 안에 실제로 어떤 것들이 들어가 있는지를 보는 거죠.
+So this is basically which
+ones are in the top k?
+
+895
+00:56:01,450 --> 00:56:04,790
+이와 비슷하게, precision에 해당하는 지표도 있습니다.
+And similarly, you also have
+the precision equivalent.
+
+896
+00:56:04,790 --> 00:56:09,390
+기억하실지 모르겠지만, 정밀도는
+So if you remember, precision
+is out of all the ones
+
+897
+00:56:09,390 --> 00:56:14,230
+우리가 양성이라고 예측한 것들 중에
+that you have predicted to be
+positives, how many of them
+
+898
+00:56:14,230 --> 00:56:17,590
+실제로 양성인 것이 몇 개인지 살펴보는 지표입니다.
+are actually positive?
+
+899
+00:56:17,590 --> 00:56:19,170
+여기서도 마찬가지 개념이 적용됩니다.
+So this is the equivalent here.
+
+900
+00:56:19,170 --> 00:56:21,730
+즉, 우리가 양성이라고 예측한 것들 중에
+So which are the ones that
+you've predicted to be positive?
+
+901
+00:56:21,730 --> 00:56:26,950
+즉, 여러분이 top k로 선정한 항목들이 바로
+여기서 말하는 'positives'가 됩니다.
+So which are the ones that you
+have selected in your top k?
+
+902
+00:56:26,950 --> 00:56:30,250
+그리고 그 중에서 실제로 정답인,
+참값이 얼마인가를 보는 것이죠.
+And among those ones, which
+ones are actually positive?
+
+903
+00:56:30,250 --> 00:56:31,860
+즉, 실제로 관련 있는 항목이
+몇 개나 되는지 의미합니다.
+So which ones are
+actually relevant?
+
+904
+00:56:35,590 --> 00:56:38,310
+이해가 되시나요?
+Does that make sense?
+
+905
+00:56:38,310 --> 00:56:40,910
+이 네 가지 평가 지표, 즉
+So I guess these four metrics--
+
+906
+00:56:40,910 --> 00:56:44,910
+NDCG, MRR, precision at k, recall at k는
+NDCG, MRR, precision
+at k, recall at k,
+
+907
+00:56:44,910 --> 00:56:47,510
+다양한 논문에서 자주 볼 수 있습니다.
+we see this in a
+bunch of papers.
+
+908
+00:56:47,510 --> 00:56:49,230
+그래서 저는 여러분이 이 지표들의 개념과
+So I just highly
+recommend you just
+
+909
+00:56:49,230 --> 00:56:53,070
+공식에도 익숙해지는 것을 추천합니다.
+get familiar with their ideas
+and maybe with the formula.
+
+910
+00:56:53,070 --> 00:56:57,070
+이런 지표들을 사용해서
+retriever의 성능을 수치화할 수 있습니다.
+And these would be the ones
+that you would use to quantify,
+
+911
+00:56:57,070 --> 00:57:00,950
+즉, retriever가 잘 작동하는지 아닌지를
+평가할 때 이런 지표를 씁니다.
+whether your retriever is
+doing a good job or not.
+
+912
+00:57:00,950 --> 00:57:03,410
+여러가지 벤치마크 셋이 있죠.
+So you have a bunch of
+benchmarks out there.
+
+913
+00:57:03,410 --> 00:57:05,730
+그 중에 꽤 유명한 벤치마크가 하나 있습니다.
+So there is one that is
+actually quite popular.
+
+914
+00:57:05,730 --> 00:57:10,570
+바로 massive text embedding benchmark라는 것이에요.
+It's is called massive
+text embedding benchmark.
+
+915
+00:57:10,570 --> 00:57:12,470
+그래서 retriever의 성능을 테스트하려면
+So if you want to
+test your retriever,
+
+916
+00:57:12,470 --> 00:57:17,690
+보통 이 벤치마크를 사용해서 평가하고,
+if it performs well or not would
+typically take it, and then
+
+917
+00:57:17,690 --> 00:57:20,170
+여기에 retriever를 적용해서
+just evaluate it
+on that benchmark,
+
+918
+00:57:20,170 --> 00:57:22,790
+각종 평가 지표 값을 계산하는 식이죠.
+and then have all
+these metrics computed.
+
+919
+00:57:22,790 --> 00:57:24,850
+그리고 여러 솔루션이 있으면
+And then if you have
+different solutions,
+
+920
+00:57:24,850 --> 00:57:26,860
+흔히 이 지표들로 서로 비교하게 됩니다.
+you would typically
+compare this metric.
+
+921
+00:57:29,850 --> 00:57:33,330
+이제 여기까지 해서,
+여러분이 조금이나마
+And with that, we,
+I guess, hopefully,
+
+922
+00:57:33,330 --> 00:57:37,130
+RAG 시스템을 어떻게 구축하는지에 대해
+좀 더 감을 잡으셨으리라 생각합니다.
+have a better sense of
+how to build a RAG system
+
+923
+00:57:37,130 --> 00:57:41,690
+특히 좋은 리트리버를 만드는 방법에 대해서도
+살펴봤습니다.
+and specifically how to
+have a good retriever.
+
+924
+00:57:41,690 --> 00:57:44,570
+이제 아마 1분 정도 남은 것 같습니다.
+So we have just maybe
+one more minute.
+
+925
+00:57:44,570 --> 00:57:48,430
+첫 번째 부분에 대해 질문 있으신가요?
+Is there any questions
+on that first part?
+
+926
+00:57:48,430 --> 00:57:48,930
+네?
+Yeah?
+
+927
+00:57:58,490 --> 00:58:00,450
+질문이 re-ranking에 관한 것인데요,
+So the question is,
+so for the re-ranking,
+
+928
+00:58:00,450 --> 00:58:03,190
+여기서는 인코더를 사용해서
+relevance score를 출력하고 있습니다.
+we're using an encoder that
+will output a relevance score.
+
+929
+00:58:03,190 --> 00:58:07,100
+그래서 보통 그런 역할을 하는 모델을
+학습시키게 됩니다.
+So we will typically train
+a model that does that.
+
+930
+00:58:07,100 --> 00:58:08,700
+그리고 일반적으로…
+So there are typically--
+
+931
+00:58:08,700 --> 00:58:10,760
+이미 사전학습된 모델도 있지만,
+I believe there are
+some pre-trained ones,
+
+932
+00:58:10,760 --> 00:58:16,440
+직접 커스텀 모델을 사용할 수도 있습니다.
+but out there, you can very
+well have your custom one.
+
+933
+00:58:16,440 --> 00:58:20,100
+이러한 모델은 보통 첫 번째 단계에 비해
+조금 더 복잡하게 설계됩니다.
+So that model will typically
+be a bit more sophisticated
+
+934
+00:58:20,100 --> 00:58:22,020
+첫 단계와 비교했을 때 그렇다는 의미죠.
+compared to the first step.
+
+935
+00:58:22,020 --> 00:58:24,980
+왜냐하면 이 단계에서는
+좀 더 많은 시간을 들여
+Because here, you can
+afford to spend more time
+
+936
+00:58:24,980 --> 00:58:28,340
+score를 산출할 수 있기 때문인데,
+to produce that score because
+you're operating out of,
+
+937
+00:58:28,340 --> 00:58:31,520
+예를 들어, 100여 개의 후보 중에서
+let's say, over 100
+possible candidates,
+
+938
+00:58:31,520 --> 00:58:35,180
+고르는 과정이기 때문입니다.
+수백만 개까지 고르는 경우가 아니니까요.
+as opposed to let's
+say, much more millions
+
+939
+00:58:35,180 --> 00:58:38,040
+혹은 수십만 개가 넘는 후보 중에서 하는게 아니라요.
+or hundreds of thousands.
+
+940
+00:58:38,040 --> 00:58:41,200
+이런 식으로 동작한다는 점을 기억하시면 되겠습니다.
+So that's the idea.
+
+941
+00:58:41,200 --> 00:58:41,700
+네, 질문 있으신가요?
+Yeah?
+
+942
+00:58:46,820 --> 00:58:50,500
+여기에서 드는 질문은, 대조 손실(contrastive loss)을 사용한
+학습은 어떨까 하는 것입니다.
+So the question is, how about
+training with contrastive loss?
+
+943
+00:58:50,500 --> 00:58:54,420
+이 부분은 자세히 다루지는 않지만,
+This is a detail, we
+not I guess, cover here.
+
+944
+00:58:54,420 --> 00:58:56,660
+이런 모델들을 학습시키기 위해서는
+But in order to
+train these models,
+
+945
+00:58:56,660 --> 00:59:00,540
+여러 가지 다른 종류의 손실 함수들이 사용됩니다.
+you'll have a bunch of different
+types of loss function.
+
+946
+00:59:00,540 --> 00:59:05,080
+그래서 S-BERT 논문을 꼭 읽어보길 추천합니다.
+So I highly recommend you
+read the S-BERT paper,
+
+947
+00:59:05,080 --> 00:59:07,800
+그 논문에서는 여러 형태의 손실 함수들이
+because in that paper, there
+are several loss functions
+
+948
+00:59:07,800 --> 00:59:10,160
+서로 비교되고 있습니다.
+that the paper tries to compare.
+
+949
+00:59:10,160 --> 00:59:12,215
+그리고 대조 손실도 그 중 하나입니다.
+And this is one of them.
+
+950
+00:59:12,215 --> 00:59:13,340
+좋은 질문이었습니다.
+So that's a great question.
+
+951
+00:59:13,340 --> 00:59:17,760
+다시 한 번, S-BERT 논문을 꼭 읽어보시길 추천합니다.
+I highly recommend reading
+the S-BERT paper for that.
+
+952
+00:59:17,760 --> 00:59:19,080
+좋습니다.
+Cool.
+
+953
+00:59:19,080 --> 00:59:21,520
+이제 Shervine에게 마이크를 넘기겠습니다.
+With that, I'll
+give it to Shervine.
+
+954
+00:59:21,520 --> 00:59:24,040
+감사합니다, Afshine.
+Thank you, Afshine.
+
+955
+00:59:24,040 --> 00:59:28,220
+RAG 방법론을 다뤄주셔서 정말 감사합니다.
+So thanks a lot for covering
+the RAG methodology.
+
+956
+00:59:28,220 --> 00:59:32,560
+이제 제가 가장 좋아하는 강의의 파트로 넘어가겠습니다.
+So now, we arrive at my
+favorite part of the lecture.
+
+957
+00:59:32,560 --> 00:59:35,980
+이제 툴 콜링과 에이전트 세계를 다루겠습니다.
+We're going to see tool
+calling and the agentic world.
+
+958
+00:59:35,980 --> 00:59:38,960
+그리고 여러분의 LLM이 얼마나 더 강력해질 수 있는지
+And we're going to see
+how much more powerful
+
+959
+00:59:38,960 --> 00:59:42,680
+곧바로 보여드릴 예정입니다.
+your LLMs are going to
+become just in a second.
+
+960
+00:59:42,680 --> 00:59:45,240
+방금 Afshine이 이야기한 것은
+So what Afshine
+just mentioned is
+
+961
+00:59:45,240 --> 00:59:48,000
+Afshine이 방금 언급한 부분은
+비구조화된 데이터를 LLM 프롬프트에
+어떻게 활용할 수 있는지에 관한 내용이었습니다.
+how you would deal
+with incorporating
+
+962
+00:59:48,000 --> 00:59:53,280
+즉, 구조화되지 않은 데이터를 LLM의 프롬프트에
+어떻게 포함시키는지 다뤘죠.
+data that is not structured as
+part of your prompts to the LLM.
+
+963
+00:59:53,280 --> 00:59:57,120
+이제 우리는 여기서 더 나아가서
+구조화된 데이터를 넣을 때 무엇을 더 할 수 있는지 살펴보겠습니다.
+And now, we're going to
+see what we could do more.
+
+964
+00:59:57,120 --> 01:00:01,300
+이번에는 주입하고 싶은 데이터가
+구조화된 경우를 생각해보겠습니다.
+In the case, the data that we
+want to inject is structured.
+
+965
+01:00:01,300 --> 01:00:04,100
+RAG의 경우에는 여러 문서들이 있고,
+So in the case of RAG,
+you have documents
+
+966
+01:00:04,100 --> 01:00:05,700
+여기에 많은 단어들이 들어 있습니다.
+with words and words and words.
+
+967
+01:00:05,700 --> 01:00:09,260
+여러분이 해야 할 것은
+프롬프트에 맞는 관련 문서를 가져오는 것입니다.
+And you just want to fetch
+the relevant documents
+
+968
+01:00:09,260 --> 01:00:10,980
+그렇게 해서 프롬프트에 답을 하게 됩니다.
+to answer your prompts.
+
+969
+01:00:10,980 --> 01:00:13,780
+하지만 여기서는 만약 여러분에게
+But here, let's
+suppose that you have
+
+970
+01:00:13,780 --> 01:00:20,900
+입력과 출력을 결정하는
+어떤 구조가 데이터에 있다고 가정해봅시다.
+some structure that determines
+input/outputs in your data.
+
+971
+01:00:20,900 --> 01:00:23,760
+이런 데이터는 보통 표 형태로
+나타낼 수도 있겠죠.
+So typically, you could
+represent it maybe as a table.
+
+972
+01:00:23,760 --> 01:00:25,880
+그래서 각각의 열이 따로 있습니다.
+So you have separate columns.
+
+973
+01:00:25,880 --> 01:00:28,980
+그리고 특정 열의 값에 따라
+And then depending on the
+value of given columns,
+
+974
+01:00:28,980 --> 01:00:31,380
+특정한 출력이 결정됩니다.
+you have a given output.
+
+975
+01:00:31,380 --> 01:00:36,180
+이런 설정을 함수 형태로
+재구성할 수 있습니다.
+So we could probably
+reframe that setup
+
+976
+01:00:36,180 --> 01:00:39,120
+즉, 함수 기반의 구조로 바꿀 수 있습니다.
+into a function, a setup.
+
+977
+01:00:39,120 --> 01:00:41,920
+우리가 툴 콜링을 언급한 것을 기억하시죠.
+So we mentioned tool calling.
+
+978
+01:00:41,920 --> 01:00:45,780
+이러한 방식으로 재정의하는 것을
+함수 콜링이라고 부릅니다.
+And then this rephrasing is
+called the function calling.
+
+979
+01:00:45,780 --> 01:00:50,740
+예를 들어 입력과 출력 사이의 관계를
+이렇게 함수로 표현한다고 가정해보겠습니다.
+So let's suppose that you get
+this relationship between input
+
+980
+01:00:50,740 --> 01:00:55,700
+이후 이 파트에서는 입력과 출력의 관계를
+함수를 통해 다루겠습니다.
+and output through a function
+for the rest of this part.
+
+981
+01:00:55,700 --> 01:00:58,630
+그리고 여기서, 만약 제가 변환을 해야 한다면
+And then here, if
+I had to transpose
+
+982
+01:00:58,630 --> 01:01:03,950
+주어진 ID와 필드, 그리고 다른 인자들의 결과가
+what the result of a given ID
+and field and other arguments
+
+983
+01:01:03,950 --> 01:01:06,150
+어떻게 나타날지 생각해볼 수 있는데,
+would look like, you
+could interpret it
+
+984
+01:01:06,150 --> 01:01:09,830
+이것들을 인자로 하는 함수로 해석할 수 있습니다.
+as a function with
+these as arguments.
+
+985
+01:01:09,830 --> 01:01:13,033
+출력 값은 그냥 그 함수의 출력이 되는 거죠.
+And the output would be simply
+what you have as an output
+
+986
+01:01:13,033 --> 01:01:13,700
+함수에서 반환되는 결과와 같습니다.
+to the function.
+
+987
+01:01:16,590 --> 01:01:19,350
+툴 콜링과 함수 콜링의 관점에서 보면,
+In the world of tool
+calling and function
+
+988
+01:01:19,350 --> 01:01:21,750
+대부분의 경우,
+calling, very
+oftentimes, you're going
+
+989
+01:01:21,750 --> 01:01:26,390
+LLM들은 파이썬을 주로 언어로 사용합니다.
+to see that LLMs tend to
+use Python as a language,
+
+990
+01:01:26,390 --> 01:01:29,590
+읽기 쉽기 때문이죠.
+just because it's
+so simple to read.
+
+991
+01:01:29,590 --> 01:01:32,790
+그래서 저희도 이번 예시에서 파이썬을 사용할 겁니다.
+So this is what we are going
+to use as an example as well.
+
+992
+01:01:32,790 --> 01:01:36,610
+하지만 꼭 파이썬만 사용해야 하는 건 아닙니다.
+But there is nothing that
+ties us to Python necessarily.
+
+993
+01:01:36,610 --> 01:01:39,970
+다른 언어에서도 충분히 툴 콜링이 가능합니다.
+So you could well have a tool
+calling in other languages.
+
+994
+01:01:42,510 --> 01:01:44,590
+참고로 말씀드린 겁니다.
+Just as a note.
+
+995
+01:01:44,590 --> 01:01:47,890
+이 설정에 대해 질문 있으신가요?
+Any questions on the setup?
+
+996
+01:01:47,890 --> 01:01:48,390
+네, 좋습니다.
+OK.
+
+997
+01:01:48,390 --> 01:01:50,750
+좋아요.
+Awesome.
+
+998
+01:01:50,750 --> 01:01:53,590
+툴 콜링 자체에 특별히 논란의 여지는 없지만,
+So there is nothing
+controversial about tool
+
+999
+01:01:53,590 --> 01:01:57,410
+그래도 모두 이해를 맞추기 위해 정의를 한번 더 말씀드리겠습니다.
+calling, but I'm going to
+still state a full definition
+
+1000
+01:01:57,410 --> 01:02:00,210
+우리가 같은 내용을 이해하고 있는지 확인하기 위함입니다.
+to make sure that we
+are on the same page.
+
+1001
+01:02:00,210 --> 01:02:02,730
+그래서 제가 여기저기 자료를 찾아봤습니다.
+So I was browsing
+here and there,
+
+1002
+01:02:02,730 --> 01:02:05,370
+권위 있는 출처를 찾으려고 했어요.
+and I tried to find an
+authoritative source.
+
+1003
+01:02:05,370 --> 01:02:08,290
+IBM 같은 웹사이트에
+이런 내용을 다루는 글이 있더라고요.
+And this website
+like on IBM, there
+
+1004
+01:02:08,290 --> 01:02:10,770
+그 글에서는 이렇게 정의하고 있습니다.
+is an article that defines--
+
+1005
+01:02:10,770 --> 01:02:12,670
+툴 콜링이 무엇인지 정의하려고 시도한 글이에요.
+that tries to define
+what tool calling is.
+
+1006
+01:02:12,670 --> 01:02:17,330
+그래서 앞으로는 그 정의를 기준으로 설명하겠습니다.
+So I'm going to anchor on
+their definition from now on.
+
+1007
+01:02:17,330 --> 01:02:19,490
+이제 그 정의를 직접 읽어보겠습니다.
+So I'm going to read out loud.
+
+1008
+01:02:19,490 --> 01:02:21,850
+툴 콜링은 자율 시스템이
+So tool calling allows
+autonomous systems
+
+1009
+01:02:21,850 --> 01:02:26,810
+동적으로 외부 리소스에 접근하여
+복잡한 작업을 완수할 수 있게 해줍니다.
+to complete complex tasks
+by dynamically accessing
+
+1010
+01:02:26,810 --> 01:02:30,610
+그리고 외부 자원을 활용해
+작업을 수행할 수도 있습니다.
+and may act upon
+external resources.
+
+1011
+01:02:30,610 --> 01:02:35,170
+여기서 여러분이 기억해야 할 포인트는 두 가지입니다.
+So the things that I want you
+to get from that are two things.
+
+1012
+01:02:35,170 --> 01:02:39,670
+첫 번째는, 어떤 과업을 완수한다는 개념이고,
+So first, you have the notion
+of completing some task.
+
+1013
+01:02:39,670 --> 01:02:44,890
+즉, 입력이 주어졌을 때
+주어진 작업을 마치는 것이 중요하다는 점입니다.
+So given an input and you have
+to complete some task and then
+
+1014
+01:02:44,890 --> 01:02:49,810
+그리고 잠재적으로 외부 리소스에
+의존할 수 있다는 점도 있습니다.
+the reliance potentially
+on external resources.
+
+1015
+01:02:49,810 --> 01:02:51,550
+반드시 외부 리소스를 사용해야 하는 건 아닙니다.
+So it doesn't have
+to be external.
+
+1016
+01:02:51,550 --> 01:02:53,990
+외부 리소스를 꼭 활용할 필요는 없습니다.
+You don't have to rely
+on external resources.
+
+1017
+01:02:53,990 --> 01:02:57,420
+하지만 이런 속성은 여러분이
+무언가 부족한 부분을 채울 때 도움이 됩니다.
+But this is one
+potential property
+
+1018
+01:02:57,420 --> 01:03:02,340
+Afshine이 강의 초반에 언급한 것처럼,
+지식의 공백을 메우는 측면에서 이런 속성이 중요합니다.
+that can help you fill the gap
+that Afshine was mentioning
+
+1019
+01:03:02,340 --> 01:03:06,860
+이 부분은 사전학습된 LLM이 가진
+지식의 공백을 채우는 것과 관련이 있습니다.
+at the beginning of the lecture,
+regarding filling the knowledge
+
+1020
+01:03:06,860 --> 01:03:10,460
+사전학습된 LLM이 갖고 있는
+지식의 부족함을 메우는 데 도움이 되죠.
+gap that your
+pre-trained LLM has.
+
+1021
+01:03:10,460 --> 01:03:14,500
+이제 몇 분 후에,
+실제 예시들을 살펴보겠습니다.
+So we're going to see
+examples in a few minutes,
+
+1022
+01:03:14,500 --> 01:03:16,660
+이것이 실제로 어떤 의미를 가지는지 알아보겠습니다.
+regarding what that could mean.
+
+1023
+01:03:16,660 --> 01:03:22,620
+사실 이것이 이 기술의 신기한 부분 중 하나입니다.
+But yeah, this is one
+magical part of it.
+
+1024
+01:03:22,620 --> 01:03:23,120
+좋습니다.
+OK.
+
+1025
+01:03:23,120 --> 01:03:24,940
+좋아요.
+Great.
+
+1026
+01:03:24,940 --> 01:03:30,340
+그리고 이런 설명들이 실제
+현실에 어떻게 적용되는지 보여드리기 위해
+And just to make
+these statements very
+
+1027
+01:03:30,340 --> 01:03:33,420
+실제 응용 사례로 연결해서 설명하겠습니다.
+grounded in real-life
+applications,
+
+1028
+01:03:33,420 --> 01:03:38,100
+예를 들어서, 툴 호출이 우리에게
+어떤 결과를 줄 수 있는지 같이 살펴보죠.
+let's just walk through what
+would a tool call give us
+
+1029
+01:03:38,100 --> 01:03:40,860
+아주 구체적인 예시 상황에서요.
+in the case of a very
+specific example?
+
+1030
+01:03:40,860 --> 01:03:44,780
+예를 들어, 여러분이 곰인형을
+정말 좋아한다고 해봅시다.
+So let's suppose you
+love teddy bears.
+
+1031
+01:03:44,780 --> 01:03:47,140
+여러분은 지금 Stanford에 있고,
+You're currently
+here at Stanford,
+
+1032
+01:03:47,140 --> 01:03:49,340
+주변에서 곰인형을 구하고 싶다고 합시다.
+and you want a
+teddy bear near you.
+
+1033
+01:03:49,340 --> 01:03:52,640
+이럴 때 휴대폰을 꺼내서,
+What if you pull your
+phone out, and you just
+
+1034
+01:03:52,640 --> 01:03:55,480
+'내 주변에서 곰인형을 찾아줘'라고 물어볼 수 있습니다.
+ask, find a teddy bear near me.
+
+1035
+01:03:55,480 --> 01:03:59,240
+현재의 LLM은
+아무런 도구 없이라면
+Well, your current
+LLM, without any tools,
+
+1036
+01:03:59,240 --> 01:04:03,040
+현실 세계의 실시간 정보나
+would not know some
+real-life or like
+
+1037
+01:04:03,040 --> 01:04:09,720
+주변에 곰인형이 있는지 같은 실제 업데이트를
+알지 못할 것입니다.
+real-time update of availability
+of teddy bears near you.
+
+1038
+01:04:09,720 --> 01:04:13,080
+그래서 아마도 이런 질문에는
+So it would probably answer
+you something in the flavor of,
+
+1039
+01:04:13,080 --> 01:04:16,320
+'모르겠다' 혹은 '확실하지 않다'고 답할 거예요.
+I don't know or not sure.
+
+1040
+01:04:16,320 --> 01:04:20,720
+하지만 여기에 도구를 활용하면
+어떻게 달라질 수 있는지 보여드리고자 합니다.
+And I just want to say
+that with the use of tools,
+
+1041
+01:04:20,720 --> 01:04:23,600
+이제 우리가 어떻게 하면
+그런 단계에 도달할 수 있을지 살펴보겠습니다.
+let's see how we
+could get to a stage
+
+1042
+01:04:23,600 --> 01:04:26,200
+필요한 정보를 어떻게
+LLM에 주입할 수 있는지 알아보겠습니다.
+where we can inject
+the information that
+
+1043
+01:04:26,200 --> 01:04:31,360
+LLM이 여러분의 질문에
+적절히 답할 수 있도록 해야겠죠.
+is necessary for the LLM to know
+how to respond to your query.
+
+1044
+01:04:31,360 --> 01:04:34,040
+그래서 다음 몇 분 동안의 목표는
+And the goal of the
+next few minutes
+
+1045
+01:04:34,040 --> 01:04:37,200
+우리가 무엇을 할 수 있을지,
+그리고 어떤 정보를 주입할 수 있을지 알아보는 것입니다.
+is going to be for
+us to figure out,
+
+1046
+01:04:37,200 --> 01:04:41,400
+즉, 우리가 LLM의 프리앰블에
+무엇을 넣을 수 있는지 살펴보고,
+both what we could do
+what-- what we could inject
+
+1047
+01:04:41,400 --> 01:04:44,040
+그 프리앰블에 무엇을 넣을 수 있을지 생각해보려는 겁니다.
+in the preamble of the LLM?
+
+1048
+01:04:44,040 --> 01:04:48,400
+그리고 이런 요청을 완수하려면
+어떤 단계를 거쳐야 할지 알아보겠습니다.
+And what would be the steps that
+we could go through in order
+
+1049
+01:04:48,400 --> 01:04:49,650
+그런 요청을 완성하려면
+어떤 과정이 필요한지 살펴보겠습니다.
+to complete such a request?
+
+1050
+01:04:52,420 --> 01:04:56,080
+여기까지 이해되나요?
+Does that make sense so far?
+
+1051
+01:04:56,080 --> 01:04:56,580
+네?
+Yeah?
+
+1052
+01:05:02,700 --> 01:05:06,080
+그럼 질문은, 저런 function API들이
+미리 계산되어 있는 것이냐는 겁니다.
+So the question is, are those
+function APIs pre-computed?
+
+1053
+01:05:06,080 --> 01:05:07,320
+좋은 질문입니다.
+So that's a great question.
+
+1054
+01:05:07,320 --> 01:05:09,720
+네, 미리 정의해둡니다.
+So yes, you define
+them beforehand.
+
+1055
+01:05:09,720 --> 01:05:11,420
+여러분은 API를 갖고 있는 셈이죠.
+You have some API.
+
+1056
+01:05:11,420 --> 01:05:13,360
+이 부분은 곧 예시로 보여드리겠습니다.
+And we're going to
+see that in a second.
+
+1057
+01:05:13,360 --> 01:05:15,560
+이 API들은 LLM이 그때그때 생성하는 게 아닙니다.
+They're not LLM
+generated on the fly.
+
+1058
+01:05:19,640 --> 01:05:20,140
+네.
+OK.
+
+1059
+01:05:20,140 --> 01:05:20,640
+좋습니다.
+Great.
+
+1060
+01:05:20,640 --> 01:05:23,620
+셋업에 대해 질문 있으신가요?
+Any other questions
+on the setup?
+
+1061
+01:05:23,620 --> 01:05:25,880
+사실 오늘 내용이 한 번에 받아들이기에는 많을 수 있습니다.
+So I know it will
+be a lot to take in.
+
+1062
+01:05:28,720 --> 01:05:29,220
+좋습니다.
+OK.
+
+1063
+01:05:29,220 --> 01:05:30,300
+네, 좋습니다.
+Great.
+
+1064
+01:05:30,300 --> 01:05:34,320
+실제 사례와 연관해서 설명해 보겠습니다.
+So in order to be
+grounded in real life,
+
+1065
+01:05:34,320 --> 01:05:38,260
+함수 정의가 실제로 어떻게 사용될 수 있는지
+전체 예시를 들어보겠습니다.
+let's take a full example of
+what a function definition could
+
+1066
+01:05:38,260 --> 01:05:39,100
+예를 하나 살펴보죠.
+be.
+
+1067
+01:05:39,100 --> 01:05:42,220
+예를 들어, 테디베어를 찾는 경우를 생각해보겠습니다.
+So in the case of
+finding a teddy bear,
+
+1068
+01:05:42,220 --> 01:05:45,340
+여기서도 find teddy bear라는 함수 정의가
+있을 수 있겠죠.
+you could imagine a
+function definition
+
+1069
+01:05:45,340 --> 01:05:48,580
+이 함수의 이름은 find teddy bear라고 할 수 있습니다.
+that is called find teddy bear.
+
+1070
+01:05:48,580 --> 01:05:54,310
+그리고 사용자의 위치에 따라 API를 호출해서
+And depending on your
+location, calls some API
+
+1071
+01:05:54,310 --> 01:05:58,790
+후보 결과들을 받아올 수 있습니다.
+and retrieves
+potential candidates.
+
+1072
+01:05:58,790 --> 01:06:03,950
+이제 함수 호출의 주요 특징이 무엇인지
+살펴보겠습니다.
+So I'm going to go through the
+main characteristics of what
+
+1073
+01:06:03,950 --> 01:06:09,530
+함수 호출에 어떤 요소가 포함되는지 설명하고,
+정의와 연결 지어 볼게요.
+a function call contains and
+link it to the definition.
+
+1074
+01:06:09,530 --> 01:06:13,310
+먼저, 이런 API를
+모델에 보여주려면
+So first of all, when we
+want to display such an API
+
+1075
+01:06:13,310 --> 01:06:15,950
+함수의 입력과 출력을 포함해서
+문서화해야 합니다.
+to the model, you
+need to document
+
+1076
+01:06:15,950 --> 01:06:18,870
+그래야 모델이
+it, its input and
+output, in order
+
+1077
+01:06:18,870 --> 01:06:22,510
+이 함수가 어떤 용도인지
+이해할 수 있습니다.
+for the model to what
+this function is for.
+
+1078
+01:06:22,510 --> 01:06:25,310
+보통 파이썬 함수에 붙어 있는
+설명처럼요.
+So typically, the
+description that you
+
+1079
+01:06:25,310 --> 01:06:29,030
+파이썬 함수 아래에 적는 설명이
+대표적인 예시가 될 수 있습니다.
+have in the example of
+Python under a given function
+
+1080
+01:06:29,030 --> 01:06:34,070
+이런 설명은 모델이 해당 함수가
+무엇을 하는지 파악하는 데 매우 중요합니다.
+would be crucial for the model
+to know what it is about.
+
+1081
+01:06:34,070 --> 01:06:39,482
+그리고 우리가 방금 살펴본 tool call 정의에서도
+And then we saw in the
+definition of tool call
+
+1082
+01:06:39,482 --> 01:06:41,710
+백엔드 호출을 할 수 있다는 점을 확인했습니다.
+that we just gave, that
+we have the ability
+
+1083
+01:06:41,710 --> 01:06:43,710
+이런 백엔드 호출이 가능하죠.
+to make backend calls.
+
+1084
+01:06:43,710 --> 01:06:45,830
+이게 바로 우리가 실제로
+And this is exactly
+what we would
+
+1085
+01:06:45,830 --> 01:06:50,210
+주변에 있는 테디베어를 찾는 상황에서 필요한 작업입니다.
+need to do in the case of
+finding teddy bears around you.
+
+1086
+01:06:50,210 --> 01:06:53,290
+이럴 때는 API에 쿼리를 보내서
+You would need to query
+some API to retrieve
+
+1087
+01:06:53,290 --> 01:06:54,750
+사용 가능한 테디베어 목록을 받아와야 합니다.
+available teddy bears.
+
+1088
+01:06:54,750 --> 01:06:59,290
+그리고 내 위치 정보를 기반으로
+And based on your location,
+return the nearest ones.
+
+1089
+01:06:59,290 --> 01:07:03,380
+가장 가까운 테디베어를 반환해야겠죠.
+So this is exactly what
+this function implementation
+
+1090
+01:07:03,380 --> 01:07:03,880
+이 함수 구현이 바로 그런 역할을 합니다.
+is doing.
+
+1091
+01:07:08,610 --> 01:07:11,810
+이 함수는 구조화된 결과를 반환합니다.
+It returns something
+that is well structured.
+
+1092
+01:07:11,810 --> 01:07:15,110
+여러분 기준에서는 화면이 작게 보일 수도 있지만,
+So you see maybe it's
+small from where you are,
+
+1093
+01:07:15,110 --> 01:07:19,290
+클래스 정의를 통해
+but you have some
+class definition that
+
+1094
+01:07:19,290 --> 01:07:21,610
+출력에 일정한 구조를 부여하고
+puts some structure
+into the output
+
+1095
+01:07:21,610 --> 01:07:24,290
+더 해석하기 쉽게 만들어줍니다.
+and makes it interpretable.
+
+1096
+01:07:24,290 --> 01:07:27,530
+그리고 곧 이 출력값이
+And we're going to see very
+soon that this output is going
+
+1097
+01:07:27,530 --> 01:07:31,250
+모델이 최종 응답을 생성할 때 근거로 삼는다는 점을
+to be what the model
+will anchor on in order
+
+1098
+01:07:31,250 --> 01:07:32,820
+살펴보겠습니다.
+to give its final response.
+
+1099
+01:07:36,370 --> 01:07:36,870
+네.
+OK.
+
+1100
+01:07:36,870 --> 01:07:38,130
+좋습니다.
+Great.
+
+1101
+01:07:38,130 --> 01:07:42,890
+그리고 한 가지 더 말씀드리자면,
+And one other thing I
+will say is all of these
+
+1102
+01:07:42,890 --> 01:07:47,110
+여기 보이는 이 모든 것들이 여러분이 직접 구현한 내용입니다.
+that we see here is what
+you have implemented.
+
+1103
+01:07:47,110 --> 01:07:49,790
+여러분이 LLM이라면, 이런 모든 내용을
+You will not see all of these--
+
+1104
+01:07:49,790 --> 01:07:52,390
+전부 볼 수는 없게 됩니다.
+if you are an LLM, you
+will not see all of this.
+
+1105
+01:07:52,390 --> 01:07:58,430
+LLM 입장에서는 함수의 API, 즉 입력과 출력만이
+All you care about as an LLM
+is the function API, the input
+
+1106
+01:07:58,430 --> 01:08:02,590
+그리고 주요 문서 내용만이 신경 쓰이는 부분입니다.
+and output, as well as the
+main lines of documentations.
+
+1107
+01:08:02,590 --> 01:08:05,050
+이런 모든 구현 세부사항들은
+So all these
+implementation details,
+
+1108
+01:08:05,050 --> 01:08:07,970
+여러분 코드에 들어가 있지만,
+you're going to have
+it on your code base.
+
+1109
+01:08:07,970 --> 01:08:11,850
+LLM이 이를 직접 보지는 못합니다.
+But the LLM is not
+going to see it.
+
+1110
+01:08:11,850 --> 01:08:12,350
+네.
+OK.
+
+1111
+01:08:12,350 --> 01:08:13,670
+좋습니다.
+Great.
+
+1112
+01:08:13,670 --> 01:08:17,710
+이제 단계별로 어떻게 동작하는지 살펴보겠습니다.
+So now, let's go
+step-by-step into how
+
+1113
+01:08:17,710 --> 01:08:20,670
+[번역 실패] we could make this work.
+we could make this work.
+
+1114
+01:08:20,670 --> 01:08:26,149
+첫 단계로, 함수와 관련된 질문을 입력하면,
+So the first stage is as
+you ask a question that
+
+1115
+01:08:26,149 --> 01:08:29,270
+[번역 실패] is related to your function, you would
+is related to your
+function, you would
+
+1116
+01:08:29,270 --> 01:08:34,430
+서문의 맨 앞에 함수의 API를 삽입하게 됩니다.
+insert at the beginning of
+your preamble the function API.
+
+1117
+01:08:34,430 --> 01:08:37,370
+그리고 앞서 말한 것처럼, 구현 내용은 포함하지 않습니다.
+And as I mentioned without
+its implementation.
+
+1118
+01:08:37,370 --> 01:08:41,029
+즉, 함수 본체만 있고,
+So you just have the
+function itself, and then
+
+1119
+01:08:41,029 --> 01:08:43,200
+전체 문서화가 함께 제공됩니다.
+a full documentation.
+
+1120
+01:08:43,200 --> 01:08:48,920
+여기서 LLM이 사용자 쿼리에 맞춰
+So here, you would want the
+LLM based on your user query
+
+1121
+01:08:48,920 --> 01:08:53,040
+사용자의 질문에 따라 LLM이 적절한
+인자를 함수에 넣도록 하는 겁니다.
+to feed the right
+arguments to your function.
+
+1122
+01:08:53,040 --> 01:08:55,080
+그래서 말씀하신 대로, 여기서 LLM의 목적은
+s to your point,
+the goal of the LLM
+
+1123
+01:08:55,080 --> 01:08:59,080
+함수 구현을 추론하는 것이 아니라,
+here is not going to be to
+infer any of the functions
+
+1124
+01:08:59,080 --> 01:09:02,520
+우리가 어떤 인자를 넣어야 하는지 판단하는 데만 있습니다.
+implementations, rather
+only what arguments we
+
+1125
+01:09:02,520 --> 01:09:04,300
+어떤 값을 넣어야 할지만 선택해 주는 거죠.
+should put to it.
+
+1126
+01:09:04,300 --> 01:09:04,800
+이해되시죠?
+Yeah?
+
+1127
+01:09:19,941 --> 01:09:21,899
+그러면 여기서 질문은, 이런 방식의 학습을
+도대체 어떻게 하느냐는 겁니다.
+So the question is, how
+do you even train this?
+
+1128
+01:09:21,899 --> 01:09:24,920
+이 부분은 곧 이어지는 슬라이드에서 살펴보겠습니다.
+So we're going to see
+that in just a few slides.
+
+1129
+01:09:24,920 --> 01:09:25,420
+좋은 질문입니다.
+Great point.
+
+1130
+01:09:25,420 --> 01:09:28,460
+이게 바로 저희가 다음으로 생각해야 할 문제입니다.
+That's the next question
+we need to ask ourselves.
+
+1131
+01:09:33,840 --> 01:09:38,240
+이제 이러한 모델을 어떻게 학습시키는지 알아보겠습니다.
+So we're going to see
+how we train these.
+
+1132
+01:09:38,240 --> 01:09:42,420
+하지만 여기서는, 이미 학습이 끝났다고 가정해봅시다.
+But here, let's say
+it has been trained.
+
+1133
+01:09:42,420 --> 01:09:45,939
+LLM이 컨텍스트에서 필요한 정보를 가져와서
+The LLM would have, from
+its context, probably
+
+1134
+01:09:45,939 --> 01:09:48,180
+예를 들어, 여러분이 위치 권한을 활성화했다면
+our localization,
+because let's say
+
+1135
+01:09:48,180 --> 01:09:52,020
+LLM이 여러분의 위치 정보를 사용할 수 있습니다.
+you have activated your
+location permissions
+
+1136
+01:09:52,020 --> 01:09:53,880
+그래서 여러분이 어디에 있는지도 알고 있죠.
+and your LLM knows
+where you are.
+
+1137
+01:09:53,880 --> 01:09:55,820
+즉, 지금 여러분이 Stanford에 있다는 것도 알 수 있습니다.
+So it knows you are at Stanford.
+
+1138
+01:09:55,820 --> 01:09:58,020
+그리고 이런 좌표 정보가
+And these would
+be the coordinates
+
+1139
+01:09:58,020 --> 01:10:00,580
+LLM에 입력되는 겁니다.
+being fed to your LLM.
+
+1140
+01:10:00,580 --> 01:10:04,800
+그 다음 두 번째 단계는 실제로 그 함수 호출을 실행하는 것입니다.
+And then the second stage is to
+actually do that function call.
+
+1141
+01:10:04,800 --> 01:10:08,260
+그래서 이 부분은 LLM과는 상관이 없습니다.
+So it has nothing
+to do with LLMs.
+
+1142
+01:10:08,260 --> 01:10:10,940
+그냥 여러분의 함수와 인자를 받아서,
+You just take your
+function, your argument,
+
+1143
+01:10:10,940 --> 01:10:16,220
+그걸 실행하면 어떤 결과가 나오게 됩니다.
+and you execute that
+and you get some answer.
+
+1144
+01:10:16,220 --> 01:10:19,140
+그리고 우리가 앞서 말했듯이, 그 결과는
+And the answer, as we
+mentioned, is structured
+
+1145
+01:10:19,140 --> 01:10:20,940
+이해하기 쉬운 방식으로 구조화되어 있습니다.
+in a way that's understandable.
+
+1146
+01:10:20,940 --> 01:10:22,900
+즉, 그 함수 구현에서는
+So in that function
+implementation,
+
+1147
+01:10:22,900 --> 01:10:28,220
+반환되는 테디베어의 특징을 알려주는 객체를
+you return some object that
+informs characteristics
+
+1148
+01:10:28,220 --> 01:10:30,020
+리턴하게 됩니다.
+about the return teddy bear.
+
+1149
+01:10:30,020 --> 01:10:34,900
+예를 들어, 이름이나 위치 같은 정보가 들어갈 수 있죠.
+So for example, you have its
+name, maybe location, and so on.
+
+1150
+01:10:34,900 --> 01:10:38,940
+그리고 그 응답을 다시 LLM에 전달해서
+And you feed that
+response back to the LLM
+
+1151
+01:10:38,940 --> 01:10:41,760
+최종 답변을 얻는 데 사용합니다.
+in order to get
+a final response.
+
+1152
+01:10:41,760 --> 01:10:45,480
+즉, LLM에 어떤 질문을 했을 때,
+So when you ask to do
+LLM a given question,
+
+1153
+01:10:45,480 --> 01:10:50,440
+JSON처럼 생긴 응답이 아니라,
+you don't want to have this
+JSON-like response, but rather
+
+1154
+01:10:50,440 --> 01:10:52,520
+자연어로 된 답변을 원하게 됩니다.
+a response in natural language.
+
+1155
+01:10:52,520 --> 01:10:57,840
+이것이 바로 그 마지막 단계의 동기가 되는 부분입니다.
+And this exactly is the
+motivation for that last stage.
+
+1156
+01:10:57,840 --> 01:10:59,880
+여기서 잠깐 멈추고,
+So I'm going to pause
+here for a second
+
+1157
+01:10:59,880 --> 01:11:04,680
+이 세 단계 메커니즘이 모두에게 잘 이해되는지
+and check that this three-stage
+mechanism makes sense
+
+1158
+01:11:04,680 --> 01:11:05,460
+확인하겠습니다.
+to everyone.
+
+1159
+01:11:09,640 --> 01:11:10,140
+네.
+OK.
+
+1160
+01:11:10,140 --> 01:11:11,920
+좋습니다.
+Great.
+
+1161
+01:11:11,920 --> 01:11:15,760
+방금 여러분이 언급한 바로 그 내용이
+이제 다음 주제가 될 것입니다.
+And exactly what you
+were mentioning here
+
+1162
+01:11:15,760 --> 01:11:17,500
+그 부분이 이번에 집중해서 다룰 내용입니다.
+is going to be the next focus.
+
+1163
+01:11:17,500 --> 01:11:20,140
+그렇다면 이런 방식은 실제로 어떻게 학습시킬 수 있을까요?
+How do you even train that?
+
+1164
+01:11:20,140 --> 01:11:22,800
+그래서 여러분께 이 질문을 드려보겠습니다.
+So let me ask you this question.
+
+1165
+01:11:22,800 --> 01:11:27,960
+만약 여러분이 LLM에게 이 툴을 활용하도록 학습시킨다면,
+If you were to train an
+LLM to use this tool,
+
+1166
+01:11:27,960 --> 01:11:29,980
+어떤 단계에 집중해야 할까요?
+what steps would you
+need to focus on?
+
+1167
+01:11:36,610 --> 01:11:40,470
+정답은 API 구현을 입력으로 제공하게 된다는 것입니다.
+So the answer is you're going
+to feed the API implementation.
+
+1168
+01:11:40,470 --> 01:11:42,130
+맞아요.
+Yes.
+
+1169
+01:11:42,130 --> 01:11:48,210
+즉, 첫 번째 LLM 호출이
+함수 구현의 패턴과 쿼리를 인식해야 합니다.
+So you would need the first LLM
+call to be somehow recognizing
+
+1170
+01:11:48,210 --> 01:11:52,290
+그리고 이것이 함수에 넣을 인자들과
+연결되어야 하죠.
+the pattern of the function
+implementation and the query,
+
+1171
+01:11:52,290 --> 01:11:57,170
+그래서 함수에 어떤 인자를 사용할지
+연결시키는 과정이 필요합니다.
+and link it to the
+arguments that you
+
+1172
+01:11:57,170 --> 01:11:58,350
+네, 바로 그런 부분입니다.
+would put in your function.
+
+1173
+01:11:58,350 --> 01:11:58,850
+네, 맞습니다.
+So yeah.
+
+1174
+01:11:58,850 --> 01:11:59,570
+좋아요.
+Great.
+
+1175
+01:11:59,570 --> 01:12:01,730
+즉, 툴 예측 단계를 말합니다.
+So tool prediction.
+
+1176
+01:12:01,730 --> 01:12:05,040
+그리고 두 번째 SFT 페어 세트가 별도로 필요할까요?
+And do you need a
+second set of SFT pairs?
+
+1177
+01:12:11,690 --> 01:12:15,290
+여기서 마지막 단계는 여전히 LLM이 주도하며 진행됩니다.
+So you have this last stage
+that is still LLM-driven,
+
+1178
+01:12:15,290 --> 01:12:18,290
+여기서 툴의 답변이 나오고,
+이제 마지막 응답을 생성해야 하죠.
+where you have your tool
+answer, and you need
+
+1179
+01:12:18,290 --> 01:12:19,640
+최종적으로 응답을 출력해야 합니다.
+to output a final response.
+
+1180
+01:12:22,850 --> 01:12:25,330
+예를 들어, LLM이 이미 많은 구조화된 데이터를 봤고,
+You might say, OK,
+hey, the LLM has
+
+1181
+01:12:25,330 --> 01:12:27,650
+LLM이 이미 다양한 구조화된 데이터를 많이
+본 상태라고 할 수 있겠죠.
+seen a bunch of
+structured data and knows
+
+1182
+01:12:27,650 --> 01:12:30,690
+그리고 LLM은 자신이 본 내용을
+어떻게 언어로 표현할지 알고 있습니다.
+how to put into words,
+things that it sees,
+
+1183
+01:12:30,690 --> 01:12:32,370
+이 부분은 타당한 지적입니다.
+which is a fair point.
+
+1184
+01:12:32,370 --> 01:12:35,010
+하지만 보통은 원하는 형식으로
+응답을 출력하길 원할 수도 있습니다.
+But usually, you might
+want your responses
+
+1185
+01:12:35,010 --> 01:12:37,510
+즉, 결과가 특정 포맷에 맞춰서
+출력되길 바랄 수 있습니다.
+to be formatted a given way.
+
+1186
+01:12:37,510 --> 01:12:40,990
+그래서 이런 경우 SFT 쌍도
+추가로 준비할 수 있습니다.
+So you might want to
+also have SFT pairs that
+
+1187
+01:12:40,990 --> 01:12:44,150
+원하는 방식으로 매핑이 이루어지도록
+이런 SFT 쌍이 필요할 수 있습니다.
+do this mapping the
+way you want it to.
+
+1188
+01:12:44,150 --> 01:12:49,110
+이런 이유로 보통 두 종류의
+SFT 쌍을 마련하게 됩니다.
+So this is why you typically
+have these two SFT pairs.
+
+1189
+01:12:49,110 --> 01:12:51,790
+좀 더 정확하게 설명하자면,
+And if I have to be
+a bit more precise,
+
+1190
+01:12:51,790 --> 01:12:55,470
+두 번째 쌍은 단순히 JSON 응답을
+최종 응답으로 매핑하는 일이 아닙니다.
+the second pair isn't just
+mapping the JSON response
+
+1191
+01:12:55,470 --> 01:12:57,630
+실제로는 대화의 모든 이력까지
+연결해주는 역할을 합니다.
+to the final response,
+it's actually
+
+1192
+01:12:57,630 --> 01:13:00,750
+즉, 지금까지의 모든 대화 내역을
+다 연결하는 과정이 포함됩니다.
+linking all the
+conversation history so far,
+
+1193
+01:13:00,750 --> 01:13:04,270
+그래서 처음 쿼리가 누군가가
+테디베어를 찾는 것이었음을 인식할 수 있습니다.
+so that it knows that the
+initial query was someone
+
+1194
+01:13:04,270 --> 01:13:06,070
+초기 쿼리가 테디베어를 찾는 내용이었죠.
+in search of a teddy bear.
+
+1195
+01:13:06,070 --> 01:13:07,930
+그리고 툴 호출이 있었다는 점도
+파악하고 있습니다.
+It knows there has
+been a tool call,
+
+1196
+01:13:07,930 --> 01:13:12,310
+또 툴 호출 결과가
+그 요청과 연관된 것임을 알 수 있습니다.
+and it knows that the results
+correspond to that tool call.
+
+1197
+01:13:12,310 --> 01:13:18,830
+따라서 이 SFT 쌍에서는 입력이
+조금 더 길어지게 됩니다.
+So it would be a slightly
+longer input in this SFT pair.
+
+1198
+01:13:18,830 --> 01:13:21,690
+이해가 되시나요?
+Does that make sense?
+
+1199
+01:13:21,690 --> 01:13:22,190
+네, 좋습니다.
+OK.
+
+1200
+01:13:22,190 --> 01:13:22,650
+네, 좋습니다.
+Great.
+
+1201
+01:13:22,650 --> 01:13:23,150
+네?
+Yeah?
+
+1202
+01:13:29,750 --> 01:13:30,490
+네.
+Yeah.
+
+1203
+01:13:30,490 --> 01:13:31,210
+좋은 지적입니다.
+So great point.
+
+1204
+01:13:31,210 --> 01:13:33,780
+그럼 질문은, 만약 우리가 더 많은 도구를 가지고 있다면
+So the question is, what
+if we have more tools,
+
+1205
+01:13:33,780 --> 01:13:37,000
+도구 선정이 필요할까요, 아니면 더 많은 예시가 필요할까요?
+do we need some tool
+selection or more examples?
+
+1206
+01:13:37,000 --> 01:13:38,260
+이 주제는 매우 흥미롭습니다.
+So this is a great topic.
+
+1207
+01:13:38,260 --> 01:13:41,980
+곧 이어지는 슬라이드에서 이 내용을 다룰 예정입니다.
+We're going to see it
+like in a few slides.
+
+1208
+01:13:41,980 --> 01:13:42,480
+네.
+Yeah.
+
+1209
+01:13:42,480 --> 01:13:45,660
+그래서 이전보다 약간 더 복잡한 방식이 됩니다.
+So it's slightly more
+complex way of doing things.
+
+1210
+01:13:45,660 --> 01:13:49,560
+하지만 빠른 답을 원하신다면, SFT 방식에서는
+But if you want a very quick
+answer, if you go the SFT way,
+
+1211
+01:13:49,560 --> 01:13:54,400
+여러 도구를 입력으로 보여줄 수 있습니다.
+you could show
+multi-tool inputs.
+
+1212
+01:13:54,400 --> 01:13:57,920
+즉, 이런 예시들을 SFT 데이터셋에 포함할 수 있습니다.
+So you could include all of
+that in your SFT data sets.
+
+1213
+01:13:57,920 --> 01:14:03,720
+곧 도구 선택에 대한 주제를 자세히 살펴보겠습니다.
+But we're going to see the topic
+of tool selection very soon.
+
+1214
+01:14:03,720 --> 01:14:04,300
+좋습니다.
+Great.
+
+1215
+01:14:04,300 --> 01:14:05,380
+다른 질문 있으신가요?
+Any other questions?
+
+1216
+01:14:08,140 --> 01:14:08,640
+네.
+OK.
+
+1217
+01:14:08,640 --> 01:14:11,320
+아주 좋습니다.
+Awesome.
+
+1218
+01:14:11,320 --> 01:14:13,480
+이 내용이 바로 방금 설명드린 부분입니다.
+This is what I just mentioned.
+
+1219
+01:14:13,480 --> 01:14:15,200
+네, 지금까지의 대화 기록은
+Yeah, the conversation
+history so far
+
+1220
+01:14:15,200 --> 01:14:17,860
+항상 입력의 일부로 포함됩니다.
+is always what you get
+as part of the input.
+
+1221
+01:14:17,860 --> 01:14:20,880
+그리고 출력은 해당 시점에서
+LLM이 예측하길 원하는 것입니다.
+And then the output is what you
+would want the LLM to predict
+
+1222
+01:14:20,880 --> 01:14:22,680
+바로 그 단계에서 원하는 출력이죠.
+at that given stage.
+
+1223
+01:14:22,680 --> 01:14:24,760
+그리고 여기서는 SFT를 하고 있으니,
+And since you're
+doing SFT here, you
+
+1224
+01:14:24,760 --> 01:14:29,040
+예제가 하나만 있는 것이 아니라,
+여러 개의 예제를 사용합니다.
+don't have just one, but
+multiple such examples.
+
+1225
+01:14:29,040 --> 01:14:33,980
+그리고 예제가 다양한 경우를 포함하고,
+대표적인 사용자 분포를 반영하면 좋습니다.
+And you would want your examples
+to be varied and representing
+
+1226
+01:14:33,980 --> 01:14:36,500
+즉, 일반적인 사용자 분포를 잘 반영해야 합니다.
+the typical user distribution.
+
+1227
+01:14:36,500 --> 01:14:40,740
+예를 들어, 제가 근처에 있는 곰을 찾아달라고
+질문했다고 해보겠습니다.
+So I was asking,
+find a bear near me.
+
+1228
+01:14:40,740 --> 01:14:43,820
+이 예제는 모델에게 위치 정보를
+어떻게 연결하는지 보여줍니다.
+And this example
+showed to the model
+
+1229
+01:14:43,820 --> 01:14:47,140
+사용자의 위치를 기반으로 정보가
+어떻게 연결되는지 예시가 되는 거죠.
+how you could ground the
+information of location
+
+1230
+01:14:47,140 --> 01:14:51,060
+비록 위치를 직접 알려주지 않았더라도
+그런 식으로 정보를 연결할 수 있습니다.
+based on the user's location,
+even though you didn't give it.
+
+1231
+01:14:51,060 --> 01:14:54,740
+다른 예제에서는 모델에게
+다른 형태의 지시를 줄 수도 있습니다.
+And in this other examples,
+you could give the model
+
+1232
+01:14:54,740 --> 01:14:57,900
+예를 들면, 특정 위치에 곰이 필요하다고
+직접적으로 말할 수도 있습니다.
+other kinds of instructions,
+directly saying,
+
+1233
+01:14:57,900 --> 01:15:02,820
+즉, 모델이 해당 위치를 보고 판단하도록
+학습시킬 수 있습니다.
+I want a bear at that location
+to teach the model to look at--
+
+1234
+01:15:02,820 --> 01:15:05,980
+이렇게 해서 다양한 위치에 맞게
+주장을 연결하는 방법도 가르칠 수 있습니다.
+like to ground the argument
+at different places.
+
+1235
+01:15:05,980 --> 01:15:09,900
+그리고 이런 예제를 더 확장해서,
+And you could expand
+these sets by also
+
+1236
+01:15:09,900 --> 01:15:11,820
+입력 형태도 다양하게 만들어
+데이터셋을 늘릴 수 있습니다.
+varying the kind of
+input, so it doesn't
+
+1237
+01:15:11,820 --> 01:15:13,200
+꼭 한 가지 방식에만 얽매일 필요는 없겠죠.
+have to be worried that way.
+
+1238
+01:15:13,200 --> 01:15:16,700
+여러 차례에 걸친 대화 중간에
+이런 요청을 넣을 수도 있습니다.
+You could do it multi-turn maybe
+in the middle of a conversation,
+
+1239
+01:15:16,700 --> 01:15:21,300
+예를 들어, 대화 도중에 곰을 찾아달라고 할 수도 있겠죠.
+you ask for a bear and so on.
+
+1240
+01:15:21,300 --> 01:15:21,800
+좋습니다.
+OK.
+
+1241
+01:15:21,800 --> 01:15:22,620
+좋습니다.
+Great.
+
+1242
+01:15:22,620 --> 01:15:28,340
+하지만 이것만이 모델을 학습시키는 유일한 방법은 아닙니다.
+But this is not the only way
+of training a model to do so.
+
+1243
+01:15:28,340 --> 01:15:33,840
+요즘에는 LLM들이 점점 더 강력한 추론 능력을 갖추고 있습니다.
+So these days, LLMs become
+more and more powerful
+
+1244
+01:15:33,840 --> 01:15:35,320
+추론 능력이 계속 발전하고 있습니다.
+in their reasoning.
+
+1245
+01:15:35,320 --> 01:15:38,760
+사전학습과 초기 인스트럭션 튜닝에 사용되는 데이터 종류는 주로
+And the kind of data they
+are trained at pre-training
+
+1246
+01:15:38,760 --> 01:15:41,480
+이런 종류의 코드 데이터입니다.
+and initial instruction
+tuning is typically
+
+1247
+01:15:41,480 --> 01:15:44,000
+이런 코드 데이터가 주로 사용됩니다.
+these kinds of code data.
+
+1248
+01:15:44,000 --> 01:15:48,360
+결국 모델은 파이썬 코드를 아주 능숙하게 다루게 됩니다.
+So at the end of it, they how
+to manipulate Python codes
+
+1249
+01:15:48,360 --> 01:15:50,000
+파이썬 코드를 정말 잘 다루죠.
+very well.
+
+1250
+01:15:50,000 --> 01:15:53,720
+그러면 여러분은 이런 생각을 할 수 있습니다.
+정말로 모델에게 쿼리를 함수 호출로 변환하는 방법까지 가르쳐야 할까?
+So you might ask yourself,
+is it really needed for me
+
+1251
+01:15:53,720 --> 01:16:00,160
+이 부분이 굉장히 흥미로운 포인트입니다.
+to teach the model how to map
+a query to a function call?
+
+1252
+01:16:00,160 --> 01:16:04,600
+요즘에는 특정 SFT 학습을 생략하고
+And that is a very
+interesting observation.
+
+1253
+01:16:04,600 --> 01:16:07,960
+다른 방식으로 우회할 수도 있다는 걸 볼 수 있습니다.
+And you see these
+days that you can
+
+1254
+01:16:07,960 --> 01:16:13,160
+오직 학습만으로도 가능한 경우가 있습니다.
+forego of specific SFT training
+and try to get around it
+
+1255
+01:16:13,160 --> 01:16:15,400
+따라서 여기서는 SFT를 작성하고 모델을 재학습하는 대신,
+with only training.
+
+1256
+01:16:15,400 --> 01:16:24,440
+설명만으로도 대체할 수 있다는 점을 살펴보겠습니다.
+So here, instead of writing SFT
+and then retraining the model,
+
+1257
+01:16:24,440 --> 01:16:27,530
+이제 실제로 설명만으로도 SFT를 대체할 수 있는지 살펴보겠습니다.
+we're going to see that you
+could actually replace it
+
+1258
+01:16:27,530 --> 01:16:30,610
+설명만으로 충분한지 알아볼 것입니다.
+with only an explanation.
+
+1259
+01:16:30,610 --> 01:16:34,290
+혹시 우리가 이런 설명을 어떻게 만들어낼 수 있을지
+And does anyone have an idea
+of how we could even come up
+
+1260
+01:16:34,290 --> 01:16:35,750
+아이디어가 있는 분 계신가요?
+with such an explanation?
+
+1261
+01:16:38,930 --> 01:16:41,450
+예를 들어, 제가 새로운 툴을 가지고 있다고 해봅시다.
+So let's say I have a new tool.
+
+1262
+01:16:41,450 --> 01:16:42,830
+API도 있습니다.
+I have the API.
+
+1263
+01:16:42,830 --> 01:16:45,530
+이 API를 제 모델이 활용하길 원해요.
+I want my model to use it.
+
+1264
+01:16:45,530 --> 01:16:46,950
+여러분이라면 어떻게 접근하시겠습니까?
+How would you go around it?
+
+1265
+01:16:52,570 --> 01:16:54,390
+네, 아주 좋은 지적입니다.
+Yeah, that's a great point.
+
+1266
+01:16:54,390 --> 01:16:56,550
+한 가지 방법은 few shot learning이 될 수 있겠죠.
+So one method could
+be few shot learning.
+
+1267
+01:16:56,550 --> 01:17:02,713
+컨텍스트 윈도우 안에 입력과 출력 예시를 보여주는 방식입니다.
+You just show in the context
+window samples of input/output.
+
+1268
+01:17:02,713 --> 01:17:03,630
+정말 좋은 접근입니다.
+This is a great point.
+
+1269
+01:17:03,630 --> 01:17:04,838
+이 방법도 충분히 사용할 수 있죠.
+You could definitely do that.
+
+1270
+01:17:04,838 --> 01:17:09,810
+실제로 이게 흔히 받아들여지는 방식 중 하나입니다.
+And this is typically
+one accepted practice.
+
+1271
+01:17:09,810 --> 01:17:13,010
+그런데 few shot learning이
+But if I told you
+that few shot learning
+
+1272
+01:17:13,010 --> 01:17:16,950
+일반화 측면에서 한계가 있다면 어떨까요?
+has challenges when it
+comes to generalization,
+
+1273
+01:17:16,950 --> 01:17:21,170
+왜냐하면 구체적인 입력/출력 세트를
+반드시 제공해야 하니까요.
+because you would need to give
+specific points as input/output.
+
+1274
+01:17:21,170 --> 01:17:24,368
+그래서 일부 경우에는 맞아떨어질 수 있지만,
+So it might fit to
+some cases and not
+
+1275
+01:17:24,368 --> 01:17:25,910
+꼭 불필요하게
+necessarily
+unnecessarily generalized
+
+1276
+01:17:25,910 --> 01:17:29,510
+전체 인간 언어 범위에 일반화되지는 않을 수 있습니다.
+to the whole span
+of human language.
+
+1277
+01:17:29,510 --> 01:17:32,130
+혹시 다른 접근 방법도 있을까요?
+Is there another way
+you could go around it?
+
+1278
+01:17:39,530 --> 01:17:40,030
+네.
+Yeah.
+
+1279
+01:17:40,030 --> 01:17:43,090
+정답은 바로, 모델에게 추론을 시키는 것입니다.
+So the answer is ask
+it to do reasoning.
+
+1280
+01:17:43,090 --> 01:17:44,750
+좋은 포인트입니다.
+Great point.
+
+1281
+01:17:44,750 --> 01:17:49,950
+그리고 이러한 추론을 수행하는 프롬프트를
+적절하게 작성하는 것은 매우 어렵습니다.
+And writing a prompt that does
+the reasoning in a way that
+
+1282
+01:17:49,950 --> 01:17:52,470
+설득력 있게 추론하도록 프롬프트를 만드는 건 정말 어렵습니다.
+makes sense is very hard.
+
+1283
+01:17:52,470 --> 01:17:55,270
+그래서 실제로는 직접 프롬프트를 작성하지 않습니다.
+So in practice, you
+wouldn't write it yourself.
+
+1284
+01:17:55,270 --> 01:17:59,030
+이런 경우에는 SFT 페어를 사용합니다.
+You would take these SFT pairs.
+
+1285
+01:17:59,030 --> 01:18:02,390
+이것들은 여러분이 모델에 적용하고 싶은 행동들입니다.
+So these are the behavior
+that you want to enforce.
+
+1286
+01:18:02,390 --> 01:18:05,590
+그리고 이를 평가 세트로 사용할 수도 있습니다.
+And you could use it
+as some evaluation set.
+
+1287
+01:18:05,590 --> 01:18:10,310
+예를 들어, 이런 질문을 한다고 할 때,
+So you could say, OK, hey,
+if I ask this question,
+
+1288
+01:18:10,310 --> 01:18:13,350
+원하는 응답이 무엇인지 기대하게 되겠죠.
+I want that stool call.
+
+1289
+01:18:13,350 --> 01:18:16,030
+이렇게 쌍으로 된 데이터셋을 가지게 됩니다.
+And you have a set of pairs.
+
+1290
+01:18:16,030 --> 01:18:19,350
+그리고 여러분이 가진 프롬프트를
+실행해 볼 수 있습니다.
+And you could run
+whatever you have
+
+1291
+01:18:19,350 --> 01:18:22,550
+지금까지의 설명 방식으로 시험해 보는 것이죠.
+so far in terms of explanation.
+
+1292
+01:18:22,550 --> 01:18:27,110
+이런 프롬프트들을 평가 세트와 비교해서 평가합니다.
+You evaluate these prompts
+against the evaluation set.
+
+1293
+01:18:27,110 --> 01:18:28,990
+그래서 성공한 경우, 실패한 경우가 생깁니다.
+So you have some
+wins and losses.
+
+1294
+01:18:28,990 --> 01:18:30,910
+예를 들어, 파리에서 곰을 찾으라는 프롬프트가
+Maybe find a bear in Paris.
+
+1295
+01:18:30,910 --> 01:18:32,330
+잘 동작하지 않을 수도 있습니다.
+Doesn't work well.
+
+1296
+01:18:32,330 --> 01:18:34,210
+다른 프롬프트는 잘 작동할 수도 있겠죠.
+Some other prompts do.
+
+1297
+01:18:34,210 --> 01:18:40,170
+이렇게 각 샘플마다 점수를 매긴 리스트를 얻게 됩니다.
+So you have a list of
+each sample with a score.
+
+1298
+01:18:40,170 --> 01:18:44,650
+이 결과들을 다시 추론 모델에 입력해서
+And you could feed it
+back to a reasoning model,
+
+1299
+01:18:44,650 --> 01:18:49,010
+보통은 설명을 작성하는 과정을 자동화할 수 있습니다.
+typically, to do the
+explanation writing for you.
+
+1300
+01:18:49,010 --> 01:18:56,530
+즉, 이런 방식으로 어려운 작업을 좀 더 쉽게
+할 수 있도록 도와주는 트릭이 됩니다.
+So this is a trick to help you
+avoid doing that hard work.
+
+1301
+01:18:56,530 --> 01:19:00,590
+기본적으로, 현재 프롬프트를 사용하면
+모델이 이런 결과를 만든다는 걸 보여주는 것입니다.
+Basically, showing the model,
+hey, with the current prompts,
+
+1302
+01:19:00,590 --> 01:19:02,170
+이렇게 결과가 나오게 됩니다.
+here's what we get.
+
+1303
+01:19:02,170 --> 01:19:06,090
+평가 결과를 더 좋게 만들기 위해서
+어떤 부분을 바꿔야 할까요?
+What would you have changed in
+order to make the evaluation
+
+1304
+01:19:06,090 --> 01:19:07,410
+무엇을 변경하면 결과가 더 나아질지 묻는 것이죠.
+results better?
+
+1305
+01:19:07,410 --> 01:19:10,250
+이 과정을 통해서
+설명의 세부 내용을 반복적으로 개선할 수 있습니다.
+So you get with that
+process an iteration
+
+1306
+01:19:10,250 --> 01:19:12,630
+이렇게 하면서 자세한 설명 부분에 대해 반복할 수 있는 거죠.
+on the detailed explanation.
+
+1307
+01:19:12,630 --> 01:19:14,630
+실제로 결과를 확인해 보면
+And if you have to see
+results in practice,
+
+1308
+01:19:14,630 --> 01:19:17,170
+모델이 얼마나 잘 설명을 생성하는지
+놀라울 정도로 성능이 좋다는 걸 알 수 있습니다.
+you would be surprised
+at how well it
+
+1309
+01:19:17,170 --> 01:19:19,130
+이런 방식으로 모델이 설명을 아주 잘 만들어냅니다.
+does the explanation for you.
+
+1310
+01:19:19,130 --> 01:19:23,180
+여기서 중요한 점은
+직접 처음부터 끝까지 쓰는 것을 권장하지 않는다는 겁니다.
+So the takeaway here
+is I do not recommend
+
+1311
+01:19:23,180 --> 01:19:24,920
+혼자서 모든 설명을 처음부터 끝까지 쓰려고 하지 마세요.
+you write it end-to-end.
+
+1312
+01:19:24,920 --> 01:19:29,380
+대신 초안만 간단히 작성하고,
+아주 성능이 좋은 모델에게 맡겨보세요.
+Maybe just a draft and you
+let some very powerful model
+
+1313
+01:19:29,380 --> 01:19:35,880
+논리를 잘 이해하는 강력한 모델이
+여러분 대신 이 작업을 해줄 수 있습니다.
+with excellent knowledge
+of logic do it for you.
+
+1314
+01:19:35,880 --> 01:19:36,380
+알겠죠?
+Yeah?
+
+1315
+01:19:51,140 --> 01:19:51,640
+네, 맞아요.
+Yeah.
+
+1316
+01:19:51,640 --> 01:19:53,680
+좋아요, 질문은 방금 언급하신 내용이
+So the question is,
+what you just mentioned,
+
+1317
+01:19:53,680 --> 01:19:55,360
+학습에서 일어나는 건지, 아니면 추론 과정에서 일어나는 건지에 관한 거죠?
+is it training or inference?
+
+1318
+01:19:55,360 --> 01:19:56,780
+이건 학습 단계에서 이루어집니다.
+So it's training.
+
+1319
+01:19:56,780 --> 01:19:58,720
+그래서 이 과정은 맨 처음에 하게 되는 거죠.
+So you do it at
+the very beginning.
+
+1320
+01:19:58,720 --> 01:20:02,300
+LLM에게 어떻게 활용하는지 설명하는
+고정된 프롬프트가 필요합니다.
+You want a fixed prompt
+that explains to the LLM
+
+1321
+01:20:02,300 --> 01:20:04,720
+어떻게 사용하는지, 즉 그 함수를 어떻게 사용하는지 설명하는 고정된 프롬프트가 필요합니다.
+how to use it, how
+to use that function.
+
+1322
+01:20:04,720 --> 01:20:06,900
+이 작업은 보통 오프라인에서 진행합니다.
+So you would typically
+do that offline.
+
+1323
+01:20:06,900 --> 01:20:09,500
+오프라인에서 이런 설명을 반복적으로 수정합니다.
+Offline you iterate
+on the explanation
+
+1324
+01:20:09,500 --> 01:20:12,780
+프롬프트를 어떻게 사용하는지, 함수를 어떻게 사용하는지 정확히 알려주는 설명을요.
+that says exactly how
+you use the prompt, how
+
+1325
+01:20:12,780 --> 01:20:14,740
+바로 그 함수 사용법을요.
+you use the function.
+
+1326
+01:20:14,740 --> 01:20:18,300
+그리고 추론 단계에서는 그 고정된 설명을
+And then at inference time, you
+would put that fixed explanation
+
+1327
+01:20:18,300 --> 01:20:21,720
+함수 API와 함께 넣어주면, 어떤 쿼리가 들어와도
+alongside the function API,
+such that for any query,
+
+1328
+01:20:21,720 --> 01:20:24,715
+LLM이 무엇을 해야 할지 알 수 있게 됩니다.
+it knows what to do.
+
+1329
+01:20:24,715 --> 01:20:25,590
+이해되시나요?
+Does that make sense?
+
+1330
+01:20:28,040 --> 01:20:28,540
+네.
+OK.
+
+1331
+01:20:28,540 --> 01:20:30,480
+좋아요.
+Great.
+
+1332
+01:20:30,480 --> 01:20:32,140
+혹시 추가 질문 있으신가요?
+Any other questions here?
+
+1333
+01:20:35,060 --> 01:20:35,560
+네.
+OK.
+
+1334
+01:20:35,560 --> 01:20:36,060
+아주 좋습니다.
+Amazing.
+
+1335
+01:20:38,680 --> 01:20:41,640
+방금 테디베어 예시를 언급했는데요,
+I just mentioned an
+example with teddy bears
+
+1336
+01:20:41,640 --> 01:20:45,620
+이건 정보 제공형 카테고리에 속한다고 볼 수 있습니다.
+that would be in the category
+of maybe informational.
+
+1337
+01:20:48,320 --> 01:20:51,720
+예를 들어 질문이 있고, 어떤 외부 API에 물어보고 싶을 때가 있습니다.
+So you have a question and you
+want to ask some external API
+
+1338
+01:20:51,720 --> 01:20:53,480
+그 API에서 정보를 받아오는 거죠.
+to retrieve that.
+
+1339
+01:20:53,480 --> 01:20:56,160
+실제로는 더 다양한 활용 사례가 존재합니다.
+And you have in reality
+a lot more use cases
+
+1340
+01:20:56,160 --> 01:20:57,140
+여러분이 앞으로 보게 될 다양한 예시들이 있죠.
+that you might see.
+
+1341
+01:20:57,140 --> 01:21:00,940
+예를 들어, 데이터의 컷오프 날짜가 있는 경우도 있습니다.
+So one actually mentioned,
+you have some cutoff dates.
+
+1342
+01:21:00,940 --> 01:21:04,680
+LLM에게 오늘의 뉴스를 물어본다고 해봅시다.
+And let's say you ask your
+LLM about news of the day.
+
+1343
+01:21:04,680 --> 01:21:07,240
+보통은 모델 자체에서 그런 정보가
+So you typically wouldn't
+have anything that
+
+1344
+01:21:07,240 --> 01:21:08,740
+제공되지 않습니다.
+comes from the model itself.
+
+1345
+01:21:08,740 --> 01:21:12,880
+이럴 때는 Search 같은 도구에서 정보를 가져오는 API가 필요합니다.
+You would have an API that
+fetches it from a tool called
+
+1346
+01:21:12,880 --> 01:21:15,360
+이 Search 같은 도구가 예시가 될 수 있죠.
+maybe Search.
+
+1347
+01:21:15,360 --> 01:21:17,420
+그리고 정보 범주에는 이런 도구들 말고도
+But you have also
+other kinds of tools
+
+1348
+01:21:17,420 --> 01:21:20,400
+다양한 도구들이 포함될 수 있습니다.
+available in the
+information category.
+
+1349
+01:21:20,400 --> 01:21:25,180
+예를 들어, 날씨나 주식 정보도 있습니다.
+So for example,
+whether stocks and,
+
+1350
+01:21:25,180 --> 01:21:30,060
+그리고 또 다른 범주들도 존재합니다.
+let's see, but you also
+have other categories.
+
+1351
+01:21:30,060 --> 01:21:33,660
+예를 들어, 모델에게 계산을 요청할 수도 있습니다.
+For example, if you
+want to ask the model to
+
+1352
+01:21:33,660 --> 01:21:36,120
+어떤 계산을 해달라고 모델에 요청할 수 있죠.
+do some calculation for you.
+
+1353
+01:21:36,120 --> 01:21:38,380
+모델이 자체적으로 추론 과정을 통해
+You could let the
+model figure it out
+
+1354
+01:21:38,380 --> 01:21:40,060
+답을 구할 수도 있습니다.
+with some reasoning chain.
+
+1355
+01:21:40,060 --> 01:21:45,420
+하지만 이를 해결하는 한 가지 방식은 쿼리를 코드로 변환해서
+But one way to get around
+it is to transform the query
+
+1356
+01:21:45,420 --> 01:21:51,540
+코드를 실행하고, 그 결과를 받아오는 방법입니다.
+into code, execute that code,
+and then read out the answer.
+
+1357
+01:21:51,540 --> 01:21:57,060
+그래서 이런 이유로 툴 콜(tool call)은 계산 영역에서도
+So this is why tool call has
+a whole span of applications
+
+1358
+01:21:57,060 --> 01:22:01,020
+굉장히 다양한 활용이 가능합니다.
+in the computation area.
+
+1359
+01:22:01,020 --> 01:22:02,740
+이렇게 계산 관련 작업도 포함되고요.
+So you have calculations.
+
+1360
+01:22:02,740 --> 01:22:06,520
+그리고 또 다른 범주 역시 존재합니다.
+And you have another category
+that we can cite here.
+
+1361
+01:22:06,520 --> 01:22:10,220
+그래서 사용자를 대신해서 어떤 동작을 수행할 수도 있습니다.
+So you can take actions
+on behalf of the user.
+
+1362
+01:22:10,220 --> 01:22:13,080
+예를 들어, 이메일을 보내는 도구가 있다고 해봅시다.
+So let's say you have a
+tool that sends emails.
+
+1363
+01:22:13,080 --> 01:22:17,070
+모델에게 이메일을 보내 달라고 요청할 수도 있고,
+You could ask the model
+to send an email for you,
+
+1364
+01:22:17,070 --> 01:22:19,990
+모델이 적절한 내용을
+and it could put
+the right things
+
+1365
+01:22:19,990 --> 01:22:25,470
+헤더와 본문에 채워 넣고, 심지어 직접 전송까지 할 수 있습니다.
+into the header and the message
+body, and even hit Send for you
+
+1366
+01:22:25,470 --> 01:22:27,630
+이렇게 할 수 있는 이유는
+because you have
+that component that
+
+1367
+01:22:27,630 --> 01:22:33,810
+도구 API를 통해 외부 세계와 상호작용할 수 있는 컴포넌트가 있기 때문입니다.
+interacts with the external
+world as part of the tool API.
+
+1368
+01:22:33,810 --> 01:22:34,310
+네, 맞습니다.
+Yeah.
+
+1369
+01:22:34,310 --> 01:22:35,890
+이건 몇 가지 예시일 뿐이고,
+So these are just
+a few examples,
+
+1370
+01:22:35,890 --> 01:22:39,350
+도구 호출 분야가
+but I just want to say that
+the field of tool calling
+
+1371
+01:22:39,350 --> 01:22:40,370
+정말 강력하다는 점을 강조하고 싶습니다.
+is so powerful.
+
+1372
+01:22:40,370 --> 01:22:43,230
+원하는 모든 작업을 할 수 있습니다.
+You can do anything you want.
+
+1373
+01:22:43,230 --> 01:22:47,670
+실제로 방금 언급해주신 것처럼,
+And in practice, exactly
+as you mentioned,
+
+1374
+01:22:47,670 --> 01:22:53,630
+하나의 도구 API만 사용하는 게 아니라 여러 개를 쓸 수 있습니다.
+you wouldn't have just a single
+tool API as part of the context.
+
+1375
+01:22:53,630 --> 01:22:57,430
+왜냐하면 여러분의 LLM이 단순히
+You would have several ones
+because your LLM is not just
+
+1376
+01:22:57,430 --> 01:22:59,730
+곰을 찾는 용도로만 쓰이는 LLM은 아니니까요.
+an LLM for finding bears.
+
+1377
+01:22:59,730 --> 01:23:02,430
+LLM으로 다른 작업들도 하고 싶을 수 있습니다.
+You might want to do other
+things with your LLM.
+
+1378
+01:23:02,430 --> 01:23:05,430
+예를 들어 곰인형을 안아본다거나,
+Maybe you want to
+hug a teddy bear
+
+1379
+01:23:05,430 --> 01:23:09,270
+곰인형의 기분을 확인하거나, 곰인형에게
+or check a teddy bear's
+moods, send teddy bear's
+
+1380
+01:23:09,270 --> 01:23:11,790
+선물을 보내는 등 다양한 일을 할 수 있습니다.
+a gift and other things.
+
+1381
+01:23:11,790 --> 01:23:15,570
+그래서 훨씬 더 많은 기능들을
+추가하게 됩니다.
+So you have a lot
+more functions that
+
+1382
+01:23:15,570 --> 01:23:18,770
+이런 다양한 기능들이 프리앰블에
+추가될 수 있습니다.
+might be relevant to
+be added as a preamble.
+
+1383
+01:23:18,770 --> 01:23:23,050
+어떤 기능이 필요할지 모르기 때문에,
+Just because you don't know what
+function would need to be used,
+
+1384
+01:23:23,050 --> 01:23:25,180
+혹시 모르니 모든 기능을 다 추가해둬야 합니다.
+you just need to put all
+of that just in case.
+
+1385
+01:23:28,028 --> 01:23:29,570
+이 설정은 여러분이 말한 것처럼
+The setup is exactly
+the one that you
+
+1386
+01:23:29,570 --> 01:23:33,560
+하나의 API만 있는 게 아니라 여러 개의 API가 존재하는 상황입니다.
+mentioned where you don't have
+just one API but multiple ones.
+
+1387
+01:23:36,250 --> 01:23:40,550
+이렇게 했을 때 문제가 무엇인지
+알겠나요?
+Does anyone see any
+issues with doing so?
+
+1388
+01:23:43,650 --> 01:23:46,130
+즉, 도구가 너무 많다는 게
+지금 제안의 핵심입니다.
+So the suggestion is that,
+that's a lot of tools.
+
+1389
+01:23:46,130 --> 01:23:47,270
+맞아요, 맞는 지적입니다.
+And then you're right.
+
+1390
+01:23:47,270 --> 01:23:49,450
+보통 도구가 너무 많으면
+So typically, if you
+have too many tools,
+
+1391
+01:23:49,450 --> 01:23:51,690
+처음에 Afshine이 언급한
+문제가 생깁니다.
+you have the problem
+that Afshine mentioned
+
+1392
+01:23:51,690 --> 01:23:54,070
+건초 더미에서 바늘 찾기처럼,
+처음에 이야기했던 바로 그 문제죠.
+at the beginning of a
+needle in a haystack,
+
+1393
+01:23:54,070 --> 01:23:58,010
+어떤 도구 API는 맥락 속에서
+잊혀질 수 있습니다.
+where maybe some tool API
+will get lost in the context
+
+1394
+01:23:58,010 --> 01:24:00,130
+그리고 어떤 걸 써야 하는지
+정확히 모를 수 있습니다.
+and you don't
+really what to use.
+
+1395
+01:24:00,130 --> 01:24:04,370
+API가 너무 많아서 서로 충돌하거나
+혼란스러울 수 있습니다.
+You have a lot of
+conflicting APIs, maybe,
+
+1396
+01:24:04,370 --> 01:24:11,400
+이제 곧 이런 문제를
+어떻게 해결할 수 있는지 살펴보겠습니다.
+and we're going to see very
+soon how to overcome that issue.
+
+1397
+01:24:11,400 --> 01:24:11,900
+좋아요.
+OK.
+
+1398
+01:24:11,900 --> 01:24:13,220
+좋습니다.
+Great.
+
+1399
+01:24:13,220 --> 01:24:19,540
+여기서 잠깐 정리하고,
+지금까지 다룬 내용을 간단히 요약해 보겠습니다.
+So I want to take a pause here
+and summarize how far we've come
+
+1400
+01:24:19,540 --> 01:24:23,100
+그리고 우리가 가지고 있는 몇 가지
+한계점도 함께 살펴보겠습니다.
+and some of the
+drawbacks that we have
+
+1401
+01:24:23,100 --> 01:24:27,500
+그리고 이제 이런 한계들을 어떻게 해결할 수 있을지 함께 살펴보겠습니다.
+and see together what we could
+do to remedy these drawbacks.
+
+1402
+01:24:27,500 --> 01:24:31,420
+먼저, 우리가 처음에는
+단순히 답변만 하는 LLM에서 출발했다는 점을 봤죠.
+So first, we saw that
+we came from an LLM that
+
+1403
+01:24:31,420 --> 01:24:35,460
+즉, 그저 일반적인 단어로만 답변하는
+언어모델이었습니다.
+just responded back at
+you with a normal words.
+
+1404
+01:24:35,460 --> 01:24:40,000
+이제는 외부 세계와 실제로 상호작용할 수 있는
+LLM으로 발전하게 됐습니다.
+To an LLM that can actually
+interact with the outside world,
+
+1405
+01:24:40,000 --> 01:24:44,100
+실시간 정보를 가져오거나,
+심지어 연산 능력까지 확장할 수 있게 되었죠.
+fetch real-time
+information, or even extends
+
+1406
+01:24:44,100 --> 01:24:47,380
+계산 능력 자체도 확장할 수 있습니다.
+computing capabilities.
+
+1407
+01:24:47,380 --> 01:24:51,380
+그리고 이렇게 하면
+문제가 되었던 부분도 극복할 수 있게 됩니다.
+And exactly like
+overcomes the issue
+
+1408
+01:24:51,380 --> 01:24:54,020
+Afshine이 언급했던 지식 컷오프 문제 같은 것도
+이 방식으로 극복할 수 있습니다.
+that Afshine was mentioning
+the knowledge cutoff
+
+1409
+01:24:54,020 --> 01:24:58,980
+이건 RAG가 해결하는 방식과는
+조금 다른 방법입니다.
+one in a different way that
+than what RAG would do.
+
+1410
+01:24:58,980 --> 01:25:03,700
+그래서 이 두 가지 방법을
+상호보완적으로 볼 수 있습니다.
+So you could see these two
+methods as being complementary.
+
+1411
+01:25:03,700 --> 01:25:08,180
+사실 두 방법 모두 본질적으로는
+같은 목표를 추구한다고 볼 수 있습니다.
+And yeah, both try to do the
+same thing in some sense.
+
+1412
+01:25:08,180 --> 01:25:14,320
+그리고 여기서 누가 언급해주신 것처럼,
+만약 더 많은 도구가 있다면
+But exactly as someone mentioned
+here, if you have more tools,
+
+1413
+01:25:14,320 --> 01:25:17,880
+컨텍스트 윈도우에
+불필요한 정보까지 포함될 수 있습니다.
+then your context
+window might have things
+
+1414
+01:25:17,880 --> 01:25:19,940
+그런 정보들은 사실 필요하지 않을 수도 있습니다.
+that it doesn't need.
+
+1415
+01:25:19,940 --> 01:25:23,680
+그리고 많은 경우를 모두 지원하려고 하면,
+And then if you try to
+support so many cases,
+
+1416
+01:25:23,680 --> 01:25:27,560
+결국 모든 경우에 평균적인 성능만 낼 수밖에 없습니다.
+you might end up being
+mediocre at all of them.
+
+1417
+01:25:27,560 --> 01:25:30,480
+이런 부분이 또 하나의 문제입니다.
+So this is an issue.
+
+1418
+01:25:30,480 --> 01:25:32,720
+설령 그런 문제가 아니더라도,
+And even if that
+wasn't an issue,
+
+1419
+01:25:32,720 --> 01:25:36,040
+여전히 컨텍스트 윈도우의 크기에는 한계가 있습니다.
+you still have the context
+window that is finite.
+
+1420
+01:25:36,040 --> 01:25:39,080
+예를 들어 수억 명의 사용자가 있다고 가정해보세요.
+So let's say you have
+hundreds of millions
+
+1421
+01:25:39,080 --> 01:25:42,600
+여러분의 LLM을 사용하는 수억 명의 사용자가 있다고 해보겠습니다.
+이 사용자들이
+of users that use
+your LLM and that want
+
+1422
+01:25:42,600 --> 01:25:44,800
+각자 다양한 일을 LLM으로 하고 싶어한다면,
+to use to do a lot of things.
+
+1423
+01:25:44,800 --> 01:25:47,880
+이 모든 사용자의 요구를 한 번에 지원하는 것은 불가능합니다.
+You cannot support
+everyone's use cases at once,
+
+1424
+01:25:47,880 --> 01:25:52,160
+왜냐하면 그런 모든 도구를
+각자의 컨텍스트에 담을 수 없기 때문입니다.
+just because you couldn't
+possibly fit all of such tools
+
+1425
+01:25:52,160 --> 01:25:52,870
+즉, 컨텍스트 윈도우에 모든 것을 담을 수 없습니다.
+in your context.
+
+1426
+01:25:55,640 --> 01:26:00,880
+마지막으로, 방금 언급한 이 도구들은
+And then last, when I
+mentioned these tools,
+
+1427
+01:26:00,880 --> 01:26:03,920
+제가 직접 코드를 작성해서 만든 것들입니다.
+these are things I hand wrote.
+
+1428
+01:26:03,920 --> 01:26:08,580
+그리고 LLM마다 도구를 정의하고 사용하는 방식이
+조금씩 다를 수 있습니다.
+And maybe each LLM has their own
+way of defining and using tools.
+
+1429
+01:26:08,580 --> 01:26:11,160
+이제 이런 도구의 정의와 사용 방식을
+표준화할 방법이 있는지 살펴보겠습니다.
+We're going to see if there
+is a way to standardize,
+
+1430
+01:26:11,160 --> 01:26:16,420
+이 부분은 뒤에서 더 다루도록 하겠습니다.
+maybe the way we define
+and use tools later on.
+
+1431
+01:26:16,420 --> 01:26:19,780
+지금까지의 한계점들이 이해가 되셨나요?
+So do these
+drawbacks make sense.
+
+1432
+01:26:19,780 --> 01:26:20,700
+네.
+Yeah.
+
+1433
+01:26:20,700 --> 01:26:21,200
+좋습니다.
+OK.
+
+1434
+01:26:21,200 --> 01:26:22,340
+좋아요.
+Great.
+
+1435
+01:26:22,340 --> 01:26:26,340
+그럼 이제 도구 선택에 대해 알아보겠습니다.
+So let's move on
+to tool selection.
+
+1436
+01:26:26,340 --> 01:26:29,540
+도구 사용을 더 확장 가능하게 만들기 위해
+어떤 방식을 쓸 수 있을지 살펴보겠습니다.
+So let's see what
+we could do in order
+
+1437
+01:26:29,540 --> 01:26:34,140
+즉, 도구의 사용을 더 효과적으로 확장하는 방법에 대해 알아보겠습니다.
+to make a tool
+use more scalable.
+
+1438
+01:26:34,140 --> 01:26:39,820
+여기서 Google DeepMind의 기술 논문을 인용해보겠습니다.
+So I'm going to cite
+here a technical paper
+
+1439
+01:26:39,820 --> 01:26:45,060
+이 논문에서는 도구 선택기 시스템을 사용합니다.
+from Google DeepMind, which
+uses a tool selector system.
+
+1440
+01:26:45,060 --> 01:26:47,980
+이 시스템은 두 단계로 동작합니다.
+So it functions in two steps.
+
+1441
+01:26:47,980 --> 01:26:51,540
+먼저 쿼리가 있고,
+So first you have
+your query and you
+
+1442
+01:26:51,540 --> 01:26:55,740
+그리고 여러분이 원하는 만큼
+많은 도구 리스트가 있습니다.
+have a list of tools that
+can be as big as you want.
+
+1443
+01:26:55,740 --> 01:26:58,540
+이 도구 리스트에는
+And a list of
+tools only contains
+
+1444
+01:26:58,540 --> 01:27:03,740
+각 도구의 API 이름과,
+그리고 그 기능을 한두 단어로 설명한 내용만 들어 있습니다.
+the API name and, maybe one or
+two words about what it does.
+
+1445
+01:27:03,740 --> 01:27:08,350
+즉, 프롬프트와 도구 리스트가 주어집니다.
+So you have this prompt
+and the list of tools.
+
+1446
+01:27:08,350 --> 01:27:15,190
+그리고 LLM에게
+관련 있을 만한 도구를 선택하도록 합니다.
+And we ask the LLM to pick the
+tools that might be relevant.
+
+1447
+01:27:15,190 --> 01:27:20,110
+그래서 이 논문에서는
+이 시스템을 tool selector라고 부릅니다.
+So this is why the technical
+paper calls this system tool
+
+1448
+01:27:20,110 --> 01:27:21,270
+툴 셀렉터라는 거죠.
+selector.
+
+1449
+01:27:21,270 --> 01:27:25,870
+문헌에서는 router라는
+용어도 쓰이는 걸 볼 수 있습니다.
+You could even see
+the term router being
+
+1450
+01:27:25,870 --> 01:27:27,330
+router라는 표현도 사용됩니다.
+pronounced in the literature.
+
+1451
+01:27:27,330 --> 01:27:31,270
+즉, 도구 선택과 라우팅은
+비슷한 개념입니다.
+So tool selection, routing
+are similar concepts.
+
+1452
+01:27:31,270 --> 01:27:35,550
+여기서 목표는 사용할 만한 도구의 수를
+필요한 것만으로 제한하는 겁니다.
+And the goal here is to
+restrict the number of tools
+
+1453
+01:27:35,550 --> 01:27:38,550
+실제로 쓸모 있을 만한 도구만
+남기는 것이죠.
+to only those that
+might be useful.
+
+1454
+01:27:38,550 --> 01:27:43,590
+그리고 두 번째 단계에서는,
+선택된 도구 API들만 모아서
+And in the second stage, you
+take all the selected tool APIs
+
+1455
+01:27:43,590 --> 01:27:48,910
+해당 쿼리와 함께
+컨텍스트로 넣어줍니다.
+and feed only those to the
+context alongside your query.
+
+1456
+01:27:48,910 --> 01:27:52,190
+이렇게 하면
+And this is one
+way you could take
+
+1457
+01:27:52,190 --> 01:27:58,520
+한 번에 너무 많은 도구를 다루는 문제를
+해결할 수 있습니다.
+to overcome this issue of
+having too many tools at once.
+
+1458
+01:28:01,110 --> 01:28:04,290
+이런 식으로 도구를 선택하는 게
+문제를 해결하는 좋은 방법일 수 있다는 점이 이해되시나요?
+Is everyone convinced that tool
+selection could be a good way
+
+1459
+01:28:04,290 --> 01:28:07,230
+여기서 제기된 문제를
+이렇게 해결할 수 있겠죠?
+to fix the problem here?
+
+1460
+01:28:14,690 --> 01:28:16,650
+즉, 이게 사실상 RAG냐는 질문이네요?
+So the question is
+that basically RAG?
+
+1461
+01:28:16,650 --> 01:28:17,890
+이런 작업은 RAG로도 할 수 있습니다.
+You could do it with RAG.
+
+1462
+01:28:17,890 --> 01:28:19,230
+좋은 지적입니다.
+That's a great point.
+
+1463
+01:28:19,230 --> 01:28:21,330
+하지만 꼭 RAG만 써야 하는 건 아닙니다.
+But it doesn't
+necessarily have to.
+
+1464
+01:28:21,330 --> 01:28:27,050
+이런 역할만 하는 LLM을 둘 수도 있고,
+So you could have an LLM
+that does this job, just
+
+1465
+01:28:27,050 --> 01:28:29,350
+올바른 툴을 선택하게 할 수도 있습니다.
+picking the right tools.
+
+1466
+01:28:29,350 --> 01:28:31,730
+그리고 LLM에 지시를 내려
+And you ask some
+instructions to the LLM
+
+1467
+01:28:31,730 --> 01:28:33,350
+정답을 출력하게 할 수도 있죠.
+to output the right answer.
+
+1468
+01:28:33,350 --> 01:28:35,690
+RAG로도 충분히 가능합니다.
+You could definitely
+do it with RAG.
+
+1469
+01:28:35,690 --> 01:28:36,990
+정말 좋은 포인트입니다.
+That is just a great point.
+
+1470
+01:28:36,990 --> 01:28:37,490
+네, 맞아요.
+Yeah.
+
+1471
+01:28:40,930 --> 01:28:43,710
+이제 모두 이해되셨죠?
+So does it make
+sense to everyone?
+
+1472
+01:28:43,710 --> 01:28:44,210
+좋습니다.
+OK.
+
+1473
+01:28:44,210 --> 01:28:45,030
+아주 좋네요.
+Great.
+
+1474
+01:28:45,030 --> 01:28:47,190
+시간이 정말 빠르네요.
+And I see time is flying.
+
+1475
+01:28:47,190 --> 01:28:52,650
+그래서 이제 표준화 이슈에 대해
+아주 빠르게 다루겠습니다.
+So we're going to go very
+quickly on the standardization
+
+1476
+01:28:52,650 --> 01:28:53,570
+관련된 문제입니다.
+issue.
+
+1477
+01:28:53,570 --> 01:28:57,370
+아까 말씀드렸듯이, 각각의 툴 구현은
+So as I mentioned, every
+tools implementation,
+
+1478
+01:28:57,370 --> 01:29:00,490
+툴을 어떤 방식으로 구현할지에 따라
+like the way you specify
+a tool implementation
+
+1479
+01:29:00,490 --> 01:29:03,050
+특정 LLM에 맞춰 따로 구현될 수도 있습니다.
+can be bespoke to a given LLM.
+
+1480
+01:29:03,050 --> 01:29:04,750
+하지만, 그렇게 되고 싶진 않으실 겁니다.
+And you wouldn't want that.
+
+1481
+01:29:04,750 --> 01:29:07,830
+왜냐하면 LLM마다
+Because for every
+LLM, you might need
+
+1482
+01:29:07,830 --> 01:29:14,150
+매번 이런 툴들을 계속 직접 구현해야 할 수도 있기 때문입니다.
+to implement always these
+tools over and over again.
+
+1483
+01:29:14,150 --> 01:29:17,190
+이렇게 중복되는 작업은 바람직하지 않죠.
+And duplication is
+not what you want.
+
+1484
+01:29:17,190 --> 01:29:19,990
+그래서 MCP라는 표준이 등장했습니다.
+This is why there is
+a standard called MCP,
+
+1485
+01:29:19,990 --> 01:29:24,750
+많은 분들이 이 MCP에 대해 이야기하는 걸 알고 있습니다.
+that I know a lot of
+people talk about it.
+
+1486
+01:29:24,750 --> 01:29:28,510
+Anthropic 팀에서 나온 것으로,
+So it's something from
+the Anthropic team
+
+1487
+01:29:28,510 --> 01:29:34,130
+모델에 툴을 제공하는 방식을 표준화한 것입니다.
+that standardizes the way
+tools are exposed to models.
+
+1488
+01:29:34,130 --> 01:29:35,010
+즉, 일종의 프로토콜입니다.
+So it's a protocol.
+
+1489
+01:29:35,010 --> 01:29:37,550
+모델 컨텍스트 프로토콜(Model Context Protocol)이라고 불립니다.
+It's called a model
+context protocol.
+
+1490
+01:29:37,550 --> 01:29:43,350
+이 MCP는 툴을 제시하는 표준적인 방법을 정의합니다.
+And it defines a standard way
+of presenting these tools.
+
+1491
+01:29:43,350 --> 01:29:49,710
+여기서는 MCP의 핵심적인 부분만 간단히 말씀드리겠습니다.
+So I'm going just to say
+the very big lines of it,
+
+1492
+01:29:49,710 --> 01:29:53,070
+우선 MCP 안에는 이런 용어들이 사용됩니다.
+so you have this kind of
+vocabulary as part of MCP.
+
+1493
+01:29:53,070 --> 01:29:56,870
+MCP 서버라는 게 있는데, 이 서버는
+So you have an MCP
+server, which is
+
+1494
+01:29:56,870 --> 01:30:01,960
+툴을 제공하는 인스턴스입니다.
+the instance that serves tools.
+
+1495
+01:30:01,960 --> 01:30:05,760
+그리고 각 툴은 여러분이 사용하길 원하는 함수의 구현체입니다.
+And then tools are
+implementations of the functions
+
+1496
+01:30:05,760 --> 01:30:07,920
+즉, 사람들이 실제로 사용할 수 있도록 만든 기능들입니다.
+that you want people to use.
+
+1497
+01:30:07,920 --> 01:30:12,800
+프롬프트는 사용자가
+Prompts are templates that
+could show the user how
+
+1498
+01:30:12,800 --> 01:30:15,000
+이 툴을 어떻게 쓸 수 있는지 보여주는 템플릿 역할을 합니다.
+to use these tools.
+
+1499
+01:30:15,000 --> 01:30:18,520
+그리고 모든 요소들은 리소스와 연결될 수 있습니다.
+And then all of these
+can anchor on resources,
+
+1500
+01:30:18,520 --> 01:30:23,040
+리소스는 외부 데이터베이스로,
+which are external
+databases that you
+
+1501
+01:30:23,040 --> 01:30:25,800
+이 외부 데이터베이스를 활용해서 과제를 완수할 수 있습니다.
+can use to complete the task.
+
+1502
+01:30:25,800 --> 01:30:29,200
+그리고 MCP 서버를 사용할 때는,
+And then an MCP server,
+when you use it,
+
+1503
+01:30:29,200 --> 01:30:31,320
+각각이 특정 인프라 컴포넌트와
+has a one-to-one
+connection with a piece
+
+1504
+01:30:31,320 --> 01:30:35,880
+1:1로 연결되어 있고,
+이 컴포넌트는 LLM 호스트 내에서 MCP 클라이언트라고 부릅니다.
+of infrastructure in your LLM
+host that is called MCP clients.
+
+1505
+01:30:35,880 --> 01:30:39,000
+하지만 이것들은 아마 인프라 세부사항일 뿐입니다.
+But these are maybe
+infrastructure details.
+
+1506
+01:30:39,000 --> 01:30:43,080
+제가 방금 말씀드린 것들을
+현실적인 예시와 연결해보겠습니다.
+And I just want to ground what
+I just mentioned in reality.
+
+1507
+01:30:43,080 --> 01:30:47,480
+우리 테디베어가 시 읽는 걸 좋아한다는 건 이제 잘 아실 겁니다.
+So we know our teddy bear
+loves to read poetry.
+
+1508
+01:30:47,480 --> 01:30:52,540
+그래서 테디베어에게 시집을 추천하는 상황을 예로 들면,
+So in the case of recommending
+a poetry book to our teddy bear,
+
+1509
+01:30:52,540 --> 01:30:55,760
+책과 연결된 툴을 제공하는 MCP 서버를
+you could think of a
+MCP server that provides
+
+1510
+01:30:55,760 --> 01:30:59,780
+생각해볼 수 있습니다.
+tools that are linked to books.
+
+1511
+01:30:59,780 --> 01:31:02,080
+여기서 여러분의 LLM 호스트가 있다고 생각해봅시다.
+So your LLM hosts here--
+
+1512
+01:31:02,080 --> 01:31:04,100
+예를 들어, MCP가 Anthropic에서 나왔으니 Claude를 예로 들겠습니다.
+so let's just take
+the example of Claude
+
+1513
+01:31:04,100 --> 01:31:06,580
+그래서 Claude가 여러분의 LLM 호스트가 됩니다.
+since MCP is from Anthropic.
+
+1514
+01:31:06,580 --> 01:31:09,460
+여러분의 MCP 서버는 아마도
+So Claude would
+be your LLM host.
+
+1515
+01:31:09,460 --> 01:31:13,940
+책 제공자가 구현하게 될 겁니다.
+Your MCP server would
+be probably implemented
+
+1516
+01:31:13,940 --> 01:31:15,060
+왜냐하면 이런 콘텐츠를 제공하는 데
+가장 전문성을 갖췄기 때문이죠.
+by your book provider.
+
+1517
+01:31:15,060 --> 01:31:17,220
+그래서 대개 그들이 이런 콘텐츠 제공에 가장 전문적입니다.
+Because typically, they
+are the most experts
+
+1518
+01:31:17,220 --> 01:31:19,940
+우리는 책 제공업체의 MCP 서버가
+as at serving such content.
+
+1519
+01:31:19,940 --> 01:31:23,420
+책을 찾거나 추천하는 데 관련된 툴을
+And we could assume that
+the book provider, MCP
+
+1520
+01:31:23,420 --> 01:31:28,460
+제공한다고 가정할 수 있습니다.
+server has tools regarding
+finding books or recommending
+
+1521
+01:31:28,460 --> 01:31:28,960
+이런 기능들을 갖추고 있다고 할 수 있습니다.
+them.
+
+1522
+01:31:28,960 --> 01:31:33,900
+그리고 여기서 프롬프트는
+여러분에게 이런 기능들을 보여주는 방법이 될 수 있습니다.
+And then the prompts here
+could be a ways to show you
+
+1523
+01:31:33,900 --> 01:31:36,540
+예를 들어, 특정 제목을 어떻게 찾는지
+혹은
+how to find a given
+title, or maybe
+
+1524
+01:31:36,540 --> 01:31:39,780
+어떤 취향에 따라 책을 추천하는 방법에 대해 보여줄 수도 있습니다.
+recommend it with respect to
+some flavor, maybe with respect
+
+1525
+01:31:39,780 --> 01:31:42,180
+예를 들어 사용자의 취향에 맞춰 추천할 수도 있죠.
+to the user's test taste.
+
+1526
+01:31:42,180 --> 01:31:44,380
+여기서 리소스 예시로는
+And some examples
+of resources here
+
+1527
+01:31:44,380 --> 01:31:48,100
+곰인형의 개인 소장 도서나
+could be the teddy bear's
+personal collection,
+
+1528
+01:31:48,100 --> 01:31:55,280
+많은 사람들이 구매한 인기 도서 등이 있을 수 있습니다.
+or maybe top books that people
+buy, just as an example.
+
+1529
+01:31:55,280 --> 01:31:55,780
+좋습니다.
+OK.
+
+1530
+01:31:55,780 --> 01:31:56,840
+아주 좋네요.
+Awesome.
+
+1531
+01:31:56,840 --> 01:31:59,640
+이제 오늘 강의에서
+가장 흥미로운 부분으로 넘어가 보겠습니다.
+So now, I'm going to
+come to potentially
+
+1532
+01:31:59,640 --> 01:32:03,660
+바로 오늘 강의에서 가장 흥미로운 주제일 수 있는데요,
+the most exciting part
+of today's lecture,
+
+1533
+01:32:03,660 --> 01:32:05,520
+바로 에이전트입니다.
+which is agents.
+
+1534
+01:32:05,520 --> 01:32:11,680
+여러분도 보셨다시피,
+도구를 활용할 때 LLM이 훨씬 더 강력해질 수 있습니다.
+So we saw how much more powerful
+LLMs could become with tools.
+
+1535
+01:32:11,680 --> 01:32:16,960
+에이전트는 이보다 한 단계 더 발전된 개념이라고 볼 수 있습니다.
+Agents could be seen as
+one layer up from it.
+
+1536
+01:32:16,960 --> 01:32:21,080
+먼저 에이전트가 정확히 무엇인지 정의부터 살펴보겠습니다.
+So I'm going to give
+first a definition,
+
+1537
+01:32:21,080 --> 01:32:25,640
+그래야 여기서 말하는 에이전트의 의미를 확실히 이해할 수 있으니까요.
+just so that we agree of
+what agent means here.
+
+1538
+01:32:25,640 --> 01:32:28,360
+에이전트란, 스스로 목표를 설정하고
+So it's a system that
+autonomously pursues
+
+1539
+01:32:28,360 --> 01:32:32,520
+사용자를 대신해 과업을 완료하는 시스템을 의미합니다.
+goal and completes tasks
+on a user's behalf.
+
+1540
+01:32:32,520 --> 01:32:41,040
+즉, 도구와 비교하면,
+단순히 과업을 수행하는 것뿐만 아니라
+So compared to tools, you
+not only can perform tasks,
+
+1541
+01:32:41,040 --> 01:32:44,840
+하지만 여기에 어느 정도의 추론도 포함되어 있습니다.
+but you have also some
+reasoning involved in it.
+
+1542
+01:32:44,840 --> 01:32:47,840
+즉, 여러 번 반복하는 루프가 있을 수도 있습니다.
+So you could have multiple
+loops of iterations.
+
+1543
+01:32:47,840 --> 01:32:50,800
+이 점이 바로 에이전트와
+And this is what
+differentiates an agent
+
+1544
+01:32:50,800 --> 01:32:53,720
+도구의 차이점이라고 할 수 있습니다.
+from a tool in plain terms.
+
+1545
+01:32:53,720 --> 01:32:55,790
+사람들이 일반적으로 에이전트에 대해 이야기할 때,
+When usually people
+talk about agents,
+
+1546
+01:32:55,790 --> 01:33:02,970
+그 안에는 반복적인 처리나 더 높은 수준의 추론이
+it has that recurrence or
+higher level of reasoning baked
+
+1547
+01:33:02,970 --> 01:33:04,730
+탑재되어 있습니다.
+into it.
+
+1548
+01:33:04,730 --> 01:33:09,530
+이제 에이전트적 세계와
+And so I'm going to contrast
+like the agentic world
+
+1549
+01:33:09,530 --> 01:33:10,930
+우리가 기존에 봤던 방식의 차이를
+with respect to
+the world we have
+
+1550
+01:33:10,930 --> 01:33:17,290
+비교해보면, 기존에는 여러 번 도구를 호출해서 작업을 수행했습니다.
+seen, where you may have
+multiple calls to tools.
+
+1551
+01:33:17,290 --> 01:33:20,770
+그런데 최근의 새로운 에이전트 프레임워크는
+And these new agentic
+framework is not
+
+1552
+01:33:20,770 --> 01:33:25,950
+앞서 설명했던 방식과 반드시 완전히 분리되어 있지는 않습니다.
+necessarily disjoint from the
+ones that we presented before.
+
+1553
+01:33:25,950 --> 01:33:30,150
+실제로 그 안에 추론 체인을 포함할 수도 있습니다.
+You could well have reasoning
+chains inside of it.
+
+1554
+01:33:30,150 --> 01:33:32,610
+즉, 두 방식이 어느 정도 겹칠 수 있다는 뜻입니다.
+So it's like a
+potentially overlapping.
+
+1555
+01:33:32,610 --> 01:33:41,310
+하지만 구조적으로 보면, 도구 호출과 반복이 핵심입니다.
+But the structure consists
+of tool calls and iterations.
+
+1556
+01:33:41,310 --> 01:33:41,810
+네, 여기까지입니다.
+OK.
+
+1557
+01:33:41,810 --> 01:33:43,090
+좋습니다.
+Great.
+
+1558
+01:33:43,090 --> 01:33:50,210
+이제 ReAct라는 대표적인 논문을 살펴보겠습니다.
+And now, I'm going to talk about
+a hallmark paper called ReAct,
+
+1559
+01:33:50,210 --> 01:33:56,030
+ReAct는 추론과 행동을 결합해서, 가능한 루프를
+to reason plus acts, which
+decomposes possible loops
+
+1560
+01:33:56,030 --> 01:33:58,510
+여러 단계로 분해하는 방식입니다.
+into different stages.
+
+1561
+01:33:58,510 --> 01:34:03,390
+그래서 여러분이 어떤 쿼리를 갖고 목표를 달성하려고 할 때가 많습니다.
+So very oftentimes, when you
+have a query and you want
+
+1562
+01:34:03,390 --> 01:34:07,710
+이럴 때 한 번에 목표를 달성할 수는 없는 경우가 많죠.
+to pursue a goal, you
+cannot do it one shot.
+
+1563
+01:34:07,710 --> 01:34:10,830
+이럴 때는 목표를 어떻게든 쪼개야 합니다.
+You need somehow to
+decompose the goal
+
+1564
+01:34:10,830 --> 01:34:16,270
+이렇게 목표를 구체적인 하위 단계로 나누고, 각각의 단계를 차례로 수행해야 하죠.
+into actionable substeps,
+perform each of these steps,
+
+1565
+01:34:16,270 --> 01:34:18,230
+그리고 마지막에 정답을 도출하게 됩니다.
+and then come up
+with the answer.
+
+1566
+01:34:18,230 --> 01:34:21,170
+이것이 바로 ReAct가 하는 일입니다.
+And this is exactly
+what ReAct is about.
+
+1567
+01:34:21,170 --> 01:34:28,070
+ReAct는 복잡한 작업을 반복 가능한 작업 루프, 즉 여러 단계로 분해하는 방식입니다.
+It's about decomposing complex
+tasks into loops of things
+
+1568
+01:34:28,070 --> 01:34:31,630
+여기서 각각의 단계는 원자적으로, 즉 한 번에 처리할 수 있습니다.
+that can be done atomically.
+
+1569
+01:34:31,630 --> 01:34:34,510
+여기서 한 가지를 강조하고 싶습니다.
+So here, I just want
+to say one thing.
+
+1570
+01:34:34,510 --> 01:34:40,030
+이렇게 각각의 단계를 관찰(observe), 계획(plan), 실행(act)으로 나눕니다.
+We decompose these steps
+into observe, plan, and act.
+
+1571
+01:34:40,030 --> 01:34:42,510
+하지만 꼭 이런 이름이거나, 이런 순서일 필요는 없습니다.
+But it doesn't necessarily
+have to be called that way
+
+1572
+01:34:42,510 --> 01:34:43,950
+용어나 순서는 반드시 정해져 있지 않습니다.
+or be in that order.
+
+1573
+01:34:43,950 --> 01:34:45,950
+예를 들어 ReAct 논문에서는
+For example, the
+ReAct paper, I think,
+
+1574
+01:34:45,950 --> 01:34:52,980
+think, observe, act라는 용어를 사용합니다.
+introduces terms
+think, observe, act.
+
+1575
+01:34:52,980 --> 01:34:55,520
+논문마다 이런 용어는 조금씩 달라질 수 있습니다.
+You might see the language
+changing a bit from paper
+
+1576
+01:34:55,520 --> 01:34:56,660
+용어 사용이 논문마다 다를 수 있습니다.
+to paper to paper.
+
+1577
+01:34:56,660 --> 01:35:02,160
+하지만 중요한 핵심 개념은 변하지 않습니다.
+But the high-level
+intuition remains.
+
+1578
+01:35:02,160 --> 01:35:06,600
+이제 구체적인 예시를 들어서 설명해 보겠습니다.
+So let's just ground on
+a very specific example.
+
+1579
+01:35:06,600 --> 01:35:11,890
+최근 날씨와 관련된 사례로 들어볼게요.
+So to be in the theme
+of these days weather,
+
+1580
+01:35:11,890 --> 01:35:13,960
+요즘 날씨가 점점 더 추워지고 있습니다.
+it starts becoming a bit cold.
+
+1581
+01:35:13,960 --> 01:35:17,720
+우리의 테디베어도 집에서 추울 수 있습니다.
+And our teddy bear might
+be cold in its home.
+
+1582
+01:35:17,720 --> 01:35:20,920
+이 상황을 입력으로 생각해 봅시다.
+So let's just have
+that as an input.
+
+1583
+01:35:20,920 --> 01:35:22,380
+‘내 테디베어가 추워요.’
+My teddy bear is cold.
+
+1584
+01:35:22,380 --> 01:35:24,000
+‘무언가 좀 해주세요.’
+Please, do something.
+
+1585
+01:35:24,000 --> 01:35:28,920
+이제 이런 상황에서 agentic workflow가 어떤 역할을 할 수 있는지 살펴보겠습니다.
+And let's see what an agentic
+workflow could do about it.
+
+1586
+01:35:28,920 --> 01:35:31,700
+먼저 관찰(observe) 단계가 있습니다.
+So first, you have
+this observe stage,
+
+1587
+01:35:31,700 --> 01:35:38,440
+이 단계에서는 사용자의 요청을 실제로 실행할 수 있는 형태로 바꿔줍니다.
+which translates the user query
+into an actionable formulation.
+
+1588
+01:35:38,440 --> 01:35:40,920
+즉, ‘내 테디베어가 추워요’라고 말하면
+So when you say that
+your teddy bear is cold
+
+1589
+01:35:40,920 --> 01:35:44,120
+그리고 ‘뭔가 해주세요’라고 요청하면,
+and you ask it to do
+something like here,
+
+1590
+01:35:44,120 --> 01:35:47,880
+이 관찰 단계에서는 이 내용을
+in this observe stage,
+you would link it back
+
+1591
+01:35:47,880 --> 01:35:50,900
+온도라는 개념과 연결하게 됩니다.
+to the notion of temperature.
+
+1592
+01:35:50,900 --> 01:35:52,620
+즉, 사용자의 테디베어가 추운 이유는
+The user's teddy
+bear is cold, which
+
+1593
+01:35:52,620 --> 01:35:55,300
+현재 방의 온도가 낮기 때문일 수 있는데,
+may be due to the current
+temperature of the room, which
+
+1594
+01:35:55,300 --> 01:35:57,100
+지금은 그 온도를 알 수 없는 상태입니다.
+is currently unknown.
+
+1595
+01:35:57,100 --> 01:36:00,600
+즉, 여기서 바로
+So right off the
+bat, you now know
+
+1596
+01:36:00,600 --> 01:36:03,740
+‘우리는 온도와 관련된 무언가를 해야겠구나’라는 것을 알 수 있습니다.
+that you need to do
+something with temperatures.
+
+1597
+01:36:03,740 --> 01:36:06,300
+이제 다음 단계인
+So this brings us
+to the next step
+
+1598
+01:36:06,300 --> 01:36:10,420
+Plan(계획)으로 넘어갑니다. 여기서는 그 '무언가'가 아직 무엇인지 모르는 상태고,
+called Plan, where that
+something is unknown,
+
+1599
+01:36:10,420 --> 01:36:12,560
+그 정답을 찾아야 합니다.
+and you need to find it.
+
+1600
+01:36:12,560 --> 01:36:15,300
+Plan 단계에서는 바로 그 부분을 구체화해 줍니다.
+Plan will spell
+that out for you.
+
+1601
+01:36:15,300 --> 01:36:18,900
+여기에서는 방의 온도를 알아내야 합니다.
+So here, you want to determine
+the temperature of the room.
+
+1602
+01:36:18,900 --> 01:36:22,100
+다행히 여러분이 가진 도구 중에,
+And luckily, among
+your tools, you
+
+1603
+01:36:22,100 --> 01:36:25,120
+이런 작업을 할 수 있는 기능이 있을 수도 있습니다.
+might have something that
+does something in these lines.
+
+1604
+01:36:25,120 --> 01:36:26,840
+그리고 바로 여기서 그 도구를 사용하면 됩니다.
+And this is where you use it.
+
+1605
+01:36:26,840 --> 01:36:30,620
+즉, Act 단계에서는 이런 API들을 모두 사용할 수 있습니다.
+So the Act stage is
+using all these APIs
+
+1606
+01:36:30,620 --> 01:36:32,000
+문맥에 있는 다양한 API들을 활용하는 것이죠.
+that might be in the context.
+
+1607
+01:36:32,000 --> 01:36:35,740
+예를 들어, 현재 방 온도를 가져오는 get current room temperature 같은 API가 있으면,
+So for example here, if you have
+get current room temperature,
+
+1608
+01:36:35,740 --> 01:36:38,260
+이렇게 활용할 수 있습니다.
+this is the way to use it.
+
+1609
+01:36:38,260 --> 01:36:43,460
+그리고 앞서 말한 것처럼, 이런 도구들은 LLM에게 매우 유용합니다.
+And as I mentioned, these
+tools are useful to the LLM
+
+1610
+01:36:43,460 --> 01:36:47,680
+LLM이 해석할 수 있는 정보를 반환할 때 효과적이죠.
+when you output information back
+to it that it can interpret.
+
+1611
+01:36:47,680 --> 01:36:51,280
+예를 들어 이 도구는 온도를 반환해줍니다.
+So this tool returns
+the temperature.
+
+1612
+01:36:51,280 --> 01:36:56,160
+이제 여러분은 그 온도가 무엇을 의미하는지 해석해야 하겠죠.
+And you need now to interpret
+what the temperature means.
+
+1613
+01:36:56,160 --> 01:36:58,930
+그래서 다시 observed 단계로 돌아가는 이유가 여기 있습니다.
+So this is why you go back
+to the observed stage.
+
+1614
+01:37:02,300 --> 01:37:04,967
+현재 상황이 어떤지 서술하고,
+You describe what
+the world looks like
+
+1615
+01:37:04,967 --> 01:37:06,300
+그에 따라 무엇을 해야 할지 생각합니다.
+and what you should do about it.
+
+1616
+01:37:06,300 --> 01:37:10,220
+예를 들어, 방의 온도가 낮다는 사실을 알 수 있습니다.
+So here, you can read that the
+temperature of the room is cold.
+
+1617
+01:37:10,220 --> 01:37:14,560
+예를 들어 65도 화씨이고, observed 단계에서
+It's 65 Fahrenheit,
+and the observed stage
+
+1618
+01:37:14,560 --> 01:37:19,040
+생각했던 것보다 더 춥다고 판단할 수 있습니다.
+might indicate that it's
+colder than expected.
+
+1619
+01:37:19,040 --> 01:37:22,800
+그래서 그에 맞는 계획이 필요합니다.
+So this is why you
+need to plan something.
+
+1620
+01:37:22,800 --> 01:37:25,100
+그리고 Plan 단계에서는 다음과 같은 결정을 내리는 것이죠.
+And then at the Plan
+stage, you're like this,
+
+1621
+01:37:25,100 --> 01:37:27,280
+예상보다 기온이 더 낮았던 거죠.
+this was colder than expected.
+
+1622
+01:37:27,280 --> 01:37:30,000
+그래서 온도를 올려야 하겠습니다.
+So I need to increase
+the temperature.
+
+1623
+01:37:30,000 --> 01:37:32,586
+그리고 다시 Act 단계로 돌아갑니다.
+And then you go back
+to the Act stage.
+
+1624
+01:37:32,586 --> 01:37:35,360
+다행히 온도를 올리는 방법이 있습니다.
+Luckily, how to increase
+the temperature.
+
+1625
+01:37:35,360 --> 01:37:41,400
+온도를 올리는 기능이 있고,
+And it has a function that can
+have the temperature increase
+
+1626
+01:37:41,400 --> 01:37:46,610
+여기에 인자를 넣어주면 온도를 조절할 수 있습니다.
+arguments and put it to it, so
+you can adjust the temperature.
+
+1627
+01:37:46,610 --> 01:37:51,970
+작업이 끝나면, 다시 Observe 단계에서
+And then once it's
+done, the observed stage
+
+1628
+01:37:51,970 --> 01:37:55,010
+온도가
+concludes that the
+temperature is not
+
+1629
+01:37:55,010 --> 01:37:58,970
+정상적으로 설정됐는지 확인합니다.
+set to the correct temperature.
+
+1630
+01:37:58,970 --> 01:38:01,970
+이 시점에서 반복문을 종료하고
+And this is the time where
+you can exit the loop
+
+1631
+01:38:01,970 --> 01:38:03,600
+사용자에게 응답을 반환할 수 있습니다.
+and return the
+response to the user.
+
+1632
+01:38:06,210 --> 01:38:10,110
+여기서는 온도를 5도 올렸습니다.
+So here, we have increased
+the temperature by 5 degrees.
+
+1633
+01:38:10,110 --> 01:38:13,730
+그러면 그 결과가 사용자에게 출력되고,
+And then the output reads that
+back to the user in the hope
+
+1634
+01:38:13,730 --> 01:38:18,290
+이렇게 해서 사용자의 요청이 충족되었다고 볼 수 있습니다.
+that it has fulfilled
+the user's query.
+
+1635
+01:38:18,290 --> 01:38:23,530
+여기까지 설명한 반복 구조가
+So what I described
+within the loop
+
+1636
+01:38:23,530 --> 01:38:26,850
+워크플로우를 ‘에이전틱’하게 만들어줍니다.
+is what makes a
+workflow an agentic one.
+
+1637
+01:38:26,850 --> 01:38:28,850
+처음에 어떤 쿼리를 받게 되고,
+So you have some initial query.
+
+1638
+01:38:28,850 --> 01:38:32,210
+수행할 수 있는 액션들이 있습니다.
+You have some actions
+that you can perform.
+
+1639
+01:38:32,210 --> 01:38:34,770
+그리고 각 단계마다 LLM이
+And then at each
+stage, the LLM tries
+
+1640
+01:38:34,770 --> 01:38:39,370
+목표에 도달했는지 판단하게 됩니다.
+to see if it has
+reached the goal yet.
+
+1641
+01:38:39,370 --> 01:38:43,750
+만약 목표에 도달했다면 이제 출력 단계로 넘어갑니다.
+And then if it has, then it
+will go to the output stage.
+
+1642
+01:38:43,750 --> 01:38:47,590
+그렇지 않다면 추가적인 추론 루프를 돌 수도 있습니다.
+Otherwise, it may have
+more reasoning loops,
+
+1643
+01:38:47,590 --> 01:38:51,830
+이 과정에서 더 많은 작업을 수행하게 됩니다.
+where it does more work.
+
+1644
+01:38:51,830 --> 01:38:55,300
+제가 여기서 제안한 에이전트의 정의가 이해가 되시나요?
+So does the definition of agent
+that I propose here make sense?
+
+1645
+01:39:00,190 --> 01:39:00,690
+좋습니다.
+OK.
+
+1646
+01:39:00,690 --> 01:39:01,330
+네, 아주 좋습니다.
+Great.
+
+1647
+01:39:01,330 --> 01:39:03,870
+이제 이 내용을 좀 더 확장해서 살펴보겠습니다.
+So now taking this
+a bit further,
+
+1648
+01:39:03,870 --> 01:39:07,010
+에이전트가 한 개 이상 있을 수도 있다고 생각해 볼 수 있습니다.
+you could think of way
+more than one agent.
+
+1649
+01:39:07,010 --> 01:39:10,910
+예를 들어, 온도 조절을 담당하는 에이전트가 있을 수도 있죠.
+You could have an agent
+for setting the thermostat.
+
+1650
+01:39:10,910 --> 01:39:13,590
+하지만 집에서 에너지를 어떻게 분배할지,
+But maybe in your home,
+you want to manage
+
+1651
+01:39:13,590 --> 01:39:18,170
+또는 공기 질 같은 것까지 관리하려는 경우도 있을 수 있습니다.
+how energy is distributed,
+or air quality,
+
+1652
+01:39:18,170 --> 01:39:20,870
+이렇게 여러 설정값을 조정해야 할 수도 있습니다.
+if you have some
+settings to tune.
+
+1653
+01:39:20,870 --> 01:39:23,190
+즉, 서로 다른 에이전트가 있을 수 있는 거죠.
+So you can have
+different agents.
+
+1654
+01:39:23,190 --> 01:39:27,590
+여기서 흥미로운 사용 사례 중 하나는, 사용자가 어떤 에이전트에게 말을 하면
+And one interesting use case is
+to have the user say something
+
+1655
+01:39:27,590 --> 01:39:30,870
+모든 에이전트들이 함께 소통할 수 있다는 점입니다.
+to an agent, and
+potentially have all of them
+
+1656
+01:39:30,870 --> 01:39:33,150
+에이전트들끼리 서로 소통하는 거죠.
+communicate together.
+
+1657
+01:39:33,150 --> 01:39:41,450
+이렇게 되면 에이전트 간 소통도 표준화가 필요하다는 점을 시사합니다.
+So these prompts potential
+needs for also a standardization
+
+1658
+01:39:41,450 --> 01:39:45,450
+바로 에이전트 간 커뮤니케이션을 표준화할 필요가 있다는 거죠.
+of communications
+between agents,
+
+1659
+01:39:45,450 --> 01:39:50,290
+이건 LLM 호스트와 도구 간 통신에서 본 것과 비슷합니다.
+similarly to what we have seen
+between LLM hosts and tools.
+
+1660
+01:39:50,290 --> 01:39:52,770
+이러한 이유로 Google은 최근에
+And this is what prompted
+Google to release
+
+1661
+01:39:52,770 --> 01:39:57,450
+Agent2Agent 프로토콜이 올해 초에 공개됐습니다.
+the Agent2Agent protocol
+earlier this year.
+
+1662
+01:39:57,450 --> 01:40:02,050
+그래서 이 문서의 명세를 꼭 한번 확인해 보시길 추천합니다.
+So yeah, highly recommend
+taking a look at their document
+
+1663
+01:40:02,050 --> 01:40:03,070
+상세한 명세가 준비되어 있습니다.
+specification.
+
+1664
+01:40:03,070 --> 01:40:08,222
+간단히 핵심 내용만 말씀드리자면,
+But just to give the
+main lines around it,
+
+1665
+01:40:08,222 --> 01:40:12,030
+에이전트가 무엇을 제공할 수 있는지에 대한 표준화가 이루어집니다.
+you have some standardization
+of what an agent can expose.
+
+1666
+01:40:12,030 --> 01:40:15,090
+보통 에이전트는 자신이 수행할 수 있는 여러 가지 스킬을 공개합니다.
+So it typically exposes
+a set of skills.
+
+1667
+01:40:15,090 --> 01:40:18,570
+즉, 어떤 작업을 할 수 있는지를 보여줍니다.
+So it can do things.
+
+1668
+01:40:18,570 --> 01:40:20,850
+그리고 그에 대한 예시도 함께 제시합니다.
+And then it gives
+examples about it
+
+1669
+01:40:20,850 --> 01:40:23,890
+다른 에이전트가 이를 알 수 있도록 하기 위해서입니다.
+so that other agents
+are aware of it.
+
+1670
+01:40:23,890 --> 01:40:27,050
+개발자 입장에서는 이러한 스킬을 정의해줘야 합니다.
+And what you need
+to do as a developer
+
+1671
+01:40:27,050 --> 01:40:29,570
+이런 스킬들을 정의하는 것이 개발자의 역할입니다.
+would be to define these skills.
+
+1672
+01:40:29,570 --> 01:40:35,810
+또 다른 중요한 점은,
+And also, another key thing is
+to define how the agent executes
+
+1673
+01:40:35,810 --> 01:40:36,990
+에이전트가 주어진 요청을 어떻게 실행할지 정의하는 것입니다.
+a given request.
+
+1674
+01:40:36,990 --> 01:40:40,900
+예를 들어, 특정 질의를 실행할 때
+So for example, when you
+execute a given query,
+
+1675
+01:40:40,900 --> 01:40:44,540
+다른 에이전트에게 어떤 상태 정보를 전달하는지 정해야 합니다.
+what is the status that
+you emit to other agents?
+
+1676
+01:40:44,540 --> 01:40:47,420
+또 하나, 취소 메서드도 있습니다.
+Or there is a cancel
+method, as well,
+
+1677
+01:40:47,420 --> 01:40:50,700
+예를 들어, 어떤 에이전트가 지금 하는 작업을 멈추라고 지시할 수 있습니다.
+where let's say an agent
+says, stop what you're doing.
+
+1678
+01:40:50,700 --> 01:40:53,820
+그럴 때 행동을 취소하는 절차가 어떻게 되는지도 정의해야 합니다.
+What is the process
+to cancel an action?
+
+1679
+01:40:53,820 --> 01:40:58,780
+이렇게 말씀드린 내용들이 주요 기능들입니다.
+So these are some of
+the main functions
+
+1680
+01:40:58,780 --> 01:41:04,240
+Agent2Agent 프로토콜에서는 개발자가 이런 부분들을 채워 넣도록 요구하고 있습니다.
+like the Agent2Agent protocol
+asks people to fill out.
+
+1681
+01:41:04,240 --> 01:41:04,740
+네?
+Yeah?
+
+1682
+01:41:14,100 --> 01:41:19,140
+그러니까 질문은, 각각의 에이전트가
+일정한 컨텍스트를 가진 LLM인지에 관한 거죠.
+So the question is, is each
+agent an LLM with some context
+
+1683
+01:41:19,140 --> 01:41:19,960
+특정 작업을 수행하기 위해서 말입니다.
+to do some tasks?
+
+1684
+01:41:19,960 --> 01:41:25,980
+충분히 그렇게 될 수 있다고 볼 수 있습니다.
+So you could definitely
+imagine it be the case.
+
+1685
+01:41:25,980 --> 01:41:29,740
+실제로, 제가 여기서 예시로 든 경우에는 맞습니다.
+Typically, in the example
+that I mentioned here, yes.
+
+1686
+01:41:29,740 --> 01:41:32,800
+그리고 이 에이전트들은 개별적으로 동작합니다.
+And the agents
+operate independently.
+
+1687
+01:41:32,800 --> 01:41:34,780
+각자 독립적인 추론 루프를 가지고 있죠.
+So they have their
+own reasoning loops.
+
+1688
+01:41:34,780 --> 01:41:38,930
+나머지 에이전시와의 상호작용은
+입력과 출력에 해당합니다.
+And all the other agency
+is the input and output.
+
+1689
+01:41:51,980 --> 01:41:52,480
+네.
+Yeah.
+
+1690
+01:41:52,480 --> 01:41:56,600
+여기서 언급하고 싶은 점은,
+토큰 예산이 얼마든지 늘어날 수 있다는 겁니다.
+So the remark here is
+maybe your token budget
+
+1691
+01:41:56,600 --> 01:41:59,320
+즉, 예산 제한을 추가해야 할 수도 있겠죠.
+can go all over the place.
+
+1692
+01:41:59,320 --> 01:42:02,860
+실제로 예산에 제한을 둘 수 있습니다.
+So you can have some budget
+restrictions put in place.
+
+1693
+01:42:02,860 --> 01:42:04,600
+좋은 지적입니다.
+This is a good point.
+
+1694
+01:42:04,600 --> 01:42:06,600
+하지만 각각의 에이전트들은
+But each of these
+agents, they would not
+
+1695
+01:42:06,600 --> 01:42:08,520
+서로의 토큰 예산을 소모하지는 않습니다.
+eat on each other's budgets.
+
+1696
+01:42:08,520 --> 01:42:11,140
+물론 전체적으로 비용 예산에는 영향을 줄 수 있지만요.
+It might eat on
+your money budget,
+
+1697
+01:42:11,140 --> 01:42:15,480
+그래서, 이런 점들은 실제로 신경 써야 할 부분입니다.
+but this is indeed a concern.
+
+1698
+01:42:15,480 --> 01:42:21,000
+이제 안전성이라는 주제로 넘어가 보겠습니다.
+So I'm going to move on to
+the topic of safety, which
+
+1699
+01:42:21,000 --> 01:42:23,020
+이 부분은 지금까지 언급하지 않았는데요.
+I have not mentioned so far.
+
+1700
+01:42:23,020 --> 01:42:25,880
+하지만 이 주제는 매우 중요합니다.
+But that is very
+important because with
+
+1701
+01:42:25,880 --> 01:42:29,080
+이런 새로운 기능들이 등장하면서
+these new capabilities
+comes a whole string
+
+1702
+01:42:29,080 --> 01:42:32,000
+동시에 여러 가지 새로운 잠재적 문제가 따라옵니다.
+of new potential issues.
+
+1703
+01:42:32,000 --> 01:42:34,860
+여러분도 이런 모델들을 본 적이 있을 겁니다.
+And you have seen these models.
+
+1704
+01:42:34,860 --> 01:42:38,420
+이제 이 모델들은 여러분을 대신해서
+실제로 행동을 수행할 수 있게 되었습니다.
+They have now the ability
+to execute actions for you.
+
+1705
+01:42:38,420 --> 01:42:43,140
+따라서 누군가가 악의적으로 이런 모델을 이용해서
+So you could think of some
+harmful actor doing things
+
+1706
+01:42:43,140 --> 01:42:45,220
+여러분이 원하지 않는 행동을 할 수도 있다는 거죠.
+that you wouldn't want for you.
+
+1707
+01:42:45,220 --> 01:42:48,980
+여기 한 가지 예시를 들어보겠습니다.
+And I give one example here
+that could be a concern--
+
+1708
+01:42:48,980 --> 01:42:50,940
+바로 데이터 유출(data exfiltration)입니다.
+data exfiltration.
+
+1709
+01:42:50,940 --> 01:42:55,940
+예를 들어, 데이터를 공개적으로 쓸 수 있는
+So let's say you have access
+to a tool that can write
+
+1710
+01:42:55,940 --> 01:43:00,260
+도구에 접근할 수 있다고 해봅시다.
+in a public visible way data.
+
+1711
+01:43:00,260 --> 01:43:05,220
+예를 들어 이메일 에이전트와 같은 도구가 있다고 할 때
+So let's say you have, I
+don't know some email agent.
+
+1712
+01:43:05,220 --> 01:43:08,740
+만약 프롬프트에 이렇게 입력한다면,
+So if you have a prompt that,
+for example, says, write
+
+1713
+01:43:08,740 --> 01:43:11,860
+예를 들어 '내 비밀번호를 써줘'라고 했을 때
+그 도구가 비밀번호에 접근할 수 있다면
+my password, which potentially
+the tool could have access
+
+1714
+01:43:11,860 --> 01:43:14,860
+이메일로 해당 주소로
+정보를 보낼 수 있겠죠.
+to to an email to
+that address, you
+
+1715
+01:43:14,860 --> 01:43:19,900
+이런 식으로 사용자의 데이터를
+외부로 유출시킬 수 있습니다.
+could exfiltrate data that
+belongs to the user out of it.
+
+1716
+01:43:19,900 --> 01:43:23,380
+이것이 대표적인
+리스크 중 하나입니다.
+So this is typically one
+risk that you might have.
+
+1717
+01:43:23,380 --> 01:43:26,320
+이외에도 여러 가지 안전상의 위험이 존재합니다.
+You can have other safety risks.
+
+1718
+01:43:26,320 --> 01:43:29,820
+이런 다양한 이슈를 다룬 논문을 여기 링크했습니다.
+And I link the paper here that
+goes through some of them.
+
+1719
+01:43:29,820 --> 01:43:32,180
+툴과 관련된 위험들이죠.
+So tool sort.
+
+1720
+01:43:32,180 --> 01:43:33,580
+꼭 한번 읽어보시길 추천합니다.
+So I recommend a read.
+
+1721
+01:43:36,590 --> 01:43:39,730
+그렇다면, 이 문제를 피하려면 어떻게 할 수 있을까요?
+Now, you might ask, what
+could you do to get around it?
+
+1722
+01:43:39,730 --> 01:43:44,150
+일반적으로 두 가지 방식의 대응책이 있습니다.
+So you have typically two
+classes of remediations.
+
+1723
+01:43:44,150 --> 01:43:46,190
+하나는 학습 단계에서 적용할 수 있습니다.
+One that might come
+at the training
+
+1724
+01:43:46,190 --> 01:43:52,630
+예를 들어 R1의 학습 과정을 기억하신다면,
+stage where, if you recall
+the training process of R1
+
+1725
+01:43:52,630 --> 01:43:58,990
+또는 다른 모델에서도 안전성을 위한 요소들이 들어갑니다.
+or even other models, you have
+these harmlessness components.
+
+1726
+01:43:58,990 --> 01:44:03,550
+이렇게 데이터 혼합의 일부로 포함되는 데이터가 있습니다.
+So you typically have data
+as part of the data mixtures
+
+1727
+01:44:03,550 --> 01:44:08,190
+SFT(지도 파인튜닝)와 강화학습 과정에서 이 데이터를 학습하면서
+that you train during SFT and
+reinforcement learning that
+
+1728
+01:44:08,190 --> 01:44:11,190
+안전성을 어느 정도 확보할 수 있습니다.
+could cover safety.
+
+1729
+01:44:11,190 --> 01:44:15,770
+이 단계에서 이런 이슈를 해결할 수 있습니다.
+So this is where you
+could remedy these issues.
+
+1730
+01:44:15,770 --> 01:44:18,770
+또 다른 방식도 있습니다.
+You have another option.
+
+1731
+01:44:18,770 --> 01:44:21,670
+예를 들어, 방어선과 학습 절차를 모두 통과한 쿼리가 들어왔다고 합시다.
+Let's say, you have
+a query that has
+
+1732
+01:44:21,670 --> 01:44:24,630
+모든 방어 단계를 거쳤다고 해도,
+gone through your lines
+of defenses, your training
+
+1733
+01:44:24,630 --> 01:44:26,310
+이런 쿼리가 들어올 수 있습니다.
+lines of defenses.
+
+1734
+01:44:26,310 --> 01:44:29,930
+이런 경우에는 추론 단계에서의 안전장치를 둘 수 있습니다.
+You can also have
+inference safeguards.
+
+1735
+01:44:29,930 --> 01:44:33,530
+예를 들어, 대화 내용을 분석하는 안전성 분류기를 둘 수 있습니다.
+For example, safety classifier
+that looks at the conversation
+
+1736
+01:44:33,530 --> 01:44:37,730
+그 분류기가 지금까지의 대화를 보고, LLM의 출력이
+so far, and that judges
+whether the output of the LLM
+
+1737
+01:44:37,730 --> 01:44:39,850
+안전한지 아닌지를 판단하는 방식입니다.
+is going to be safe or not.
+
+1738
+01:44:39,850 --> 01:44:42,530
+이렇게 안전장치를 하나 더 추가할 수 있습니다.
+So you have even
+that as a safeguard.
+
+1739
+01:44:42,530 --> 01:44:48,570
+그리고 참고로 말씀드리면, 이제 에이전트 안전성
+And just as a pointer, I'm going
+to talk about that agent safety
+
+1740
+01:44:48,570 --> 01:44:55,410
+벤치마크에 대해 이야기하겠습니다. 여기에는 다양한 안전 이슈들이 정리되어 있습니다.
+bench, which summarizes the
+span of possible safety hazards
+
+1741
+01:44:55,410 --> 01:44:58,890
+그리고 이러한 다양한 안전 이슈를 정리해 벤치마크와
+종합적인 평가 도구를 제공합니다.
+and offers a benchmark,
+a full suite for it.
+
+1742
+01:44:58,890 --> 01:45:01,410
+그래서 여러분이 이런 벤치마크를 참고해서
+So people can refer
+to these benchmarks
+
+1743
+01:45:01,410 --> 01:45:04,480
+자신의 LLM이 안전한지 판단할 수 있습니다.
+to know whether
+their LLM is safe.
+
+1744
+01:45:08,050 --> 01:45:09,850
+이 주제는 굉장히 중요합니다.
+And it's a very important topic.
+
+1745
+01:45:09,850 --> 01:45:15,850
+그리고 바로 어제 Anthropic에서
+And just yesterday,
+Anthropic revealed
+
+1746
+01:45:15,850 --> 01:45:21,450
+Claude를 통해 대규모 사이버 공격의
+피해자가 되었다고 발표했습니다.
+that there were the victims
+of a large scale cyber
+
+1747
+01:45:21,450 --> 01:45:24,130
+이 공격은 Claude에서 시작된 것이었죠.
+attack launched from Claude.
+
+1748
+01:45:24,130 --> 01:45:26,170
+그래서 이런 문제가 실제로 존재합니다.
+So this is an issue that is--
+
+1749
+01:45:26,170 --> 01:45:29,820
+이 공격에서는 툴과 에이전트 기능도 활용됐고,
+so it was also using tools
+and agentic capabilities,
+
+1750
+01:45:29,820 --> 01:45:32,820
+Anthropic은 매우 상세한 보고서를 공개해서,
+and they published
+super detailed report,
+
+1751
+01:45:32,820 --> 01:45:36,660
+공격자들이 실제로 무엇을 했는지
+saying exactly what
+the attackers did
+
+1752
+01:45:36,660 --> 01:45:40,580
+그리고 개선 방안을 단계별로 설명했습니다.
+and went step-by-step through
+possible lines of remediations.
+
+1753
+01:45:40,580 --> 01:45:43,660
+이 사례는 우리가 얼마나 안전에 신경 써야 하는지
+강조해주는 예시입니다.
+And this is just to emphasize
+how important safety
+
+1754
+01:45:43,660 --> 01:45:46,780
+더 강력한 세상에서 안전성은 정말 중요합니다.
+is in this more capable world.
+
+1755
+01:45:46,780 --> 01:45:51,020
+공격자도, 방어하는 쪽도
+And both attackers and
+the line of defense
+
+1756
+01:45:51,020 --> 01:45:53,400
+점점 더 정교해질 수 있습니다.
+can be more and
+more sophisticated.
+
+1757
+01:45:53,400 --> 01:45:58,060
+이 싸움이 반드시 패배하는 전쟁이라는 것은 아니고,
+우리가 가진 방어 도구에 달려있기 때문입니다.
+So it's not a lost battle, it's
+just that the tools we have
+
+1758
+01:45:58,060 --> 01:46:05,620
+툴 기반 공격을 막기 위해서는
+적절한 방어 체계가 필요합니다.
+for defending against like
+tool-based attacks need to be--
+
+1759
+01:46:05,620 --> 01:46:07,840
+그래서 이런 조치들이 반드시 마련되어야 합니다.
+so we need to have
+such measures in place.
+
+1760
+01:46:07,840 --> 01:46:11,780
+이런 대비책이 있다면
+큰 문제 없이 대처할 수 있을 것입니다.
+And with these measures,
+maybe it's going to be fine.
+
+1761
+01:46:11,780 --> 01:46:15,820
+그래서 저는 그 기사의 전반적인 관점이 이런 것이었다고 생각합니다.
+So I think that was the overall
+mindset of that article, which
+
+1762
+01:46:15,820 --> 01:46:17,250
+그 글은 꼭 읽어보시길 강력히 추천합니다.
+I strongly recommend to read.
+
+1763
+01:46:21,140 --> 01:46:23,300
+이제 마지막으로 몇 마디만 더 하겠습니다.
+I'm going to say
+a last few words.
+
+1764
+01:46:23,300 --> 01:46:25,340
+여러분이 에이전트에 대해 이야기할 때
+So when you talk
+about agents, you
+
+1765
+01:46:25,340 --> 01:46:32,980
+사고 과정을 진행하는 매 단계마다
+have this risk that at every
+step of your thought process,
+
+1766
+01:46:32,980 --> 01:46:35,920
+완전히 잘못된 방향으로 갈 위험이 있습니다.
+you might diverge to something
+that just doesn't work.
+
+1767
+01:46:35,920 --> 01:46:37,500
+이게 굉장히 큰 문제입니다.
+So that is a huge problem.
+
+1768
+01:46:37,500 --> 01:46:41,500
+예를 들어, 모델이 출력에 제대로 근거하지 않거나
+Let's say if the model doesn't
+grounds to the output properly,
+
+1769
+01:46:41,500 --> 01:46:45,560
+혹은 도구 호출 시 인자 예측에서 실수할 수도 있습니다.
+or maybe does a mistake into the
+argument prediction of a tool
+
+1770
+01:46:45,560 --> 01:46:49,320
+이런 점이 큰 이슈가 됩니다.
+call, so this is
+one big issue, which
+
+1771
+01:46:49,320 --> 01:46:53,680
+그래서 지금 대규모 에이전트가 세상을 지배하지 않는 이유가 바로 이것입니다.
+is the reason why you don't
+see large scale agents ruling
+
+1772
+01:46:53,680 --> 01:46:58,280
+이런 결과의 한계에 우리가 아직 묶여 있기 때문이죠.
+the world right now, because
+it's really like, we are limited
+
+1773
+01:46:58,280 --> 01:47:01,560
+이런 부분들이 한계로 작용하고 있습니다.
+by these consequences.
+
+1774
+01:47:01,560 --> 01:47:05,240
+그리고 이제
+And then I'm going to
+talk about the developing
+
+1775
+01:47:05,240 --> 01:47:08,200
+에이전트적 능력을 가능하게 하는 모델의 발전 방향에 대해
+capabilities of models
+that enable you to have
+
+1776
+01:47:08,200 --> 01:47:09,900
+말씀드리겠습니다.
+this agentic capabilities.
+
+1777
+01:47:09,900 --> 01:47:15,600
+이런 부분은 SFT로 개선할 수 있습니다.
+So this is something that
+you can fix with SFT.
+
+1778
+01:47:15,600 --> 01:47:21,360
+하지만 이상적으로는, 추론의 갭을 SFT로 메우는 것이 아니라
+But ideally, you wouldn't want
+to use SFT to fix reasoning gaps
+
+1779
+01:47:21,360 --> 01:47:24,320
+모델 자체로 해결하는 것이 바람직합니다.
+and use the model itself.
+
+1780
+01:47:24,320 --> 01:47:28,540
+그리고 다음 주에는 평가에 대해 살펴보겠습니다.
+And we're going to see next
+week what the evaluation
+
+1781
+01:47:28,540 --> 01:47:29,480
+평가 환경이 어떻게 구성되어 있는지
+다음 주에 살펴보겠습니다.
+landscape looks like.
+
+1782
+01:47:29,480 --> 01:47:31,540
+그래서 이 내용은
+다음 주로 미루겠습니다.
+So I'm going to reserve
+it to next week.
+
+1783
+01:47:31,540 --> 01:47:36,380
+그리고 도구나 에이전트를 만드는 것에 대해
+몇 가지 조언을 드리자면,
+And just a few words of advice
+regarding building tools
+
+1784
+01:47:36,380 --> 01:47:41,160
+항상 아주 단순한 사례로
+작게 시작하는 것이 좋습니다.
+or building agents, always start
+small on a very simple case.
+
+1785
+01:47:41,160 --> 01:47:44,100
+예를 들어, 가장 가까운 곰을 찾는 문제처럼요.
+For example, find
+the nearest bear.
+
+1786
+01:47:44,100 --> 01:47:48,860
+지금 구현한 방법이나 프롬프트가
+잘 작동하는지 먼저 확인해보세요.
+Try to see if your current
+implementation and prompts just
+
+1787
+01:47:48,860 --> 01:47:51,660
+작동하는지 살펴본 뒤에,
+그 다음 단계로 나아가면 됩니다.
+works and then start from there.
+
+1788
+01:47:51,660 --> 01:47:55,240
+작게 시작하고,
+그 다음에는 스마트하게 발전시키세요.
+So start small and
+then start smart.
+
+1789
+01:47:55,240 --> 01:47:58,700
+가장 성능이 좋은 모델을 먼저 사용해서
+So take the most
+capable model first so
+
+1790
+01:47:58,700 --> 01:48:01,140
+현재 모델로 어느 정도까지
+도달할 수 있는지 확인하세요.
+that you know the
+headroom of where
+
+1791
+01:48:01,140 --> 01:48:02,820
+이렇게 해야 현재 모델에서
+어디까지 확장할 수 있는지 알 수 있습니다.
+you can go with
+the current models,
+
+1792
+01:48:02,820 --> 01:48:09,480
+그리고 이후에는 지연 시간이나 기타 성능을
+개선해 나가면 됩니다.
+and then try to gain on
+latency capabilities and so on.
+
+1793
+01:48:09,480 --> 01:48:15,700
+정확하게, 그리고 작게 시작하세요.
+그다음에 최적화를 진행할 수 있습니다.
+Start correct, start small, and
+then you can optimize later.
+
+1794
+01:48:15,700 --> 01:48:19,340
+디버깅과 관련해서는,
+And when it comes
+to debuggability,
+
+1795
+01:48:19,340 --> 01:48:21,800
+이러한 LLM들은 추론 과정을
+체인 형태로 출력합니다.
+these LLMs they output
+chains of reasoning.
+
+1796
+01:48:21,800 --> 01:48:23,570
+그래서 무엇이 잘못됐는지
+항상 그 과정을 살펴보는 것이 좋습니다.
+So it's always good
+to look at them,
+
+1797
+01:48:23,570 --> 01:48:25,790
+문제가 어디서 발생했는지
+직접 확인해보는 것이 좋습니다.
+to see what is going wrong.
+
+1798
+01:48:25,790 --> 01:48:30,320
+이제 이 강의를 마무리하면서
+And I will close this
+lecture on a note.
+
+1799
+01:48:30,320 --> 01:48:33,710
+제가 최근에 가장 즐겨 쓰는
+에이전트 활용 사례를 말씀드리겠습니다.
+My favorite use case of
+using agents right now
+
+1800
+01:48:33,710 --> 01:48:37,468
+바로 AI 코딩 어시스턴트로 활용하는 것입니다.
+is as an AI assistant coding.
+
+1801
+01:48:37,468 --> 01:48:39,510
+그래서 저는 이 방법을
+강력하게 추천합니다.
+So this is something I
+strongly recommend in case
+
+1802
+01:48:39,510 --> 01:48:42,070
+복잡한 파이프라인이 필요한
+프로젝트가 있다면
+you have a project
+that requires you
+
+1803
+01:48:42,070 --> 01:48:44,830
+특히 이런 경우에 매우 유용합니다.
+to do complex piping of things.
+
+1804
+01:48:44,830 --> 01:48:49,610
+이런 작업 중 일부를 AI에게 맡기면
+여러분의 정신적인 부담을 줄일 수 있습니다.
+You can free your mental load by
+delegating some of these tasks.
+
+1805
+01:48:49,610 --> 01:48:51,150
+그리고 실제로 이런 방식이
+현실 세계에서도 활발히 쓰이고 있습니다.
+And this is something
+that is you're
+
+1806
+01:48:51,150 --> 01:48:55,030
+실제 현업에서도 이미
+많이 활용되고 있습니다.
+going to see in the real
+world, very much used now,
+
+1807
+01:48:55,030 --> 01:48:57,270
+하지만 주의할 점이 있습니다.
+but with the caveat
+that, please make
+
+1808
+01:48:57,270 --> 01:48:59,990
+반드시 코딩의 기초는 탄탄히 익히고
+직접 코드 작성법을 배워야 합니다.
+sure to learn the
+foundations of codes,
+
+1809
+01:48:59,990 --> 01:49:03,630
+앞으로는 여러분의 코딩 안목이
+가장 중요해질 것입니다.
+know how to code right,
+because your taste is going
+
+1810
+01:49:03,630 --> 01:49:05,590
+여러분의 안목이 더욱 중요해질 거예요.
+to matter most from now on.
+
+1811
+01:49:05,590 --> 01:49:08,510
+코드는 쉽게 생성할 수 있지만,
+Generating code is
+cheap, but judging
+
+1812
+01:49:08,510 --> 01:49:11,230
+그 코드가 올바른지, 제대로 동작하는지는
+whether a code is correct,
+and does the right thing,
+
+1813
+01:49:11,230 --> 01:49:13,390
+이 부분이 진짜 어려운 점입니다.
+this is the hard part.
+
+1814
+01:49:13,390 --> 01:49:15,610
+이것으로 강의를 마치겠습니다. 감사합니다.
+And with that, thank you.
+
+1815
+01:49:15,610 --> 01:49:18,960
+[박수]
+[APPLAUSE]

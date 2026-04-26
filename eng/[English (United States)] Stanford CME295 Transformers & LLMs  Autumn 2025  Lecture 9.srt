@@ -1,0 +1,8399 @@
+1
+00:00:05,720 --> 00:00:11,840
+Hello, everyone, and welcome
+to lecture 9 of CME 295.
+
+2
+00:00:11,840 --> 00:00:15,560
+So as today is a
+kind of a special day
+
+3
+00:00:15,560 --> 00:00:20,680
+because we're having the last
+lecture of the entire course.
+
+4
+00:00:20,680 --> 00:00:24,120
+So the menu for today
+will be a little different
+
+5
+00:00:24,120 --> 00:00:26,520
+compared to usual.
+
+6
+00:00:26,520 --> 00:00:31,120
+We're going to try to divide
+the lecture in three parts.
+
+7
+00:00:31,120 --> 00:00:33,000
+So in the first
+part, we're going
+
+8
+00:00:33,000 --> 00:00:38,760
+to recap actually what we
+did in the entire class
+
+9
+00:00:38,760 --> 00:00:44,000
+just to see how different
+pieces kind of fit together.
+
+10
+00:00:44,000 --> 00:00:46,960
+In the second part,
+we'll look at some topics
+
+11
+00:00:46,960 --> 00:00:50,600
+that are particularly
+trending in 2025
+
+12
+00:00:50,600 --> 00:00:54,640
+and what we think are going to
+be trending in the near future.
+
+13
+00:00:54,640 --> 00:01:00,680
+And then the third part will be
+more way for us to just conclude
+
+14
+00:01:00,680 --> 00:01:05,200
+and next steps for all of you.
+
+15
+00:01:05,200 --> 00:01:07,520
+Does that sound good?
+
+16
+00:01:07,520 --> 00:01:08,900
+Cool.
+
+17
+00:01:08,900 --> 00:01:13,440
+So with that, we're going to
+start with the first part, which
+
+18
+00:01:13,440 --> 00:01:16,000
+what I mentioned is
+about recapping what
+
+19
+00:01:16,000 --> 00:01:19,560
+we did this entire quarter.
+
+20
+00:01:19,560 --> 00:01:22,040
+So nothing new here
+is just a way for us
+
+21
+00:01:22,040 --> 00:01:24,680
+to piece everything together.
+
+22
+00:01:24,680 --> 00:01:27,820
+So if you remember
+a lot of weeks ago,
+
+23
+00:01:27,820 --> 00:01:30,520
+I believe it's like
+maybe 10 weeks ago,
+
+24
+00:01:30,520 --> 00:01:35,520
+we had lecture 1, which was
+focused on understanding
+
+25
+00:01:35,520 --> 00:01:38,000
+what transformers were.
+
+26
+00:01:38,000 --> 00:01:40,640
+So at the very
+beginning of the class,
+
+27
+00:01:40,640 --> 00:01:44,560
+we didn't even how we
+could process text.
+
+28
+00:01:44,560 --> 00:01:46,160
+So I guess the
+first step that we
+
+29
+00:01:46,160 --> 00:01:52,040
+saw was this tokenization step,
+which consists of dividing
+
+30
+00:01:52,040 --> 00:01:55,360
+the input into atomic units.
+
+31
+00:01:55,360 --> 00:01:59,730
+And so here, the way
+we divide the text
+
+32
+00:01:59,730 --> 00:02:03,330
+is something that is
+arbitrary in some sense.
+
+33
+00:02:03,330 --> 00:02:08,009
+So we have different algorithms
+that allow us to do that.
+
+34
+00:02:08,009 --> 00:02:11,850
+And we saw that the most
+common tokenization algorithm
+
+35
+00:02:11,850 --> 00:02:15,930
+is the subword level tokenizer.
+
+36
+00:02:15,930 --> 00:02:18,290
+And we saw that some
+of the advantages
+
+37
+00:02:18,290 --> 00:02:26,230
+were that roots of words
+could be reused and leveraged,
+
+38
+00:02:26,230 --> 00:02:30,490
+especially when it came to
+representing those tokens.
+
+39
+00:02:30,490 --> 00:02:35,690
+And speaking of
+representation, once we
+
+40
+00:02:35,690 --> 00:02:40,810
+were able to divide the input
+text into atomic units, a.k.a.
+
+41
+00:02:40,810 --> 00:02:45,730
+tokens, the next step
+for us was to learn how
+
+42
+00:02:45,730 --> 00:02:48,690
+to represent these embeddings.
+
+43
+00:02:48,690 --> 00:02:51,410
+So if you remember, we
+saw some methods that
+
+44
+00:02:51,410 --> 00:02:53,370
+were very popular back then.
+
+45
+00:02:53,370 --> 00:02:56,730
+So one of them was
+called word2vec.
+
+46
+00:02:56,730 --> 00:03:01,130
+And the representation was
+learned from a proxy task, which
+
+47
+00:03:01,130 --> 00:03:05,130
+was something like
+predicting the center word
+
+48
+00:03:05,130 --> 00:03:08,970
+or predicting the context words.
+
+49
+00:03:08,970 --> 00:03:13,090
+But then we saw that this way
+of learning representations
+
+50
+00:03:13,090 --> 00:03:15,970
+had some limitations,
+one of which
+
+51
+00:03:15,970 --> 00:03:21,410
+was that these representations
+were not context aware, meaning
+
+52
+00:03:21,410 --> 00:03:25,170
+that if a word is
+in a given sentence
+
+53
+00:03:25,170 --> 00:03:30,570
+or in another sentence,
+that word will
+
+54
+00:03:30,570 --> 00:03:34,410
+have the same representation
+in both sentences.
+
+55
+00:03:34,410 --> 00:03:38,610
+And so for that reason, we saw
+some other methods that were
+
+56
+00:03:38,610 --> 00:03:45,370
+popular in the 2010s, one of
+which was RNNs, if you remember.
+
+57
+00:03:45,370 --> 00:03:49,930
+So RNNs had this
+recurrent structure,
+
+58
+00:03:49,930 --> 00:03:52,850
+which processed
+tokens one at a time
+
+59
+00:03:52,850 --> 00:03:55,180
+and kept an internal
+representation
+
+60
+00:03:55,180 --> 00:03:57,980
+of the sequence so far.
+
+61
+00:03:57,980 --> 00:04:00,260
+But then we saw that
+a big limitation
+
+62
+00:04:00,260 --> 00:04:04,140
+of this problem of
+long range dependency,
+
+63
+00:04:04,140 --> 00:04:07,220
+and in particular,
+the fact that tokens
+
+64
+00:04:07,220 --> 00:04:10,020
+that were encoded
+far in the past
+
+65
+00:04:10,020 --> 00:04:14,960
+were not quantities that
+were able to be kept I guess,
+
+66
+00:04:14,960 --> 00:04:18,100
+as the sequence got longer.
+
+67
+00:04:18,100 --> 00:04:20,899
+And this is the
+reason why we saw
+
+68
+00:04:20,899 --> 00:04:23,100
+the central idea of
+this whole class, which
+
+69
+00:04:23,100 --> 00:04:30,340
+is the idea of self-attention,
+where tokens can actually attend
+
+70
+00:04:30,340 --> 00:04:33,140
+to one another
+regardless of where they
+
+71
+00:04:33,140 --> 00:04:35,240
+are placed in the sequence.
+
+72
+00:04:35,240 --> 00:04:39,540
+So you can think of
+this as a direct link.
+
+73
+00:04:39,540 --> 00:04:43,280
+And so this, for
+instance, is what we saw.
+
+74
+00:04:43,280 --> 00:04:48,600
+We saw that there are three main
+terminologies that people use.
+
+75
+00:04:48,600 --> 00:04:51,320
+So query, key, and value.
+
+76
+00:04:51,320 --> 00:04:55,740
+So typically want to
+how similar a query
+
+77
+00:04:55,740 --> 00:04:59,940
+is compared to the
+keys in the sequence.
+
+78
+00:04:59,940 --> 00:05:05,420
+And you quantify that by
+taking some dot products that's
+
+79
+00:05:05,420 --> 00:05:08,220
+kind of scaled and softmax.
+
+80
+00:05:08,220 --> 00:05:11,020
+And then you have the
+corresponding value
+
+81
+00:05:11,020 --> 00:05:11,880
+that is taken.
+
+82
+00:05:11,880 --> 00:05:15,660
+So at the end of the
+day, we obtain some kind
+
+83
+00:05:15,660 --> 00:05:22,740
+of weighted average of all the
+tokens that are in the sequence.
+
+84
+00:05:22,740 --> 00:05:26,440
+And then you may also be
+familiar now with this formula.
+
+85
+00:05:26,440 --> 00:05:33,300
+So softmax of qk transpose over
+square root of k times v. So
+
+86
+00:05:33,300 --> 00:05:39,120
+this is the matrix formulation
+of what I mentioned here,
+
+87
+00:05:39,120 --> 00:05:42,940
+which is able to process
+these computations in a very
+
+88
+00:05:42,940 --> 00:05:44,220
+efficient way.
+
+89
+00:05:44,220 --> 00:05:50,300
+And it's something that today's
+hardware is well equipped to do.
+
+90
+00:05:50,300 --> 00:05:53,020
+And then we finished
+the first lecture
+
+91
+00:05:53,020 --> 00:05:55,580
+by going through the
+architecture that
+
+92
+00:05:55,580 --> 00:06:01,180
+is the foundation of modern day
+LLMs, which is the transformer.
+
+93
+00:06:01,180 --> 00:06:05,980
+And we saw that there
+are two notable parts
+
+94
+00:06:05,980 --> 00:06:07,120
+in the transformer.
+
+95
+00:06:07,120 --> 00:06:12,640
+So one was the encoder in
+the left part of the figure.
+
+96
+00:06:12,640 --> 00:06:15,060
+And then the right
+part is the decoder.
+
+97
+00:06:15,060 --> 00:06:20,700
+And we saw how this was applied
+in the case of translation.
+
+98
+00:06:20,700 --> 00:06:23,280
+So at the end of
+the first lecture,
+
+99
+00:06:23,280 --> 00:06:30,980
+we saw what motivated us to
+end up with the transformer.
+
+100
+00:06:30,980 --> 00:06:33,900
+And we saw that transformer
+was working quite well
+
+101
+00:06:33,900 --> 00:06:36,160
+in the case of translation.
+
+102
+00:06:36,160 --> 00:06:37,980
+And so in the next
+lecture, what we
+
+103
+00:06:37,980 --> 00:06:43,020
+saw what were the
+little improvements
+
+104
+00:06:43,020 --> 00:06:45,820
+that people have made
+to this architecture
+
+105
+00:06:45,820 --> 00:06:46,835
+since it was released.
+
+106
+00:06:46,835 --> 00:06:48,210
+And if you remember,
+it remember,
+
+107
+00:06:48,210 --> 00:06:53,190
+it was in 2017 that
+it was published.
+
+108
+00:06:53,190 --> 00:06:57,510
+So one particular improvement
+that people have made
+
+109
+00:06:57,510 --> 00:07:03,470
+is in the way we
+consider positions,
+
+110
+00:07:03,470 --> 00:07:06,630
+because in the original
+transformer, paper,
+
+111
+00:07:06,630 --> 00:07:10,810
+positions were encoded
+in an absolute way,
+
+112
+00:07:10,810 --> 00:07:16,510
+as in each position
+had its own embedding.
+
+113
+00:07:16,510 --> 00:07:21,910
+And this embedding was added
+to the token embedding.
+
+114
+00:07:21,910 --> 00:07:26,790
+But then if we think about
+it, positions, actually, we
+
+115
+00:07:26,790 --> 00:07:29,890
+don't really care about
+the absolute position.
+
+116
+00:07:29,890 --> 00:07:34,870
+We care about the relative
+position between tokens.
+
+117
+00:07:34,870 --> 00:07:37,470
+And in particular,
+we care about how far
+
+118
+00:07:37,470 --> 00:07:41,870
+tokens are in the self-attention
+computation, which
+
+119
+00:07:41,870 --> 00:07:45,350
+is why we saw this method
+that is now quite popular
+
+120
+00:07:45,350 --> 00:07:50,230
+called rotary position
+embeddings, a.k.a., rope
+
+121
+00:07:50,230 --> 00:07:51,750
+that is now quite used.
+
+122
+00:07:51,750 --> 00:07:59,910
+And it is a method that rotates
+query and keys, both of which
+
+123
+00:07:59,910 --> 00:08:03,270
+happen in the
+self-attention computation.
+
+124
+00:08:03,270 --> 00:08:08,470
+And so here what
+is quantified here
+
+125
+00:08:08,470 --> 00:08:11,870
+is purely a function of
+the relative distance
+
+126
+00:08:11,870 --> 00:08:15,110
+between two tokens.
+
+127
+00:08:15,110 --> 00:08:17,270
+And not only that,
+it is something
+
+128
+00:08:17,270 --> 00:08:21,750
+that is taken care of in the
+self-attention layer, which
+
+129
+00:08:21,750 --> 00:08:24,590
+is what we care about.
+
+130
+00:08:24,590 --> 00:08:26,570
+So this was one big improvement.
+
+131
+00:08:26,570 --> 00:08:29,630
+And then we saw some other
+improvements, especially when
+
+132
+00:08:29,630 --> 00:08:34,070
+it came to how the
+multi-head attention
+
+133
+00:08:34,070 --> 00:08:38,070
+layer-- multi-head attention
+layer was composed of.
+
+134
+00:08:38,070 --> 00:08:40,750
+And in particular, we
+saw that it was possible
+
+135
+00:08:40,750 --> 00:08:46,910
+for us to have some groupings
+of the matrices that we learn.
+
+136
+00:08:46,910 --> 00:08:50,950
+So we don't need to have
+one matrix, one projection
+
+137
+00:08:50,950 --> 00:08:56,350
+matrix per head for, let's
+say, keys and values.
+
+138
+00:08:56,350 --> 00:08:59,630
+We can actually group them.
+
+139
+00:08:59,630 --> 00:09:02,250
+So this is for instance,
+what is mentioned here.
+
+140
+00:09:02,250 --> 00:09:05,150
+So group query attention.
+
+141
+00:09:05,150 --> 00:09:07,830
+And then we also saw
+some other techniques
+
+142
+00:09:07,830 --> 00:09:09,570
+that I have not
+represented here,
+
+143
+00:09:09,570 --> 00:09:14,390
+for instance, the normalization
+layer in the transformer which
+
+144
+00:09:14,390 --> 00:09:19,010
+here happens after
+each sublayer.
+
+145
+00:09:19,010 --> 00:09:23,710
+But I guess nowadays people have
+tried moving the normalization
+
+146
+00:09:23,710 --> 00:09:26,170
+piece before the sublayer.
+
+147
+00:09:26,170 --> 00:09:29,770
+So here it's the
+post-norm version.
+
+148
+00:09:29,770 --> 00:09:32,150
+And then before
+the sublayer part
+
+149
+00:09:32,150 --> 00:09:37,270
+is called the pre-norm version.
+
+150
+00:09:37,270 --> 00:09:38,950
+And then the last
+thing that we saw
+
+151
+00:09:38,950 --> 00:09:43,440
+was that from this transformer
+former architecture,
+
+152
+00:09:43,440 --> 00:09:45,760
+there are a lot
+of derived models
+
+153
+00:09:45,760 --> 00:09:48,440
+that were based from that.
+
+154
+00:09:48,440 --> 00:09:53,560
+So we saw that if we only
+keep the encoder part,
+
+155
+00:09:53,560 --> 00:09:57,280
+we could compute very
+meaningful embeddings.
+
+156
+00:09:57,280 --> 00:10:00,080
+If you remember,
+there was this kind
+
+157
+00:10:00,080 --> 00:10:04,080
+of landmark paper on
+encoder only model, which
+
+158
+00:10:04,080 --> 00:10:08,960
+is BERT, which was heavily used
+in the context of classification
+
+159
+00:10:08,960 --> 00:10:14,220
+because it relied on the encoder
+embedding of the CLS token.
+
+160
+00:10:14,220 --> 00:10:16,280
+So that was one.
+
+161
+00:10:16,280 --> 00:10:18,000
+But then we also
+saw that there was
+
+162
+00:10:18,000 --> 00:10:22,440
+a number of other kinds of
+models, all more or less derived
+
+163
+00:10:22,440 --> 00:10:23,740
+from the transformer.
+
+164
+00:10:23,740 --> 00:10:27,160
+So you could only keep the
+encoder, which was for BERT.
+
+165
+00:10:27,160 --> 00:10:31,920
+You could only keep the decoder
+just, for instance, for GPT.
+
+166
+00:10:31,920 --> 00:10:35,840
+And you could also
+have both, which is
+
+167
+00:10:35,840 --> 00:10:39,320
+for instance, the case of T5.
+
+168
+00:10:39,320 --> 00:10:43,960
+And one particular aspect
+of each of these models
+
+169
+00:10:43,960 --> 00:10:48,560
+is that encoder only is
+not able-- in the way
+
+170
+00:10:48,560 --> 00:10:52,560
+that we saw-- is not
+able to generate text,
+
+171
+00:10:52,560 --> 00:10:54,960
+but it's able to generate
+embeddings which can
+
+172
+00:10:54,960 --> 00:10:57,000
+be used for downstream tasks.
+
+173
+00:10:57,000 --> 00:11:00,480
+But then encoder
+decoder models like T5
+
+174
+00:11:00,480 --> 00:11:04,600
+or decoder only
+models like GPT, they
+
+175
+00:11:04,600 --> 00:11:10,160
+can be autoregressive
+and generate texts.
+
+176
+00:11:10,160 --> 00:11:13,780
+The paradigm can be
+text in, text out.
+
+177
+00:11:16,320 --> 00:11:21,920
+And with that, we then focused
+on what now everyone calls
+
+178
+00:11:21,920 --> 00:11:25,800
+large language models,
+which are transformer
+
+179
+00:11:25,800 --> 00:11:30,160
+based models, specifically
+text to text models.
+
+180
+00:11:30,160 --> 00:11:35,520
+So decoder only
+transformer based models.
+
+181
+00:11:35,520 --> 00:11:39,170
+And we saw that people have
+come up with a lot of new tricks
+
+182
+00:11:39,170 --> 00:11:43,930
+now because these models,
+as the name indicates,
+
+183
+00:11:43,930 --> 00:11:46,610
+people have scaled them up.
+
+184
+00:11:46,610 --> 00:11:52,310
+But then one question
+was kind of thrown,
+
+185
+00:11:52,310 --> 00:11:58,610
+which is do you actually need
+all these parameters to just do
+
+186
+00:11:58,610 --> 00:12:00,930
+a forward pass.
+
+187
+00:12:00,930 --> 00:12:05,290
+So we saw one kind
+of variant which was
+
+188
+00:12:05,290 --> 00:12:09,570
+based on a mixture of experts.
+
+189
+00:12:09,570 --> 00:12:15,050
+So what mixture of experts are
+is instead of running everything
+
+190
+00:12:15,050 --> 00:12:17,970
+through the whole
+entire model, you're
+
+191
+00:12:17,970 --> 00:12:22,250
+going to instead have
+a number of experts
+
+192
+00:12:22,250 --> 00:12:27,090
+that you're going to
+activate in a sparse way.
+
+193
+00:12:27,090 --> 00:12:28,890
+So for instance, for
+one input, you're
+
+194
+00:12:28,890 --> 00:12:31,515
+going to just activate
+just a subset.
+
+195
+00:12:31,515 --> 00:12:32,890
+And then for
+another input you're
+
+196
+00:12:32,890 --> 00:12:35,610
+going to activate
+another subset so
+
+197
+00:12:35,610 --> 00:12:40,930
+that you don't need to do all
+the computations all the time.
+
+198
+00:12:40,930 --> 00:12:44,730
+And we saw that this
+mixture of experts, they
+
+199
+00:12:44,730 --> 00:12:49,410
+were used in LLMs, in particular
+in the feedforward neural
+
+200
+00:12:49,410 --> 00:12:51,290
+network layer.
+
+201
+00:12:51,290 --> 00:12:54,690
+So here you would
+have experts as being
+
+202
+00:12:54,690 --> 00:12:56,970
+different feedforward
+neural networks.
+
+203
+00:12:56,970 --> 00:13:00,170
+And you would have
+a gating mechanism
+
+204
+00:13:00,170 --> 00:13:03,970
+that would reroute to
+the correct feedforward
+
+205
+00:13:03,970 --> 00:13:07,250
+neural network.
+
+206
+00:13:07,250 --> 00:13:10,810
+And then we also saw that
+some papers were also
+
+207
+00:13:10,810 --> 00:13:15,990
+able to produce some nice
+visualization in terms, I guess,
+
+208
+00:13:15,990 --> 00:13:20,390
+which token gets routed to which
+expert, because this routing,
+
+209
+00:13:20,390 --> 00:13:24,730
+we saw that it was done
+at the token level.
+
+210
+00:13:24,730 --> 00:13:27,090
+And so one reason why it's
+done at the token level
+
+211
+00:13:27,090 --> 00:13:30,850
+is to be able to, I
+guess, smartly put
+
+212
+00:13:30,850 --> 00:13:34,810
+the experts on different pieces
+of hardware, different GPUs,
+
+213
+00:13:34,810 --> 00:13:38,030
+and then parallelize the
+computation a little bit more.
+
+214
+00:13:40,810 --> 00:13:45,930
+And then we also
+saw that these LLMs,
+
+215
+00:13:45,930 --> 00:13:49,850
+they always are tasked with
+predicting the next token.
+
+216
+00:13:49,850 --> 00:13:52,490
+And in order to
+predict the next token
+
+217
+00:13:52,490 --> 00:13:57,230
+we were interested in, I
+guess, how we were doing this.
+
+218
+00:13:57,230 --> 00:14:03,250
+And so one particular method
+that people use is just sample.
+
+219
+00:14:03,250 --> 00:14:05,070
+Sample from the
+output distribution.
+
+220
+00:14:05,070 --> 00:14:07,090
+So you have let's
+say given an input
+
+221
+00:14:07,090 --> 00:14:11,210
+you have a distribution
+of probabilities of what
+
+222
+00:14:11,210 --> 00:14:13,910
+the next token would be.
+
+223
+00:14:13,910 --> 00:14:16,330
+That is output by the model.
+
+224
+00:14:16,330 --> 00:14:19,330
+And what you do is
+instead of let's
+
+225
+00:14:19,330 --> 00:14:21,690
+say taking the highest
+probability, which
+
+226
+00:14:21,690 --> 00:14:30,010
+is called the greedy kind of
+decoding, you actually sample.
+
+227
+00:14:30,010 --> 00:14:34,140
+So it introduces some
+randomness and allows the model
+
+228
+00:14:34,140 --> 00:14:39,460
+to produce kind of a bigger
+variety of kinds of outputs.
+
+229
+00:14:39,460 --> 00:14:46,280
+And we saw that you could
+adjust how much, I guess,
+
+230
+00:14:46,280 --> 00:14:49,300
+a variety you want in
+your outputs by tweaking
+
+231
+00:14:49,300 --> 00:14:52,740
+a hyperparameter
+called temperature.
+
+232
+00:14:52,740 --> 00:14:56,000
+So very low temperature leads
+to very spiky distribution.
+
+233
+00:14:56,000 --> 00:15:00,020
+So more deterministic outputs
+and higher temperatures
+
+234
+00:15:00,020 --> 00:15:04,280
+are, I guess, a bit more
+random, a bit more creative.
+
+235
+00:15:07,020 --> 00:15:11,740
+So until then, we
+saw what LLMs were,
+
+236
+00:15:11,740 --> 00:15:14,620
+how they were based on the
+transformer, how they connected
+
+237
+00:15:14,620 --> 00:15:18,120
+to the architecture that we
+saw in the first lecture.
+
+238
+00:15:18,120 --> 00:15:22,580
+And then in lecture 4, we
+saw how people actually
+
+239
+00:15:22,580 --> 00:15:30,100
+trained those LLMs because as I
+mentioned, these LLMs are large.
+
+240
+00:15:30,100 --> 00:15:35,440
+And so you cannot naively
+fit them in your hardware.
+
+241
+00:15:35,440 --> 00:15:38,420
+You need to be a little
+bit smart about it.
+
+242
+00:15:38,420 --> 00:15:44,420
+So in particular, what people
+have noticed in the early 2020s
+
+243
+00:15:44,420 --> 00:15:51,100
+is that the bigger your model
+is, the better your performance.
+
+244
+00:15:51,100 --> 00:15:53,620
+And so people just
+started building
+
+245
+00:15:53,620 --> 00:15:54,960
+bigger and bigger models.
+
+246
+00:15:54,960 --> 00:16:00,220
+So here in the illustration
+we saw that-- so on the y-axis
+
+247
+00:16:00,220 --> 00:16:01,820
+is the Teslas.
+
+248
+00:16:01,820 --> 00:16:04,060
+So the lower the better.
+
+249
+00:16:04,060 --> 00:16:11,220
+So we saw that the more compute
+you use, the better your test
+
+250
+00:16:11,220 --> 00:16:12,280
+performance.
+
+251
+00:16:12,280 --> 00:16:16,900
+And same with increasing
+the data set size.
+
+252
+00:16:16,900 --> 00:16:20,980
+And same with increasing
+the number of parameters.
+
+253
+00:16:20,980 --> 00:16:25,140
+But then as you know
+compute is not infinite.
+
+254
+00:16:25,140 --> 00:16:27,580
+So there was a
+natural question that
+
+255
+00:16:27,580 --> 00:16:32,750
+came out of the community which
+was if we give you a given
+
+256
+00:16:32,750 --> 00:16:40,310
+budget, a given compute budget,
+can you choose, I guess some,
+
+257
+00:16:40,310 --> 00:16:46,590
+quote unquote, optimal
+number of parameters and data
+
+258
+00:16:46,590 --> 00:16:50,590
+set size on which you
+want to train your model.
+
+259
+00:16:50,590 --> 00:16:55,230
+And so we saw that there was
+this paper that was published
+
+260
+00:16:55,230 --> 00:16:59,590
+in the early 2020s,
+which actually studied
+
+261
+00:16:59,590 --> 00:17:02,830
+the relationship
+between, I guess,
+
+262
+00:17:02,830 --> 00:17:08,390
+if you vary the data set size
+and the size of your model
+
+263
+00:17:08,390 --> 00:17:12,470
+and the performance
+on the test set.
+
+264
+00:17:12,470 --> 00:17:15,869
+And then we saw that actually,
+most models at the time
+
+265
+00:17:15,869 --> 00:17:18,710
+were what we say
+undertrained because they
+
+266
+00:17:18,710 --> 00:17:21,670
+were too big compared
+to the data set
+
+267
+00:17:21,670 --> 00:17:22,970
+that they were trained on.
+
+268
+00:17:22,970 --> 00:17:24,553
+The data set that
+they were trained on
+
+269
+00:17:24,553 --> 00:17:27,950
+was not as big as
+they should have been.
+
+270
+00:17:27,950 --> 00:17:30,550
+And so in particular, there
+was a kind of a rule of thumb
+
+271
+00:17:30,550 --> 00:17:35,310
+that came out of this, which
+was if you have a given
+
+272
+00:17:35,310 --> 00:17:38,590
+number of parameters
+in your model,
+
+273
+00:17:38,590 --> 00:17:42,670
+you should at least train
+it on 20 times the number
+
+274
+00:17:42,670 --> 00:17:45,950
+of parameters in
+terms of tokens.
+
+275
+00:17:45,950 --> 00:17:50,250
+So for instance, if you have
+a 100 billion parameter model,
+
+276
+00:17:50,250 --> 00:17:55,550
+you should train it on at
+least 2 trillion tokens
+
+277
+00:17:55,550 --> 00:17:59,630
+because the 2 trillion
+is 100 billion times 20.
+
+278
+00:17:59,630 --> 00:18:04,190
+So that's the rule of thumb
+that people have used.
+
+279
+00:18:04,190 --> 00:18:06,790
+And then as I
+mentioned previously,
+
+280
+00:18:06,790 --> 00:18:08,670
+these models are huge.
+
+281
+00:18:08,670 --> 00:18:11,910
+So people have
+tried to also make
+
+282
+00:18:11,910 --> 00:18:15,110
+the computation more efficient.
+
+283
+00:18:15,110 --> 00:18:17,735
+And so there was this
+method that we saw,
+
+284
+00:18:17,735 --> 00:18:19,110
+which is actually
+quite important
+
+285
+00:18:19,110 --> 00:18:22,790
+called flash attention.
+
+286
+00:18:22,790 --> 00:18:25,990
+And flash attention
+is a method it
+
+287
+00:18:25,990 --> 00:18:31,750
+that leverages the strength
+of the underlying hardware.
+
+288
+00:18:31,750 --> 00:18:35,590
+And in particular, it
+looks at-- so GPUs, more
+
+289
+00:18:35,590 --> 00:18:39,750
+particularly-- it looks
+at the kinds of memories
+
+290
+00:18:39,750 --> 00:18:42,470
+that a GPU has.
+
+291
+00:18:42,470 --> 00:18:49,570
+So it has a big, but slow memory
+and a small, but fast memory.
+
+292
+00:18:49,570 --> 00:18:53,390
+So the HBM and
+SRAM respectively.
+
+293
+00:18:53,390 --> 00:18:57,350
+And we saw that
+this method tries
+
+294
+00:18:57,350 --> 00:19:02,790
+to minimize the number of reads
+and writes to the big and slow
+
+295
+00:19:02,790 --> 00:19:05,090
+memory, to the HBM.
+
+296
+00:19:05,090 --> 00:19:08,870
+And so the way it
+was doing this was
+
+297
+00:19:08,870 --> 00:19:14,110
+to divide the computation
+in little bits
+
+298
+00:19:14,110 --> 00:19:17,190
+that it would send
+to the SRAM, which
+
+299
+00:19:17,190 --> 00:19:22,230
+is the small but fast memory,
+so that it can do the end
+
+300
+00:19:22,230 --> 00:19:25,240
+to end computation
+and then send it
+
+301
+00:19:25,240 --> 00:19:28,840
+back to where it was in order
+to do the full end to end
+
+302
+00:19:28,840 --> 00:19:31,720
+computation.
+
+303
+00:19:31,720 --> 00:19:34,260
+So that method is
+an exact method,
+
+304
+00:19:34,260 --> 00:19:39,160
+meaning that we're not doing any
+approximations to the results.
+
+305
+00:19:39,160 --> 00:19:42,080
+But it led to
+significant speedups.
+
+306
+00:19:42,080 --> 00:19:44,360
+And in particular, there
+was this second idea
+
+307
+00:19:44,360 --> 00:19:47,600
+from the paper, which is
+a kind of an important one
+
+308
+00:19:47,600 --> 00:19:52,560
+as well, which was that
+sometimes it's OK for you
+
+309
+00:19:52,560 --> 00:19:56,200
+to not store results.
+
+310
+00:19:56,200 --> 00:20:00,040
+It's OK for you to just throw
+them out and then recompute
+
+311
+00:20:00,040 --> 00:20:02,520
+when you need them again.
+
+312
+00:20:02,520 --> 00:20:05,240
+So there is this
+idea of computation
+
+313
+00:20:05,240 --> 00:20:11,200
+using what I described,
+which led to faster runtimes,
+
+314
+00:20:11,200 --> 00:20:16,320
+even though we were
+doing more computations.
+
+315
+00:20:16,320 --> 00:20:18,480
+So that was flash attention.
+
+316
+00:20:18,480 --> 00:20:23,120
+And we also saw a
+number of other methods
+
+317
+00:20:23,120 --> 00:20:27,900
+that were meant to, I guess,
+parallelize the computation.
+
+318
+00:20:27,900 --> 00:20:31,760
+So we saw data
+parallelism, which
+
+319
+00:20:31,760 --> 00:20:36,440
+was this idea of not having
+all your data be processed
+
+320
+00:20:36,440 --> 00:20:43,640
+on a single GPU, but instead
+divide it into multiple places.
+
+321
+00:20:43,640 --> 00:20:45,380
+And then we had
+the second method,
+
+322
+00:20:45,380 --> 00:20:51,160
+which was model parallelism,
+where even for a given forward
+
+323
+00:20:51,160 --> 00:20:56,760
+pass, you would actually
+involve multiple GPUs.
+
+324
+00:20:56,760 --> 00:20:59,820
+So anyway, there were a lot of
+very interesting techniques,
+
+325
+00:20:59,820 --> 00:21:04,440
+a lot of different
+ideas about how to train
+
+326
+00:21:04,440 --> 00:21:08,000
+this model in an efficient way.
+
+327
+00:21:08,000 --> 00:21:11,840
+And in particular, so
+what I described here
+
+328
+00:21:11,840 --> 00:21:16,800
+is mostly important for the
+first step of the training
+
+329
+00:21:16,800 --> 00:21:21,080
+process of an LLM, which is
+called the pre-training, which
+
+330
+00:21:21,080 --> 00:21:26,680
+is meant to teach the model
+about the structure of language
+
+331
+00:21:26,680 --> 00:21:29,680
+about the structure of codes.
+
+332
+00:21:29,680 --> 00:21:31,640
+And in particular,
+this model was trained
+
+333
+00:21:31,640 --> 00:21:33,940
+with huge amounts of data.
+
+334
+00:21:33,940 --> 00:21:37,920
+So think about
+trillions of tokens
+
+335
+00:21:37,920 --> 00:21:41,640
+or even tens of
+trillions of tokens.
+
+336
+00:21:41,640 --> 00:21:45,760
+And so that first step goes
+from an initialized model
+
+337
+00:21:45,760 --> 00:21:49,520
+to a model that is
+able to autocomplete
+
+338
+00:21:49,520 --> 00:21:53,480
+because it is trained with
+an objective of predicting
+
+339
+00:21:53,480 --> 00:21:56,200
+the next token.
+
+340
+00:21:56,200 --> 00:21:59,600
+So at the end of
+this first stage,
+
+341
+00:21:59,600 --> 00:22:02,980
+you have a model that
+knows how to autocomplete,
+
+342
+00:22:02,980 --> 00:22:07,600
+but you have a model that is
+not very helpful because it only
+
+343
+00:22:07,600 --> 00:22:11,080
+knows how to complete things.
+
+344
+00:22:11,080 --> 00:22:17,200
+So in order to have the model
+be useful for our use cases,
+
+345
+00:22:17,200 --> 00:22:20,490
+we had this second step, which
+is called the fine tuning
+
+346
+00:22:20,490 --> 00:22:25,890
+step, where we teach
+the model on the kinds
+
+347
+00:22:25,890 --> 00:22:30,410
+of input/output pairs that
+we wanted to perform well.
+
+348
+00:22:30,410 --> 00:22:35,170
+So this is also called the
+SFT stage supervised fine
+
+349
+00:22:35,170 --> 00:22:36,850
+tuning stage.
+
+350
+00:22:36,850 --> 00:22:39,650
+And at the end of
+this second step,
+
+351
+00:22:39,650 --> 00:22:45,210
+we have a model that not only
+knows the structure of text
+
+352
+00:22:45,210 --> 00:22:50,410
+and codes, but also is able
+to behave in the way you want.
+
+353
+00:22:50,410 --> 00:22:54,890
+But so far, up
+until step number 2,
+
+354
+00:22:54,890 --> 00:22:59,690
+we have only taught
+our model what to do.
+
+355
+00:22:59,690 --> 00:23:03,530
+We have not taught
+it what to not do.
+
+356
+00:23:03,530 --> 00:23:07,330
+And this is why we had our third
+step, which was the preference
+
+357
+00:23:07,330 --> 00:23:11,610
+tuning step, where we
+took our model that
+
+358
+00:23:11,610 --> 00:23:13,330
+went through the
+pre-training stage, that
+
+359
+00:23:13,330 --> 00:23:14,830
+went to the SFT stage.
+
+360
+00:23:14,830 --> 00:23:18,970
+And now we want to inject
+some negative signal
+
+361
+00:23:18,970 --> 00:23:23,890
+as well as in I want
+you to prefer this
+
+362
+00:23:23,890 --> 00:23:26,530
+compared to this output.
+
+363
+00:23:26,530 --> 00:23:31,790
+And this third step
+uses preference data.
+
+364
+00:23:31,790 --> 00:23:35,770
+So like the name suggests,
+so preference tuning uses
+
+365
+00:23:35,770 --> 00:23:40,130
+preference data which is
+typically pairwise data where
+
+366
+00:23:40,130 --> 00:23:46,210
+humans say I prefer this
+output compared to that output.
+
+367
+00:23:46,210 --> 00:23:51,090
+And typically, the model here is
+able to align the kind of output
+
+368
+00:23:51,090 --> 00:23:53,530
+it produces with
+human preferences that
+
+369
+00:23:53,530 --> 00:23:57,990
+could be along the
+dimension of usefulness,
+
+370
+00:23:57,990 --> 00:24:01,483
+of safety, friendliness, tone.
+
+371
+00:24:01,483 --> 00:24:03,150
+There's a bunch of
+different dimensions.
+
+372
+00:24:03,150 --> 00:24:08,530
+But yeah, so that's what is
+happening in this third step.
+
+373
+00:24:08,530 --> 00:24:12,330
+And in this third step,
+it's actually in lecture 5
+
+374
+00:24:12,330 --> 00:24:18,140
+that we dug into what
+that third step was about.
+
+375
+00:24:18,140 --> 00:24:24,820
+So if you remember, we had
+drawn a parallel between the way
+
+376
+00:24:24,820 --> 00:24:27,540
+our LLM produces tokens.
+
+377
+00:24:27,540 --> 00:24:33,380
+And I guess what people in the
+reinforcement learning field,
+
+378
+00:24:33,380 --> 00:24:39,300
+I guess, consider how a
+given policy is interacting
+
+379
+00:24:39,300 --> 00:24:42,140
+with some environments
+and performing some action
+
+380
+00:24:42,140 --> 00:24:44,380
+and being in some states.
+
+381
+00:24:44,380 --> 00:24:47,140
+And the reason why
+we drew that parallel
+
+382
+00:24:47,140 --> 00:24:53,100
+was to be able to leverage some
+RL-based techniques in order
+
+383
+00:24:53,100 --> 00:24:54,740
+to train our model.
+
+384
+00:24:54,740 --> 00:25:00,260
+So in this case, we said our LLM
+is a little bit like a policy.
+
+385
+00:25:00,260 --> 00:25:03,140
+So given some state,
+which is the input
+
+386
+00:25:03,140 --> 00:25:08,640
+it has received so far, it
+can perform the next action.
+
+387
+00:25:08,640 --> 00:25:13,060
+And in this case, it is
+to predict the next token.
+
+388
+00:25:13,060 --> 00:25:20,140
+And this prediction is made
+in the environment of tokens.
+
+389
+00:25:20,140 --> 00:25:25,780
+And when we predict a
+completion, what we do
+
+390
+00:25:25,780 --> 00:25:30,500
+is, at the end of the day, we
+have some signal, some reward,
+
+391
+00:25:30,500 --> 00:25:34,380
+which can be the
+human preference.
+
+392
+00:25:34,380 --> 00:25:38,100
+So this is the parallel
+we drew with the RL world.
+
+393
+00:25:38,100 --> 00:25:41,660
+And with that in mind,
+we talked about rewards.
+
+394
+00:25:41,660 --> 00:25:43,860
+But the problem is
+that rewards are
+
+395
+00:25:43,860 --> 00:25:48,660
+only available for a limited
+set of data, which is why
+
+396
+00:25:48,660 --> 00:25:52,500
+we saw how to model rewards.
+
+397
+00:25:52,500 --> 00:25:54,040
+So we saw this formula.
+
+398
+00:25:54,040 --> 00:25:58,500
+If you remember it's called
+the Bradley-Terry formulation,
+
+399
+00:25:58,500 --> 00:26:06,240
+which models how the probability
+of an output being better.
+
+400
+00:26:06,240 --> 00:26:11,340
+Another one is as a function
+of, I guess, two scores,
+
+401
+00:26:11,340 --> 00:26:15,820
+like the score of output I
+and the score of output J.
+
+402
+00:26:15,820 --> 00:26:18,500
+And we saw that
+reward models, they
+
+403
+00:26:18,500 --> 00:26:23,140
+are typically trained by
+having this formulation in mind
+
+404
+00:26:23,140 --> 00:26:25,940
+in a pairwise fashion.
+
+405
+00:26:25,940 --> 00:26:30,800
+So what this means is a reward
+model, you give it two outputs.
+
+406
+00:26:30,800 --> 00:26:33,900
+You say this one is
+good, this one is bad.
+
+407
+00:26:33,900 --> 00:26:36,940
+And then I want you to
+say this one is good.
+
+408
+00:26:36,940 --> 00:26:39,420
+You train it in a
+pairwise fashion.
+
+409
+00:26:39,420 --> 00:26:43,160
+But then your model is actually
+predicting always two scores.
+
+410
+00:26:43,160 --> 00:26:45,660
+It's always predicting
+the score RI
+
+411
+00:26:45,660 --> 00:26:52,460
+for output I, RJ for output
+J. And so at inference time
+
+412
+00:26:52,460 --> 00:26:57,100
+you're only giving
+it one output.
+
+413
+00:26:57,100 --> 00:26:58,920
+So I think that's one subtlety.
+
+414
+00:26:58,920 --> 00:27:00,640
+We train it in a pairwise way.
+
+415
+00:27:00,640 --> 00:27:06,960
+But at inference time, we're
+using it in an individual way,
+
+416
+00:27:06,960 --> 00:27:09,630
+if that makes sense.
+
+417
+00:27:09,630 --> 00:27:12,870
+And so once we trained
+our reward model using
+
+418
+00:27:12,870 --> 00:27:16,750
+this formulation, then
+we were able to use
+
+419
+00:27:16,750 --> 00:27:23,390
+it to steer our LLM towards the
+direction that we care about.
+
+420
+00:27:23,390 --> 00:27:27,710
+So if you remember, the
+way we steer our LLM
+
+421
+00:27:27,710 --> 00:27:31,150
+in the direction of
+human preferences
+
+422
+00:27:31,150 --> 00:27:35,070
+is to give it a
+prompt so that it
+
+423
+00:27:35,070 --> 00:27:40,670
+can produce a completion,
+a.k.a., a rollout.
+
+424
+00:27:40,670 --> 00:27:44,750
+Or in simpler terms, an answer.
+
+425
+00:27:44,750 --> 00:27:48,330
+And then we take this
+prompt, we take this answer.
+
+426
+00:27:48,330 --> 00:27:52,270
+We put them both in the
+reward model that tells us
+
+427
+00:27:52,270 --> 00:27:55,550
+how good the model response is.
+
+428
+00:27:55,550 --> 00:27:58,270
+And depending on what
+the reward model says,
+
+429
+00:27:58,270 --> 00:28:02,230
+we can tune the
+weights of the LLM
+
+430
+00:28:02,230 --> 00:28:06,410
+in a way that maximizes human
+or the reward that we saw,
+
+431
+00:28:06,410 --> 00:28:10,910
+which is trained on
+human preferences.
+
+432
+00:28:10,910 --> 00:28:17,950
+And the last function
+of this RL setup
+
+433
+00:28:17,950 --> 00:28:20,550
+is typically
+something that tries
+
+434
+00:28:20,550 --> 00:28:27,790
+to maximize rewards, but also
+keep the model close to the base
+
+435
+00:28:27,790 --> 00:28:28,410
+model.
+
+436
+00:28:28,410 --> 00:28:32,190
+And here, by base model,
+we mean the SFT model.
+
+437
+00:28:32,190 --> 00:28:35,710
+And the reason why we want
+that is because this reward
+
+438
+00:28:35,710 --> 00:28:37,630
+is imperfect.
+
+439
+00:28:37,630 --> 00:28:41,710
+So we saw this phenomenon
+of reward hacking
+
+440
+00:28:41,710 --> 00:28:45,070
+where your reward
+can be imperfect.
+
+441
+00:28:45,070 --> 00:28:49,990
+And the LLM can exploit
+its imperfect nature
+
+442
+00:28:49,990 --> 00:28:52,630
+to tune it in a way that
+actually does not align
+
+443
+00:28:52,630 --> 00:28:54,910
+with what you want it to be.
+
+444
+00:28:54,910 --> 00:28:57,550
+So you want the LLM
+to not be too far
+
+445
+00:28:57,550 --> 00:29:02,510
+from the base model, which is
+actually already a good model.
+
+446
+00:29:02,510 --> 00:29:05,830
+So it's a way to regularize
+that if you want.
+
+447
+00:29:05,830 --> 00:29:11,390
+And you also want
+the iteration updates
+
+448
+00:29:11,390 --> 00:29:15,230
+to not be too big either.
+
+449
+00:29:15,230 --> 00:29:17,553
+So you typically have
+these two constraints.
+
+450
+00:29:17,553 --> 00:29:19,970
+You don't want it to deviate
+too much from the base model,
+
+451
+00:29:19,970 --> 00:29:23,470
+but you don't want it to deviate
+too much from the previous RL
+
+452
+00:29:23,470 --> 00:29:25,470
+iteration.
+
+453
+00:29:25,470 --> 00:29:27,030
+And then just as a
+reminder, I think
+
+454
+00:29:27,030 --> 00:29:31,190
+this was lecture 5 I think was
+the most technically challenging
+
+455
+00:29:31,190 --> 00:29:33,610
+of the whole class.
+
+456
+00:29:33,610 --> 00:29:35,230
+So completely fine
+if the first time
+
+457
+00:29:35,230 --> 00:29:37,670
+you were like, what's happening.
+
+458
+00:29:37,670 --> 00:29:42,970
+But hopefully now, it should
+be a little bit more clear.
+
+459
+00:29:42,970 --> 00:29:43,470
+Cool.
+
+460
+00:29:43,470 --> 00:29:45,410
+And then after lecture
+5, we're like, OK,
+
+461
+00:29:45,410 --> 00:29:47,790
+we've done a lot of hard work.
+
+462
+00:29:47,790 --> 00:29:51,450
+So the good thing
+is we're in 2025.
+
+463
+00:29:51,450 --> 00:29:56,750
+And in the past 12
+months, or now 14 months,
+
+464
+00:29:56,750 --> 00:29:59,470
+we've seen a lot
+of models that were
+
+465
+00:29:59,470 --> 00:30:03,110
+being released with these
+reasoning capabilities.
+
+466
+00:30:03,110 --> 00:30:09,080
+And the way they were trained to
+exhibit these advanced reasoning
+
+467
+00:30:09,080 --> 00:30:12,360
+capabilities was
+actually leveraging
+
+468
+00:30:12,360 --> 00:30:16,360
+a lot of the techniques
+that we saw in lecture 5,
+
+469
+00:30:16,360 --> 00:30:19,240
+just like RL based techniques.
+
+470
+00:30:19,240 --> 00:30:23,200
+And in particular, what
+we want our LLM to do
+
+471
+00:30:23,200 --> 00:30:29,120
+is to output a reasoning
+chain before producing
+
+472
+00:30:29,120 --> 00:30:31,960
+the final answer.
+
+473
+00:30:31,960 --> 00:30:33,760
+And the reason why
+we wanted to do that
+
+474
+00:30:33,760 --> 00:30:37,360
+is because people have
+seen that it improves
+
+475
+00:30:37,360 --> 00:30:39,200
+the performance of the model.
+
+476
+00:30:39,200 --> 00:30:44,160
+And so it's actually relying on
+this idea of chain of thoughts,
+
+477
+00:30:44,160 --> 00:30:47,680
+which I believe we saw
+at lecture 3, which
+
+478
+00:30:47,680 --> 00:30:52,640
+is a prompting technique to have
+your model output the reasoning
+
+479
+00:30:52,640 --> 00:30:55,880
+before outputting the response.
+
+480
+00:30:55,880 --> 00:31:00,560
+So long story short, up
+until lecture 6 our LLM
+
+481
+00:31:00,560 --> 00:31:05,560
+was having a prompt as input,
+directly outputting the output.
+
+482
+00:31:05,560 --> 00:31:07,760
+But in lecture 7, we said--
+
+483
+00:31:07,760 --> 00:31:11,240
+sorry, in lecture
+6 we said, well,
+
+484
+00:31:11,240 --> 00:31:14,760
+let's have our LLM
+actually first output
+
+485
+00:31:14,760 --> 00:31:17,960
+a reasoning chain that
+the user may or may not
+
+486
+00:31:17,960 --> 00:31:23,560
+have access to before
+outputting the final answer.
+
+487
+00:31:23,560 --> 00:31:26,500
+So you want to teach
+the LLM to do that.
+
+488
+00:31:26,500 --> 00:31:27,880
+So how do you do that?
+
+489
+00:31:27,880 --> 00:31:30,440
+Well, first before
+doing this, I just
+
+490
+00:31:30,440 --> 00:31:33,040
+want to show you this
+chart, which we saw,
+
+491
+00:31:33,040 --> 00:31:36,680
+which is the
+performance of the model
+
+492
+00:31:36,680 --> 00:31:42,480
+as we're teaching it to
+produce these reasoning chains.
+
+493
+00:31:42,480 --> 00:31:46,440
+So people have typically
+measured the improvement
+
+494
+00:31:46,440 --> 00:31:51,580
+in performance by comparing it
+to, I guess, certain benchmarks.
+
+495
+00:31:51,580 --> 00:31:55,180
+And this one is a popular
+one, the aim benchmark,
+
+496
+00:31:55,180 --> 00:31:58,000
+which is a math benchmark.
+
+497
+00:31:58,000 --> 00:32:02,130
+And we saw that as the
+training progresses,
+
+498
+00:32:02,130 --> 00:32:05,490
+the accuracy number
+of guess what
+
+499
+00:32:05,490 --> 00:32:08,530
+the LLM outputs is increasing.
+
+500
+00:32:08,530 --> 00:32:11,250
+But back to what I was saying.
+
+501
+00:32:11,250 --> 00:32:17,290
+The key technique that we
+use to teach the model how
+
+502
+00:32:17,290 --> 00:32:24,250
+to output these reasoning chains
+is leveraging the RL techniques
+
+503
+00:32:24,250 --> 00:32:26,810
+that we saw in lecture 5.
+
+504
+00:32:26,810 --> 00:32:31,010
+And in particular,
+up until now, we
+
+505
+00:32:31,010 --> 00:32:36,650
+saw PPO was the main RL
+algorithm that people were
+
+506
+00:32:36,650 --> 00:32:40,250
+using up to maybe last year.
+
+507
+00:32:40,250 --> 00:32:45,410
+And now people are kind
+of prioritizing GRPO
+
+508
+00:32:45,410 --> 00:32:49,970
+as an RL algorithm in order to
+teach the model to be better
+
+509
+00:32:49,970 --> 00:32:52,410
+at reasoning tasks.
+
+510
+00:32:52,410 --> 00:32:57,210
+And there are several reasons to
+that I will explicit right now.
+
+511
+00:32:57,210 --> 00:33:02,930
+So we saw this illustration
+that compared how
+
+512
+00:33:02,930 --> 00:33:06,970
+GRPO was differing with PPO.
+
+513
+00:33:06,970 --> 00:33:09,490
+And if you can see
+in the graph, there
+
+514
+00:33:09,490 --> 00:33:12,210
+are a few things
+that are different.
+
+515
+00:33:12,210 --> 00:33:20,330
+The first thing is that GRPO
+does not rely on a value model.
+
+516
+00:33:20,330 --> 00:33:22,630
+So who remembers what
+the value model is?
+
+517
+00:33:28,950 --> 00:33:29,450
+Yep.
+
+518
+00:33:35,490 --> 00:33:36,350
+Yes, exactly.
+
+519
+00:33:36,350 --> 00:33:39,930
+So the value function
+is trying to predict
+
+520
+00:33:39,930 --> 00:33:44,170
+what the reward would
+be if you were to follow
+
+521
+00:33:44,170 --> 00:33:47,250
+the policy of the LLM.
+
+522
+00:33:47,250 --> 00:33:54,690
+And I guess it's a way to
+have some baseline as to how
+
+523
+00:33:54,690 --> 00:33:58,050
+good some predictions are.
+
+524
+00:33:58,050 --> 00:34:00,650
+You want to make
+it more relative.
+
+525
+00:34:00,650 --> 00:34:03,770
+So the value function
+is a way for us
+
+526
+00:34:03,770 --> 00:34:06,850
+to make these rewards
+a little bit more
+
+527
+00:34:06,850 --> 00:34:09,250
+relative to one another.
+
+528
+00:34:09,250 --> 00:34:12,310
+And so that's how
+PPO was doing this.
+
+529
+00:34:12,310 --> 00:34:13,969
+So it was having
+a value model that
+
+530
+00:34:13,969 --> 00:34:17,350
+was making these predictions.
+
+531
+00:34:17,350 --> 00:34:21,610
+And then we had these
+generalized advantage estimation
+
+532
+00:34:21,610 --> 00:34:27,290
+method that was combining
+the rewards predictions
+
+533
+00:34:27,290 --> 00:34:30,370
+with the value
+function predictions
+
+534
+00:34:30,370 --> 00:34:33,810
+in order to have what
+we call advantages.
+
+535
+00:34:33,810 --> 00:34:37,330
+So advantages is how
+good's your output
+
+536
+00:34:37,330 --> 00:34:40,810
+is compared to some baseline.
+
+537
+00:34:40,810 --> 00:34:44,170
+But then in contrast
+to that, GRPO
+
+538
+00:34:44,170 --> 00:34:49,010
+said, OK, today, we don't
+need a value function
+
+539
+00:34:49,010 --> 00:34:53,170
+because it's too expensive
+to train to maintain
+
+540
+00:34:53,170 --> 00:34:55,980
+what we're going to do instead.
+
+541
+00:34:55,980 --> 00:35:00,660
+Is generate several
+completions, and then
+
+542
+00:35:00,660 --> 00:35:09,340
+have some formula that compares
+the rewards of these completions
+
+543
+00:35:09,340 --> 00:35:12,300
+to one another.
+
+544
+00:35:12,300 --> 00:35:17,780
+So it's going to have some
+relative effect in a sense
+
+545
+00:35:17,780 --> 00:35:21,940
+that it will make
+things more relative.
+
+546
+00:35:21,940 --> 00:35:29,780
+And in doing so you're actually
+not needed to maintain and train
+
+547
+00:35:29,780 --> 00:35:31,700
+a value function.
+
+548
+00:35:31,700 --> 00:35:36,740
+And that's one big
+difference compared to PPO.
+
+549
+00:35:36,740 --> 00:35:39,660
+And the second big
+difference, which
+
+550
+00:35:39,660 --> 00:35:42,700
+is not represented
+in this illustration,
+
+551
+00:35:42,700 --> 00:35:46,620
+is that GRPO is
+typically an algorithm
+
+552
+00:35:46,620 --> 00:35:51,740
+that people have used in the
+context of teaching your model
+
+553
+00:35:51,740 --> 00:35:55,260
+to be better at reasoning tasks.
+
+554
+00:35:55,260 --> 00:35:59,140
+And so we saw that
+these kinds of problems
+
+555
+00:35:59,140 --> 00:36:05,340
+have a verifiable reward
+because when you complete a math
+
+556
+00:36:05,340 --> 00:36:10,420
+problem, you actually know
+the answer you need to get to.
+
+557
+00:36:10,420 --> 00:36:13,700
+So you don't need to train
+a reward model to tell you
+
+558
+00:36:13,700 --> 00:36:16,420
+how good your final answer
+is, because you already
+
+559
+00:36:16,420 --> 00:36:19,020
+know the answer.
+
+560
+00:36:19,020 --> 00:36:22,580
+And so we saw that
+GRPO was in particular
+
+561
+00:36:22,580 --> 00:36:25,980
+used in the context of when
+you actually don't even
+
+562
+00:36:25,980 --> 00:36:28,420
+need reward model,
+when you actually
+
+563
+00:36:28,420 --> 00:36:30,740
+have a verifiable reward.
+
+564
+00:36:30,740 --> 00:36:35,820
+So at the end of the day, the
+only two models you need to keep
+
+565
+00:36:35,820 --> 00:36:39,900
+are the policy model
+and the reference model
+
+566
+00:36:39,900 --> 00:36:44,540
+to be able to just compare how
+far you are from the reference
+
+567
+00:36:44,540 --> 00:36:45,120
+model.
+
+568
+00:36:49,460 --> 00:36:50,440
+Cool?
+
+569
+00:36:50,440 --> 00:36:53,990
+I know this one was also
+a challenging class.
+
+570
+00:36:53,990 --> 00:36:55,990
+I guess, so far so good.
+
+571
+00:36:55,990 --> 00:36:57,690
+And this is also on the final.
+
+572
+00:36:57,690 --> 00:37:00,990
+So which is why
+I'm taking things
+
+573
+00:37:00,990 --> 00:37:05,390
+more slowly for this
+second part of the recap.
+
+574
+00:37:05,390 --> 00:37:08,270
+So is everything good so far?
+
+575
+00:37:08,270 --> 00:37:10,410
+Yeah?
+
+576
+00:37:10,410 --> 00:37:10,910
+Perfect.
+
+577
+00:37:10,910 --> 00:37:13,650
+We also saw some
+extensions of GRPO.
+
+578
+00:37:13,650 --> 00:37:17,870
+So if you remember, there
+was some kind of bias
+
+579
+00:37:17,870 --> 00:37:27,550
+that was a result of the
+loss function of GRPO having
+
+580
+00:37:27,550 --> 00:37:33,870
+some normalization term
+that penalized tokens
+
+581
+00:37:33,870 --> 00:37:38,950
+that were in shorter outputs.
+
+582
+00:37:38,950 --> 00:37:44,890
+So we saw that if you use
+GRPO in its original case,
+
+583
+00:37:44,890 --> 00:37:50,790
+in its original form, we saw
+that after a certain point,
+
+584
+00:37:50,790 --> 00:37:54,750
+the algorithm will incentivize
+your model to produce
+
+585
+00:37:54,750 --> 00:37:57,090
+longer and longer answers.
+
+586
+00:37:57,090 --> 00:37:59,990
+Longer and longer
+incorrect answers.
+
+587
+00:37:59,990 --> 00:38:01,990
+And the reason why
+it does that is
+
+588
+00:38:01,990 --> 00:38:06,590
+because relative to
+short, incorrect answers,
+
+589
+00:38:06,590 --> 00:38:12,150
+it penalizes less long
+incorrect answers.
+
+590
+00:38:12,150 --> 00:38:14,950
+And so this is the reason
+why there are some extensions
+
+591
+00:38:14,950 --> 00:38:19,190
+that people have worked
+on this year, one of which
+
+592
+00:38:19,190 --> 00:38:21,970
+was GRPO done right.
+
+593
+00:38:21,970 --> 00:38:26,790
+So we saw that they basically
+removed the normalization term.
+
+594
+00:38:26,790 --> 00:38:29,710
+And there was another method
+that we saw which was called
+
+595
+00:38:29,710 --> 00:38:34,250
+DAPO, D-A-P-O, which
+also had some variants.
+
+596
+00:38:36,950 --> 00:38:39,210
+And that's for reasoning models.
+
+597
+00:38:39,210 --> 00:38:43,390
+And then lecture
+7, we had a model
+
+598
+00:38:43,390 --> 00:38:45,910
+that we knew how to train it.
+
+599
+00:38:45,910 --> 00:38:51,170
+We knew how to use it
+for reasoning tasks,
+
+600
+00:38:51,170 --> 00:38:52,690
+how to train it to be better.
+
+601
+00:38:52,690 --> 00:38:56,670
+But now we wanted the model
+to be useful and interacting
+
+602
+00:38:56,670 --> 00:39:01,030
+with outside systems.
+
+603
+00:39:01,030 --> 00:39:06,310
+So we saw one technique that is
+kind of an essential technique
+
+604
+00:39:06,310 --> 00:39:11,950
+called RAG, short for retrieval
+augmented generation, that
+
+605
+00:39:11,950 --> 00:39:16,510
+is meant for you
+to be able to fetch
+
+606
+00:39:16,510 --> 00:39:20,630
+relevant documents from
+some knowledge base
+
+607
+00:39:20,630 --> 00:39:26,230
+in order to answer a
+question, or answer a prompt.
+
+608
+00:39:26,230 --> 00:39:28,910
+And the reason why
+you want to do that
+
+609
+00:39:28,910 --> 00:39:32,270
+is that the
+knowledge of your LLM
+
+610
+00:39:32,270 --> 00:39:41,350
+is including up to the data that
+is up to the knowledge cutoff
+
+611
+00:39:41,350 --> 00:39:46,600
+date, which is the max dates of
+what your LLM has been trained
+
+612
+00:39:46,600 --> 00:39:48,320
+on.
+
+613
+00:39:48,320 --> 00:39:51,080
+And from a practical
+standpoint, I
+
+614
+00:39:51,080 --> 00:39:55,360
+guess from what we see nowadays,
+you're typically not training
+
+615
+00:39:55,360 --> 00:39:58,240
+your LLM daily or continuously.
+
+616
+00:39:58,240 --> 00:40:01,400
+And so in cases where
+you need your LLM
+
+617
+00:40:01,400 --> 00:40:04,760
+to about things that
+happened recently
+
+618
+00:40:04,760 --> 00:40:07,280
+or about things
+that happened that
+
+619
+00:40:07,280 --> 00:40:12,360
+were not in your
+LLM training data.
+
+620
+00:40:12,360 --> 00:40:16,000
+You want your LLM to have
+access to such information.
+
+621
+00:40:16,000 --> 00:40:21,040
+And so that's how
+RAG is very useful.
+
+622
+00:40:21,040 --> 00:40:24,000
+So we saw that RAG
+depended very heavily
+
+623
+00:40:24,000 --> 00:40:27,840
+on the way it retrieves data.
+
+624
+00:40:27,840 --> 00:40:31,000
+So we saw that the
+retrieval part was mainly
+
+625
+00:40:31,000 --> 00:40:33,240
+composed of two steps.
+
+626
+00:40:33,240 --> 00:40:38,600
+So the first one was
+candidate retrieval,
+
+627
+00:40:38,600 --> 00:40:43,720
+which uses bye encoder
+kind of setup where air.
+
+628
+00:40:43,720 --> 00:40:47,720
+You're basically doing
+some semantic search.
+
+629
+00:40:47,720 --> 00:40:50,340
+So you're computing the
+embedding of the query.
+
+630
+00:40:50,340 --> 00:40:52,960
+You have some
+pre-computed embeddings
+
+631
+00:40:52,960 --> 00:40:55,560
+of the documents in
+your knowledge base,
+
+632
+00:40:55,560 --> 00:41:00,500
+and you're taking the ones that
+maximize some similarity score.
+
+633
+00:41:00,500 --> 00:41:05,280
+Let's say some
+cosine similarity.
+
+634
+00:41:05,280 --> 00:41:10,380
+So this first step is allowing
+you to retrieve, I guess,
+
+635
+00:41:10,380 --> 00:41:14,960
+a filtered version of
+the potential documents.
+
+636
+00:41:14,960 --> 00:41:17,700
+And then typically,
+you have a second step,
+
+637
+00:41:17,700 --> 00:41:20,400
+which is called ranking--
+
+638
+00:41:20,400 --> 00:41:22,880
+or reranking because
+the first step already
+
+639
+00:41:22,880 --> 00:41:24,760
+gives you a ranking--
+
+640
+00:41:24,760 --> 00:41:30,120
+which has typically a
+more sophisticated setup.
+
+641
+00:41:30,120 --> 00:41:36,520
+So it's a cross encoder kind of
+setup where you have your query
+
+642
+00:41:36,520 --> 00:41:41,040
+and your document that
+are both fed to some model
+
+643
+00:41:41,040 --> 00:41:45,520
+and produces a
+more precise score.
+
+644
+00:41:45,520 --> 00:41:50,800
+And then you use this final
+score to rank the final results.
+
+645
+00:41:50,800 --> 00:41:55,160
+And you typically choose
+the top, let's say, k.
+
+646
+00:41:55,160 --> 00:41:57,340
+And then you add
+them to your prompts.
+
+647
+00:41:57,340 --> 00:41:58,980
+So it's the augmented part.
+
+648
+00:41:58,980 --> 00:42:02,040
+So retrieval is everything
+I mentioned so far.
+
+649
+00:42:02,040 --> 00:42:04,520
+And then once you have
+the relevant documents,
+
+650
+00:42:04,520 --> 00:42:08,480
+you add them in your prompt,
+which is the augmented part.
+
+651
+00:42:08,480 --> 00:42:12,000
+And you generate the answer.
+
+652
+00:42:12,000 --> 00:42:14,280
+So the reason why I'm
+taking so much time on RAG
+
+653
+00:42:14,280 --> 00:42:18,320
+is RAG is such an
+important concept.
+
+654
+00:42:18,320 --> 00:42:24,080
+Also, if you were to
+have interviews or also
+
+655
+00:42:24,080 --> 00:42:27,120
+maybe in the exam who knows.
+
+656
+00:42:27,120 --> 00:42:30,960
+So I think it's an important
+concept to have in mind.
+
+657
+00:42:30,960 --> 00:42:35,240
+The second one that we
+saw was tool calling.
+
+658
+00:42:35,240 --> 00:42:45,130
+And tool calling is allowing
+your LLM to leverage tools.
+
+659
+00:42:45,130 --> 00:42:48,810
+The way it does that
+is in two steps.
+
+660
+00:42:48,810 --> 00:42:53,610
+The first step is for your
+model to which API there
+
+661
+00:42:53,610 --> 00:42:58,030
+is out there, at the end
+of which your LLM says,
+
+662
+00:42:58,030 --> 00:43:00,970
+OK, I want to use
+this API and I want
+
+663
+00:43:00,970 --> 00:43:04,890
+to use it with these arguments.
+
+664
+00:43:04,890 --> 00:43:06,590
+And then you have an
+intermediary step,
+
+665
+00:43:06,590 --> 00:43:10,690
+which is you just run your
+API with these arguments.
+
+666
+00:43:10,690 --> 00:43:14,170
+And then the second
+step is you feed
+
+667
+00:43:14,170 --> 00:43:16,890
+the results of
+this operation back
+
+668
+00:43:16,890 --> 00:43:22,370
+to the LLM, which then
+produces a final answer.
+
+669
+00:43:22,370 --> 00:43:23,910
+So that's how tool
+calling works.
+
+670
+00:43:23,910 --> 00:43:29,570
+So if you say to your
+LLM, you can use this API,
+
+671
+00:43:29,570 --> 00:43:33,610
+this is how your LLM
+would leverage that.
+
+672
+00:43:33,610 --> 00:43:38,530
+And then we saw that modern
+day agentic workflows
+
+673
+00:43:38,530 --> 00:43:45,130
+we're leveraging both RAG and
+tool calling as key methods
+
+674
+00:43:45,130 --> 00:43:49,330
+to perform actions.
+
+675
+00:43:49,330 --> 00:43:52,350
+And we saw an
+example, data example,
+
+676
+00:43:52,350 --> 00:43:54,810
+which was such that
+you had some inputs.
+
+677
+00:43:54,810 --> 00:44:00,570
+And then your LLM had a
+series of different calls
+
+678
+00:44:00,570 --> 00:44:02,270
+in order to perform some action.
+
+679
+00:44:02,270 --> 00:44:05,470
+And then at the end of
+it, it retrieves-- sorry,
+
+680
+00:44:05,470 --> 00:44:06,790
+it returns an answer.
+
+681
+00:44:09,970 --> 00:44:10,570
+Cool.
+
+682
+00:44:10,570 --> 00:44:15,050
+And then last
+lecture, we saw how
+
+683
+00:44:15,050 --> 00:44:20,010
+we could evaluate LLMs,
+which is a much tougher thing
+
+684
+00:44:20,010 --> 00:44:24,930
+to do now that LLMs can do
+a bunch of different things.
+
+685
+00:44:24,930 --> 00:44:30,810
+So we first saw that there
+was some rule based metrics
+
+686
+00:44:30,810 --> 00:44:35,850
+that people were using before
+LLMs came into play, metrics
+
+687
+00:44:35,850 --> 00:44:42,940
+that you may have heard like
+BLEU, ROUGE, METEOR, and so on.
+
+688
+00:44:42,940 --> 00:44:46,620
+But the main limitation
+was that they were not
+
+689
+00:44:46,620 --> 00:44:52,980
+considering how language could
+differ, but still be correct.
+
+690
+00:44:52,980 --> 00:44:59,220
+And so this key idea that we
+saw was why not leverage LLMs
+
+691
+00:44:59,220 --> 00:45:01,340
+to evaluate outputs.
+
+692
+00:45:01,340 --> 00:45:05,060
+And so there is
+this key idea of LLM
+
+693
+00:45:05,060 --> 00:45:11,340
+as a judge where you receive
+as input the prompts.
+
+694
+00:45:11,340 --> 00:45:14,580
+The model response
+along with the criteria
+
+695
+00:45:14,580 --> 00:45:19,220
+that you want the response
+to be evaluated on.
+
+696
+00:45:19,220 --> 00:45:23,860
+And then you want your
+LLMs to output two things.
+
+697
+00:45:23,860 --> 00:45:31,020
+The first one is a rationale
+for why a given score is outputs
+
+698
+00:45:31,020 --> 00:45:34,820
+along with that score.
+
+699
+00:45:34,820 --> 00:45:38,420
+So nowadays, LLM as the
+judges are typically
+
+700
+00:45:38,420 --> 00:45:42,860
+outputting a binary
+response, either pass
+
+701
+00:45:42,860 --> 00:45:46,220
+or fail, true or false,
+just because it's easier.
+
+702
+00:45:46,220 --> 00:45:49,620
+And we're also
+having the rationale
+
+703
+00:45:49,620 --> 00:45:54,900
+be output before the score,
+because in practice it's
+
+704
+00:45:54,900 --> 00:45:59,460
+something that also improves
+the performance of the LLM
+
+705
+00:45:59,460 --> 00:46:00,460
+as a judge.
+
+706
+00:46:00,460 --> 00:46:02,780
+A little bit if you want,
+like reasoning models
+
+707
+00:46:02,780 --> 00:46:04,900
+do, by outputting
+the reasoning chain
+
+708
+00:46:04,900 --> 00:46:06,680
+before they output the answer.
+
+709
+00:46:09,380 --> 00:46:12,620
+But then we also saw that
+there were some biases that
+
+710
+00:46:12,620 --> 00:46:13,800
+came with this approach.
+
+711
+00:46:13,800 --> 00:46:19,260
+We saw a position bias,
+which is the way you present
+
+712
+00:46:19,260 --> 00:46:21,440
+the LLMs to compare matters.
+
+713
+00:46:21,440 --> 00:46:23,760
+So if you present
+something first,
+
+714
+00:46:23,760 --> 00:46:27,860
+then maybe the LLM will
+just prioritize that first.
+
+715
+00:46:27,860 --> 00:46:29,160
+So there's position bias.
+
+716
+00:46:29,160 --> 00:46:33,300
+There was verbosity bias, which
+is your LLM just preferring
+
+717
+00:46:33,300 --> 00:46:35,660
+longer outputs.
+
+718
+00:46:35,660 --> 00:46:38,460
+And self-enhancement bias
+was another one where
+
+719
+00:46:38,460 --> 00:46:42,460
+it prefers its own outputs.
+
+720
+00:46:42,460 --> 00:46:46,300
+And then we also saw
+a number of benchmarks
+
+721
+00:46:46,300 --> 00:46:48,940
+that people use
+nowadays in order
+
+722
+00:46:48,940 --> 00:46:52,140
+to say how great their LLM is.
+
+723
+00:46:52,140 --> 00:46:55,700
+So if you see the
+releases that come out,
+
+724
+00:46:55,700 --> 00:46:57,940
+there are typically
+a bunch of metrics
+
+725
+00:46:57,940 --> 00:47:00,340
+across a number of
+different benchmarks
+
+726
+00:47:00,340 --> 00:47:01,720
+that people know about.
+
+727
+00:47:01,720 --> 00:47:05,940
+So that spans
+knowledge, the ability
+
+728
+00:47:05,940 --> 00:47:09,340
+to reason coding, which is
+very important because a lot
+
+729
+00:47:09,340 --> 00:47:13,960
+of applications are coding
+related, and then safety.
+
+730
+00:47:13,960 --> 00:47:17,800
+And then this is not
+an extensive list.
+
+731
+00:47:17,800 --> 00:47:20,400
+So there's actually
+many more dimensions.
+
+732
+00:47:23,940 --> 00:47:26,780
+So yeah, I think that's
+where we stopped.
+
+733
+00:47:26,780 --> 00:47:30,020
+And it was last lecture.
+
+734
+00:47:30,020 --> 00:47:37,390
+And this is all you're
+expected to know for the final.
+
+735
+00:47:37,390 --> 00:47:41,650
+Everything after that is not
+going to be part of the final.
+
+736
+00:47:44,750 --> 00:47:48,490
+Any questions on this so far?
+
+737
+00:47:54,510 --> 00:47:55,450
+Cool.
+
+738
+00:47:55,450 --> 00:47:58,930
+I'm expecting 100 for
+everyone for the final.
+
+739
+00:47:58,930 --> 00:48:06,070
+But yeah, I would say,
+what I went through
+
+740
+00:48:06,070 --> 00:48:08,610
+is going to be
+foundational for the final.
+
+741
+00:48:08,610 --> 00:48:13,510
+So I guess if you understood
+everything I said,
+
+742
+00:48:13,510 --> 00:48:16,370
+I think you're going to
+be ready for the final.
+
+743
+00:48:16,370 --> 00:48:18,395
+So, yeah.
+
+744
+00:48:18,395 --> 00:48:20,270
+But if you have any
+questions, Shervine and I
+
+745
+00:48:20,270 --> 00:48:22,910
+are always here to--
+
+746
+00:48:22,910 --> 00:48:23,410
+oh, yeah.
+
+747
+00:48:23,410 --> 00:48:24,243
+You have a question.
+
+748
+00:48:29,190 --> 00:48:32,870
+Yes, so the question is the
+scope for the final lecture
+
+749
+00:48:32,870 --> 00:48:33,770
+5 to lecture 8.
+
+750
+00:48:33,770 --> 00:48:35,070
+Yes.
+
+751
+00:48:35,070 --> 00:48:38,150
+So for midterm, it was
+lectures 1, 2, 3, 4.
+
+752
+00:48:38,150 --> 00:48:39,930
+And this one is 5, 6, 7, 8.
+
+753
+00:48:39,930 --> 00:48:42,850
+So I guess it's equal size.
+
+754
+00:48:45,990 --> 00:48:47,910
+Cool?
+
+755
+00:48:47,910 --> 00:48:49,510
+OK, great.
+
+756
+00:48:49,510 --> 00:48:52,630
+So with that said,
+we just finished
+
+757
+00:48:52,630 --> 00:48:57,150
+recapping this entire
+quarter worth of lectures.
+
+758
+00:48:57,150 --> 00:49:01,410
+And now we're going to go to
+the second item of today's menu,
+
+759
+00:49:01,410 --> 00:49:06,830
+which is looking at
+some trending topics.
+
+760
+00:49:06,830 --> 00:49:10,670
+And so I'm going to
+start with the first one.
+
+761
+00:49:10,670 --> 00:49:14,270
+And I'm going to
+introduce it as follows.
+
+762
+00:49:14,270 --> 00:49:18,350
+So if you remember, we
+saw that the transformer
+
+763
+00:49:18,350 --> 00:49:21,270
+was a concept and
+an architecture that
+
+764
+00:49:21,270 --> 00:49:26,630
+was first introduced in the
+context of machine translation.
+
+765
+00:49:26,630 --> 00:49:28,880
+So it performed great.
+
+766
+00:49:28,880 --> 00:49:31,620
+People said, OK, it performs
+great on machine translation,
+
+767
+00:49:31,620 --> 00:49:35,720
+why not try it on
+other text tasks.
+
+768
+00:49:35,720 --> 00:49:36,560
+So they tried it.
+
+769
+00:49:36,560 --> 00:49:38,680
+Performed great.
+
+770
+00:49:38,680 --> 00:49:41,800
+But now the question
+is, can you not use it
+
+771
+00:49:41,800 --> 00:49:45,920
+for things other than texts.
+
+772
+00:49:45,920 --> 00:49:48,520
+It's a natural question.
+
+773
+00:49:48,520 --> 00:49:51,840
+So in order to
+answer that question,
+
+774
+00:49:51,840 --> 00:49:54,640
+I just want us to
+remind ourselves
+
+775
+00:49:54,640 --> 00:50:00,000
+that this architecture is
+relying on this concept of self
+
+776
+00:50:00,000 --> 00:50:01,720
+attention.
+
+777
+00:50:01,720 --> 00:50:07,280
+And this is what is making
+the transformer work so well.
+
+778
+00:50:07,280 --> 00:50:13,360
+So if we just recap
+what self-attention is--
+
+779
+00:50:13,360 --> 00:50:18,120
+this illustration kind of
+does the job quite well--
+
+780
+00:50:18,120 --> 00:50:20,840
+you have a query,
+and then you have
+
+781
+00:50:20,840 --> 00:50:23,880
+a bunch of other elements,
+which are represented
+
+782
+00:50:23,880 --> 00:50:26,440
+by your keys and your values.
+
+783
+00:50:26,440 --> 00:50:30,600
+And you want to know which
+other elements are actually
+
+784
+00:50:30,600 --> 00:50:37,720
+relevant in order to compute
+the embedding for that query.
+
+785
+00:50:37,720 --> 00:50:43,560
+So right now, we have only
+used tokens, text tokens.
+
+786
+00:50:43,560 --> 00:50:50,160
+But text tokens, they're
+actually vectors.
+
+787
+00:50:50,160 --> 00:50:55,120
+So if you take those
+vectors, and you actually
+
+788
+00:50:55,120 --> 00:50:58,600
+represent something
+else than text--
+
+789
+00:50:58,600 --> 00:51:02,080
+like for instance,
+parts of an image--
+
+790
+00:51:02,080 --> 00:51:07,440
+the question is,
+would the transformer
+
+791
+00:51:07,440 --> 00:51:11,340
+based on that kind of
+input also perform well.
+
+792
+00:51:14,440 --> 00:51:18,760
+And so here the key
+question that I want to ask
+
+793
+00:51:18,760 --> 00:51:23,360
+is, how can we adapt
+our transformer
+
+794
+00:51:23,360 --> 00:51:26,940
+to work on non-text input.
+
+795
+00:51:26,940 --> 00:51:29,880
+And for instance, here we can
+think of image understanding
+
+796
+00:51:29,880 --> 00:51:30,380
+input.
+
+797
+00:51:30,380 --> 00:51:32,520
+So you have some image.
+
+798
+00:51:32,520 --> 00:51:35,960
+And so it's a traditional
+computer vision
+
+799
+00:51:35,960 --> 00:51:41,320
+task where you want to in which
+class this image belongs to.
+
+800
+00:51:41,320 --> 00:51:45,760
+So you want to know if
+having some transformer based
+
+801
+00:51:45,760 --> 00:51:49,360
+architecture would work
+well in that situation.
+
+802
+00:51:49,360 --> 00:51:53,600
+Well, the answer to
+that is, well, first,
+
+803
+00:51:53,600 --> 00:51:56,640
+in order to adapt
+it to this task,
+
+804
+00:51:56,640 --> 00:52:03,020
+you would take the encoder
+parts of the transformer
+
+805
+00:52:03,020 --> 00:52:07,480
+because in order to understand
+what is in an image,
+
+806
+00:52:07,480 --> 00:52:11,240
+you need to classify
+that image in some sense.
+
+807
+00:52:11,240 --> 00:52:14,480
+So if you remember, if
+there is a one model--
+
+808
+00:52:14,480 --> 00:52:18,760
+and what we saw that was working
+very well for classification
+
+809
+00:52:18,760 --> 00:52:22,950
+was BERT, because
+BERT is encoder only.
+
+810
+00:52:22,950 --> 00:52:26,410
+It computes
+meaningful embeddings
+
+811
+00:52:26,410 --> 00:52:30,130
+that can then be used
+for projection purposes
+
+812
+00:52:30,130 --> 00:52:33,610
+or for classification purposes.
+
+813
+00:52:33,610 --> 00:52:37,890
+So it's a very natural choice
+that here we would have.
+
+814
+00:52:37,890 --> 00:52:41,650
+So here, we would just keep the
+encoder part of the transformer
+
+815
+00:52:41,650 --> 00:52:47,330
+and then have the self-attention
+mechanism come into play
+
+816
+00:52:47,330 --> 00:52:52,090
+and compute meaningful
+embeddings that we could then
+
+817
+00:52:52,090 --> 00:52:55,890
+project for our relevant task.
+
+818
+00:52:55,890 --> 00:53:02,290
+And this is exactly what a group
+of researchers did back in 2020.
+
+819
+00:53:02,290 --> 00:53:07,170
+So have you heard of
+VIT, vision transformer.
+
+820
+00:53:07,170 --> 00:53:09,090
+Yeah, no, yeah?
+
+821
+00:53:09,090 --> 00:53:13,410
+So what I described here
+is exactly what they did.
+
+822
+00:53:13,410 --> 00:53:16,210
+So they took an image.
+
+823
+00:53:16,210 --> 00:53:21,330
+They divided that
+image into patches.
+
+824
+00:53:21,330 --> 00:53:26,930
+Those patches were
+represented by some vectors.
+
+825
+00:53:26,930 --> 00:53:30,410
+And of course, you have some
+kind of position information
+
+826
+00:53:30,410 --> 00:53:35,970
+that allows you to know where
+your patches in the image.
+
+827
+00:53:35,970 --> 00:53:38,870
+And then you just put it
+through the transformer encoder.
+
+828
+00:53:38,870 --> 00:53:41,650
+So the encoder part
+of the transformer.
+
+829
+00:53:41,650 --> 00:53:45,250
+And you compute the
+representation corresponding
+
+830
+00:53:45,250 --> 00:53:49,330
+to the CLS class,
+very similar to BERT.
+
+831
+00:53:49,330 --> 00:53:52,770
+And you would just project
+that representation
+
+832
+00:53:52,770 --> 00:53:57,410
+over some classes of interest.
+
+833
+00:53:57,410 --> 00:54:04,530
+And then you would perform your,
+I guess, computation like this.
+
+834
+00:54:04,530 --> 00:54:10,050
+So what that paper found
+was that if you train such
+
+835
+00:54:10,050 --> 00:54:15,450
+a model on a lot of image
+data, a lot of image data,
+
+836
+00:54:15,450 --> 00:54:19,770
+you then outperform these is
+traditional convolutional neural
+
+837
+00:54:19,770 --> 00:54:23,250
+network kind of methods.
+
+838
+00:54:23,250 --> 00:54:28,510
+And it was kind of
+remarkable because.
+
+839
+00:54:28,510 --> 00:54:30,370
+So why is it remarkable.
+
+840
+00:54:30,370 --> 00:54:33,370
+Because in the vision case.
+
+841
+00:54:33,370 --> 00:54:37,410
+So there is this concept
+of inductive bias
+
+842
+00:54:37,410 --> 00:54:43,130
+where you want to gear
+your model towards looking
+
+843
+00:54:43,130 --> 00:54:48,930
+at certain things in order
+to deduce the results.
+
+844
+00:54:48,930 --> 00:54:54,210
+So convolutional neural
+networks are a kind of model
+
+845
+00:54:54,210 --> 00:54:57,250
+that are designed
+in a way for you
+
+846
+00:54:57,250 --> 00:55:02,230
+to look at the image
+in some sliding way.
+
+847
+00:55:02,230 --> 00:55:03,730
+You look at your
+image a little bit
+
+848
+00:55:03,730 --> 00:55:08,570
+like you would look at it
+in practice as a human.
+
+849
+00:55:08,570 --> 00:55:13,330
+And people had hypothesized
+that such a bias, such
+
+850
+00:55:13,330 --> 00:55:16,900
+an inductive bias would actually
+make sense for something
+
+851
+00:55:16,900 --> 00:55:19,100
+like a vision task.
+
+852
+00:55:19,100 --> 00:55:22,820
+So you contrast that with
+the vision transformer, which
+
+853
+00:55:22,820 --> 00:55:27,820
+is actually letting all parts
+of the image attend to one
+
+854
+00:55:27,820 --> 00:55:33,460
+another, which has, on the other
+side, very low inductive bias.
+
+855
+00:55:33,460 --> 00:55:40,740
+So what this paper showed was if
+you give your model enough data,
+
+856
+00:55:40,740 --> 00:55:45,660
+then it will actually learn
+how to classify, I guess,
+
+857
+00:55:45,660 --> 00:55:47,280
+your images in these classes.
+
+858
+00:55:47,280 --> 00:55:51,420
+So this was kind of
+a remarkable result.
+
+859
+00:55:51,420 --> 00:55:53,380
+So I think this was
+pretty remarkable
+
+860
+00:55:53,380 --> 00:55:57,140
+and a nice extension
+of everything we saw.
+
+861
+00:55:57,140 --> 00:56:01,140
+So with that in mind,
+I want us to just go
+
+862
+00:56:01,140 --> 00:56:06,980
+through an end to end example of
+how you would process an image
+
+863
+00:56:06,980 --> 00:56:12,180
+and go through that VIT,
+so vision transformer,
+
+864
+00:56:12,180 --> 00:56:15,520
+in order to make
+your prediction.
+
+865
+00:56:15,520 --> 00:56:18,580
+So here, you would take
+your favorite image
+
+866
+00:56:18,580 --> 00:56:21,780
+that you would just
+split into patches.
+
+867
+00:56:21,780 --> 00:56:27,260
+So here, you can think of you
+predefining some fixed size
+
+868
+00:56:27,260 --> 00:56:29,420
+patches.
+
+869
+00:56:29,420 --> 00:56:31,680
+So here, I would say
+3 by 3, let's say.
+
+870
+00:56:31,680 --> 00:56:37,260
+And then each patch has
+some fixed number of pixels.
+
+871
+00:56:37,260 --> 00:56:40,700
+And then what you do
+is for each patch,
+
+872
+00:56:40,700 --> 00:56:45,540
+you try to have some
+vector representation.
+
+873
+00:56:45,540 --> 00:56:49,300
+So you can think
+of each patch as--
+
+874
+00:56:49,300 --> 00:56:50,680
+so what is the patch.
+
+875
+00:56:50,680 --> 00:56:53,220
+So it's composed of pixels.
+
+876
+00:56:53,220 --> 00:56:56,700
+So if each pixel has
+three values which
+
+877
+00:56:56,700 --> 00:56:59,660
+correspond to red,
+green, and blue,
+
+878
+00:56:59,660 --> 00:57:05,580
+then you can find a way to
+project those on some lower
+
+879
+00:57:05,580 --> 00:57:08,900
+dimensional flattened space.
+
+880
+00:57:08,900 --> 00:57:11,780
+And you can learn how
+you would project that
+
+881
+00:57:11,780 --> 00:57:14,870
+through some kind
+of linear layer.
+
+882
+00:57:14,870 --> 00:57:22,950
+So long story short, you just
+find a way to associate a vector
+
+883
+00:57:22,950 --> 00:57:29,470
+to each of these patches,
+which you then represent
+
+884
+00:57:29,470 --> 00:57:31,750
+every single one of your input.
+
+885
+00:57:31,750 --> 00:57:35,230
+And then you have, of course,
+a special embedding for the CLS
+
+886
+00:57:35,230 --> 00:57:38,830
+token, which you can
+also learn, and you
+
+887
+00:57:38,830 --> 00:57:42,470
+add the position embedding.
+
+888
+00:57:42,470 --> 00:57:45,470
+So you do the same for
+all of your inputs.
+
+889
+00:57:45,470 --> 00:57:48,990
+And then very similar
+to BERT, Just put that
+
+890
+00:57:48,990 --> 00:57:50,430
+through your encoder.
+
+891
+00:57:50,430 --> 00:57:54,110
+Let everyone interact
+with everyone.
+
+892
+00:57:54,110 --> 00:57:57,230
+And then at the end of the
+day, what you care about
+
+893
+00:57:57,230 --> 00:58:01,870
+is a representation of the
+input that is meaningful.
+
+894
+00:58:01,870 --> 00:58:05,430
+So typically, people take
+the encoder embedding
+
+895
+00:58:05,430 --> 00:58:07,510
+of the CLS token.
+
+896
+00:58:07,510 --> 00:58:09,790
+So the reason why
+they take that is one,
+
+897
+00:58:09,790 --> 00:58:11,290
+because it's a convention.
+
+898
+00:58:11,290 --> 00:58:15,350
+But the second one
+is this CLS token.
+
+899
+00:58:15,350 --> 00:58:19,790
+So the encoded
+embedding is actually
+
+900
+00:58:19,790 --> 00:58:24,510
+an embedding that has
+interacted with all other tokens
+
+901
+00:58:24,510 --> 00:58:27,510
+through this
+self-attention mechanism.
+
+902
+00:58:27,510 --> 00:58:29,950
+So it has seen everything.
+
+903
+00:58:29,950 --> 00:58:35,390
+And then you would project
+that CLS token encoded
+
+904
+00:58:35,390 --> 00:58:38,870
+embedding onto some
+class through a feed
+
+905
+00:58:38,870 --> 00:58:45,110
+forward neural network in order
+to predict your final class.
+
+906
+00:58:45,110 --> 00:58:47,770
+So in this case, we know it's
+a picture of a Teddy bear.
+
+907
+00:58:47,770 --> 00:58:50,550
+So here, we would want
+the model to classify
+
+908
+00:58:50,550 --> 00:58:51,690
+this as a Teddy bear.
+
+909
+00:58:54,390 --> 00:58:56,230
+So far so good?
+
+910
+00:58:56,230 --> 00:58:57,250
+Does that make sense?
+
+911
+00:59:00,710 --> 00:59:01,730
+Cool.
+
+912
+00:59:01,730 --> 00:59:08,550
+So now we know how to process
+image input right now.
+
+913
+00:59:08,550 --> 00:59:17,550
+So another question is, how
+would you have your LLM answer
+
+914
+00:59:17,550 --> 00:59:20,368
+questions about your image,
+which is something that you
+
+915
+00:59:20,368 --> 00:59:21,410
+can do actually nowadays.
+
+916
+00:59:21,410 --> 00:59:25,150
+If you open ChatGPT,
+you can input an image
+
+917
+00:59:25,150 --> 00:59:28,430
+and ask it questions.
+
+918
+00:59:28,430 --> 00:59:32,770
+So you would have
+two kinds of inputs.
+
+919
+00:59:32,770 --> 00:59:38,030
+So you would have an image which
+we can find a way to represent,
+
+920
+00:59:38,030 --> 00:59:41,750
+and then the text, which
+you now know very well how
+
+921
+00:59:41,750 --> 00:59:44,910
+to represent with tokens.
+
+922
+00:59:44,910 --> 00:59:48,910
+So the way you would
+allow the model
+
+923
+00:59:48,910 --> 00:59:54,070
+or let the model
+process all of this
+
+924
+00:59:54,070 --> 00:59:56,850
+is typically as follows-- so
+there are a couple of methods.
+
+925
+00:59:56,850 --> 01:00:00,470
+The first one is the most
+common one, which is you just
+
+926
+01:00:00,470 --> 01:00:03,190
+feed everything as input.
+
+927
+01:00:03,190 --> 01:00:08,600
+So the image token as input,
+the text tokens as inputs.
+
+928
+01:00:08,600 --> 01:00:12,550
+And you have some representation
+to have the model just
+
+929
+01:00:12,550 --> 01:00:16,000
+know that these are image
+tokens and this is text token.
+
+930
+01:00:16,000 --> 01:00:20,480
+And then you let it
+generate an answer
+
+931
+01:00:20,480 --> 01:00:24,040
+in a decoder only fashion,
+autoregressive fashion
+
+932
+01:00:24,040 --> 01:00:27,400
+exactly like you would do it.
+
+933
+01:00:27,400 --> 01:00:30,480
+The first method and
+a lot of such models
+
+934
+01:00:30,480 --> 01:00:33,000
+are designed that way.
+
+935
+01:00:33,000 --> 01:00:38,300
+So there is, for instance,
+a very popular open weight,
+
+936
+01:00:38,300 --> 01:00:42,100
+I believe vision
+language model, VLM--
+
+937
+01:00:42,100 --> 01:00:46,240
+that's what they are called
+a model called LAVA--
+
+938
+01:00:46,240 --> 01:00:47,420
+And this is how they do it.
+
+939
+01:00:47,420 --> 01:00:51,160
+So they have some encoder
+on the image parts
+
+940
+01:00:51,160 --> 01:00:55,240
+that produces some
+tokens that are then
+
+941
+01:00:55,240 --> 01:01:00,520
+concatenated with text tokens
+that are inputs into the LLM.
+
+942
+01:01:00,520 --> 01:01:03,400
+So that's one method.
+
+943
+01:01:03,400 --> 01:01:06,080
+The second method,
+which is less common,
+
+944
+01:01:06,080 --> 01:01:15,400
+is to have the images be inputs
+at the cross-attention layer.
+
+945
+01:01:15,400 --> 01:01:19,920
+So here, what you would do
+is you have your text inputs.
+
+946
+01:01:19,920 --> 01:01:23,580
+And then your image inputs,
+you don't put it in the inputs.
+
+947
+01:01:23,580 --> 01:01:27,720
+You actually let it interact
+with the text tokens
+
+948
+01:01:27,720 --> 01:01:31,760
+within the
+cross-attention layer.
+
+949
+01:01:31,760 --> 01:01:35,080
+And this is something
+that, for instance, Llama 3
+
+950
+01:01:35,080 --> 01:01:38,440
+had represented in their paper.
+
+951
+01:01:38,440 --> 01:01:40,500
+This technique is
+typically less common.
+
+952
+01:01:40,500 --> 01:01:45,040
+The first one is more common.
+
+953
+01:01:45,040 --> 01:01:51,520
+So I guess what I want
+to say is CME 295 focused
+
+954
+01:01:51,520 --> 01:01:56,320
+on the transformer specifically
+in the case of text
+
+955
+01:01:56,320 --> 01:01:58,080
+to text problems.
+
+956
+01:01:58,080 --> 01:02:02,360
+So text generation
+is all this class.
+
+957
+01:02:02,360 --> 01:02:06,040
+But we also have the
+transformer that was
+
+958
+01:02:06,040 --> 01:02:08,820
+used for non-text applications.
+
+959
+01:02:08,820 --> 01:02:11,180
+So here, we saw
+image understanding.
+
+960
+01:02:11,180 --> 01:02:14,160
+So vision
+understanding with VIT.
+
+961
+01:02:14,160 --> 01:02:18,460
+And then we will not have
+the time to see this now.
+
+962
+01:02:18,460 --> 01:02:22,560
+But also for image
+generation tasks,
+
+963
+01:02:22,560 --> 01:02:25,960
+we can also have parts
+of the transformer
+
+964
+01:02:25,960 --> 01:02:29,320
+be used in that architecture.
+
+965
+01:02:29,320 --> 01:02:33,600
+And so you may hear about
+diffusion transformer
+
+966
+01:02:33,600 --> 01:02:36,920
+or multimodal
+diffusion transformer
+
+967
+01:02:36,920 --> 01:02:41,000
+that actually rely on the
+self-attention mechanism.
+
+968
+01:02:41,000 --> 01:02:45,040
+And this is actually
+not an exhaustive list.
+
+969
+01:02:45,040 --> 01:02:47,040
+This is also something
+that has been
+
+970
+01:02:47,040 --> 01:02:54,080
+used in other domains like
+recommendation speech and so on.
+
+971
+01:02:54,080 --> 01:02:56,720
+So I guess what I
+want you to remember
+
+972
+01:02:56,720 --> 01:03:04,650
+from this is that transformers
+was an architecture that
+
+973
+01:03:04,650 --> 01:03:08,970
+performed very well for
+machine translation tasks.
+
+974
+01:03:08,970 --> 01:03:13,090
+But then it proved
+to perform very well
+
+975
+01:03:13,090 --> 01:03:16,170
+for other text related tasks.
+
+976
+01:03:16,170 --> 01:03:18,170
+And it was then
+reused in a bunch
+
+977
+01:03:18,170 --> 01:03:22,610
+of other domains, which also
+proved to be quite successful.
+
+978
+01:03:22,610 --> 01:03:24,890
+So I would just encourage
+you, after this class,
+
+979
+01:03:24,890 --> 01:03:30,610
+to also keep an open mind for
+non-text related transformer
+
+980
+01:03:30,610 --> 01:03:32,210
+applications.
+
+981
+01:03:32,210 --> 01:03:34,450
+And the ones that
+I mentioned here
+
+982
+01:03:34,450 --> 01:03:38,410
+are maybe just a few first few
+pointers into the kind of papers
+
+983
+01:03:38,410 --> 01:03:41,770
+that you can look at.
+
+984
+01:03:41,770 --> 01:03:42,670
+Cool.
+
+985
+01:03:42,670 --> 01:03:45,250
+So here, we said
+that transformer
+
+986
+01:03:45,250 --> 01:03:50,570
+was something that came from the
+text world that's also useful
+
+987
+01:03:50,570 --> 01:03:53,370
+and used in other worlds.
+
+988
+01:03:53,370 --> 01:03:56,930
+Now I want to tell you
+about something else that
+
+989
+01:03:56,930 --> 01:04:04,050
+was, I guess, used and useful
+in the non-text worlds that may
+
+990
+01:04:04,050 --> 01:04:06,970
+be useful in the text world.
+
+991
+01:04:06,970 --> 01:04:11,770
+And I want to tell you
+about diffusion-based LLMs.
+
+992
+01:04:11,770 --> 01:04:15,530
+So who has heard
+the term diffusion?
+
+993
+01:04:15,530 --> 01:04:18,250
+Who knows about diffusion?
+
+994
+01:04:18,250 --> 01:04:19,930
+Yeah.
+
+995
+01:04:19,930 --> 01:04:20,430
+Cool.
+
+996
+01:04:20,430 --> 01:04:23,070
+So we will see how we
+can apply that to LLMs.
+
+997
+01:04:23,070 --> 01:04:25,310
+So this is a very trendy topic.
+
+998
+01:04:25,310 --> 01:04:29,070
+I believe the first paper
+started in the early 2020s,
+
+999
+01:04:29,070 --> 01:04:34,650
+but I guess it's only now that
+people are starting to have this
+
+1000
+01:04:34,650 --> 01:04:37,850
+really work.
+
+1001
+01:04:37,850 --> 01:04:40,530
+I just want to start with
+the motivation, which
+
+1002
+01:04:40,530 --> 01:04:46,370
+is that up until now, we have
+taken for granted the fact
+
+1003
+01:04:46,370 --> 01:04:50,530
+that our LLM is an
+autoregressive LLM.
+
+1004
+01:04:50,530 --> 01:04:54,290
+And by autoregressive,
+what do I mean by that?
+
+1005
+01:04:54,290 --> 01:04:58,100
+So it takes some input.
+
+1006
+01:04:58,100 --> 01:05:03,580
+And what the LLM tries to do
+is to predict the next token.
+
+1007
+01:05:03,580 --> 01:05:08,860
+So given everything so far,
+we predict the next token.
+
+1008
+01:05:08,860 --> 01:05:12,260
+We do that, and then
+we take that token
+
+1009
+01:05:12,260 --> 01:05:14,420
+that we just predicted,
+along with everything
+
+1010
+01:05:14,420 --> 01:05:17,620
+that we have predicted so far.
+
+1011
+01:05:17,620 --> 01:05:22,580
+And then we, again,
+predict the next token.
+
+1012
+01:05:22,580 --> 01:05:26,380
+We predict it and we
+go again and again,
+
+1013
+01:05:26,380 --> 01:05:29,900
+up until finishing the sequence
+with that end of sequence
+
+1014
+01:05:29,900 --> 01:05:33,620
+token, which makes
+the generation stop.
+
+1015
+01:05:33,620 --> 01:05:37,340
+So this is a true
+autoregressive generation,
+
+1016
+01:05:37,340 --> 01:05:40,700
+as in we take the
+input so far in order
+
+1017
+01:05:40,700 --> 01:05:43,500
+to predict the next token.
+
+1018
+01:05:43,500 --> 01:05:47,000
+And then we repeat this
+process until the end.
+
+1019
+01:05:49,820 --> 01:05:53,540
+So it's something
+that people now
+
+1020
+01:05:53,540 --> 01:05:58,540
+try to give it a name, which
+is like autoregressive model
+
+1021
+01:05:58,540 --> 01:05:59,400
+kind of model.
+
+1022
+01:05:59,400 --> 01:06:06,620
+So ARM, if you see this
+notation, that's what it means.
+
+1023
+01:06:06,620 --> 01:06:08,820
+The problem with
+that kind of paradigm
+
+1024
+01:06:08,820 --> 01:06:13,580
+is that inference time
+generation is actually
+
+1025
+01:06:13,580 --> 01:06:16,700
+not something you
+can parallelize,
+
+1026
+01:06:16,700 --> 01:06:20,540
+because you always need
+what's before in order
+
+1027
+01:06:20,540 --> 01:06:21,800
+to predict the next one.
+
+1028
+01:06:24,420 --> 01:06:27,820
+But I just want to say that
+inference time generation is not
+
+1029
+01:06:27,820 --> 01:06:34,500
+parallelizable, but
+training is parallelizable.
+
+1030
+01:06:34,500 --> 01:06:37,180
+So if you remember, the
+way we do training is we
+
+1031
+01:06:37,180 --> 01:06:44,460
+input all the tokens that
+we want our model to predict
+
+1032
+01:06:44,460 --> 01:06:51,960
+and then we let the model
+generate tokens out of this.
+
+1033
+01:06:51,960 --> 01:06:54,020
+So basically in a
+decoder only setting
+
+1034
+01:06:54,020 --> 01:06:58,900
+you have this causal mask
+which lets your model not
+
+1035
+01:06:58,900 --> 01:07:04,100
+cheat if you want and
+not use the future ones.
+
+1036
+01:07:04,100 --> 01:07:08,420
+So I just want to say that when
+I say that this paradigm is not
+
+1037
+01:07:08,420 --> 01:07:10,660
+parallelizable, I just want
+to emphasize on the fact
+
+1038
+01:07:10,660 --> 01:07:12,860
+that it's an inference
+time that I'm saying.
+
+1039
+01:07:12,860 --> 01:07:15,720
+Training time, you can actually
+parallelize that quite well.
+
+1040
+01:07:18,340 --> 01:07:21,660
+So as I mentioned,
+that's one of the reasons
+
+1041
+01:07:21,660 --> 01:07:26,060
+why people have tried to
+look at other paradigms.
+
+1042
+01:07:26,060 --> 01:07:29,580
+And in particular, so if
+you know about diffusion,
+
+1043
+01:07:29,580 --> 01:07:33,740
+you know that it works very
+well for the vision domain.
+
+1044
+01:07:33,740 --> 01:07:38,020
+And so people have tried
+adapting this paradigm
+
+1045
+01:07:38,020 --> 01:07:41,220
+for the text generation case.
+
+1046
+01:07:41,220 --> 01:07:43,420
+And so this is a
+bunch of screenshots
+
+1047
+01:07:43,420 --> 01:07:47,120
+we took from an announcement
+that happened this year.
+
+1048
+01:07:47,120 --> 01:07:49,380
+So for instance,
+earlier this year,
+
+1049
+01:07:49,380 --> 01:07:53,590
+there was an experimental text
+diffusion model from Google
+
+1050
+01:07:53,590 --> 01:07:57,870
+that they presented during
+the I/O event, which
+
+1051
+01:07:57,870 --> 01:08:00,910
+was very impressive because
+it led to a lot of speed ups.
+
+1052
+01:08:00,910 --> 01:08:04,690
+And then we have some
+different startups.
+
+1053
+01:08:04,690 --> 01:08:07,310
+So Inception is one
+of them that made
+
+1054
+01:08:07,310 --> 01:08:10,470
+headlines I believe a couple
+of weeks ago, or last week.
+
+1055
+01:08:10,470 --> 01:08:13,150
+No, sorry, a month ago.
+
+1056
+01:08:13,150 --> 01:08:15,990
+That also are
+pursuing this route.
+
+1057
+01:08:15,990 --> 01:08:19,550
+So all of that to say
+that this direction is
+
+1058
+01:08:19,550 --> 01:08:23,830
+a very trendy and hot
+direction that potentially
+
+1059
+01:08:23,830 --> 01:08:27,029
+has a lot of promise.
+
+1060
+01:08:27,029 --> 01:08:34,069
+But the key issue with this
+is that text is discrete,
+
+1061
+01:08:34,069 --> 01:08:37,990
+whereas images are continuous.
+
+1062
+01:08:37,990 --> 01:08:42,149
+And we're going to see why that
+distinction that I just made
+
+1063
+01:08:42,149 --> 01:08:43,910
+matters.
+
+1064
+01:08:43,910 --> 01:08:46,189
+So I'm going to try
+to explain to you what
+
+1065
+01:08:46,189 --> 01:08:49,189
+diffusion is in two minutes.
+
+1066
+01:08:49,189 --> 01:08:54,870
+So in the image world,
+in order to generate
+
+1067
+01:08:54,870 --> 01:09:02,189
+an image, what people typically
+do is they start from noise,
+
+1068
+01:09:02,189 --> 01:09:06,470
+and then they try to
+generate some image.
+
+1069
+01:09:06,470 --> 01:09:09,109
+Now you may wonder,
+OK, why noise.
+
+1070
+01:09:09,109 --> 01:09:15,170
+Well, you cannot do something
+autoregressive because I guess,
+
+1071
+01:09:15,170 --> 01:09:17,990
+if you were to say, OK,
+let's predict the pixels one
+
+1072
+01:09:17,990 --> 01:09:21,830
+at a time, it's just not
+tractable because there are many
+
+1073
+01:09:21,830 --> 01:09:23,210
+pixels in an image.
+
+1074
+01:09:23,210 --> 01:09:26,910
+And this is typically not how
+you would produce an image.
+
+1075
+01:09:26,910 --> 01:09:32,189
+But some other reasons are
+that noise is just something
+
+1076
+01:09:32,189 --> 01:09:35,630
+that you can model very
+well with some very
+
+1077
+01:09:35,630 --> 01:09:36,810
+popular distributions.
+
+1078
+01:09:36,810 --> 01:09:39,910
+So Gaussian distribution,
+if you about it,
+
+1079
+01:09:39,910 --> 01:09:43,029
+it has very nice properties.
+
+1080
+01:09:43,029 --> 01:09:44,950
+Also, noise is very
+easy to sample.
+
+1081
+01:09:44,950 --> 01:09:48,279
+So it's very easy
+to start with that.
+
+1082
+01:09:48,279 --> 01:09:52,800
+Noise is also a way for you
+to introduce randomness,
+
+1083
+01:09:52,800 --> 01:09:55,000
+because you don't necessarily
+want to always produce
+
+1084
+01:09:55,000 --> 01:09:55,940
+the same image.
+
+1085
+01:09:55,940 --> 01:10:02,760
+You want to have, I guess,
+choice of generating images
+
+1086
+01:10:02,760 --> 01:10:05,920
+that are slightly
+different from one another.
+
+1087
+01:10:05,920 --> 01:10:09,600
+And just mathematically,
+it works quite well.
+
+1088
+01:10:09,600 --> 01:10:14,360
+And speaking of
+that, the goal is
+
+1089
+01:10:14,360 --> 01:10:18,320
+to learn some
+transformation that
+
+1090
+01:10:18,320 --> 01:10:24,320
+would allow you to go from
+noise to the target image
+
+1091
+01:10:24,320 --> 01:10:26,680
+distribution.
+
+1092
+01:10:26,680 --> 01:10:30,800
+So all of what I said here
+is just reasons for me
+
+1093
+01:10:30,800 --> 01:10:33,960
+to tell you noise
+is actually a choice
+
+1094
+01:10:33,960 --> 01:10:37,080
+that is quite
+natural to start with
+
+1095
+01:10:37,080 --> 01:10:39,920
+in order to generate an image.
+
+1096
+01:10:39,920 --> 01:10:47,160
+And to give you an analogy,
+let's suppose you're a sculptor.
+
+1097
+01:10:47,160 --> 01:10:50,000
+So the person who
+does sculptures.
+
+1098
+01:10:50,000 --> 01:10:52,100
+So if you want to
+do a sculpture,
+
+1099
+01:10:52,100 --> 01:10:57,880
+you typically start
+with some rock.
+
+1100
+01:10:57,880 --> 01:11:01,300
+But then rocks are
+different from one another.
+
+1101
+01:11:01,300 --> 01:11:05,440
+They always have things
+that are unique to them.
+
+1102
+01:11:05,440 --> 01:11:13,080
+And still, you would focus
+on what to remove in order
+
+1103
+01:11:13,080 --> 01:11:16,640
+to obtain the end sculpture.
+
+1104
+01:11:16,640 --> 01:11:20,400
+So you can think of the
+rock as being your noise,
+
+1105
+01:11:20,400 --> 01:11:26,200
+and your end result as being
+your target data distribution.
+
+1106
+01:11:26,200 --> 01:11:29,160
+So I just want to have
+this quote by Michelangelo.
+
+1107
+01:11:29,160 --> 01:11:31,600
+So the sculpture is already
+complete within the marble
+
+1108
+01:11:31,600 --> 01:11:32,560
+block.
+
+1109
+01:11:32,560 --> 01:11:35,260
+Before I start my work,
+it is already there.
+
+1110
+01:11:35,260 --> 01:11:38,560
+I just have to chisel away
+the superfluous material.
+
+1111
+01:11:38,560 --> 01:11:40,480
+The reason why I'm
+reading that is you
+
+1112
+01:11:40,480 --> 01:11:45,700
+can have a nice analogy
+between what Michelangelo said
+
+1113
+01:11:45,700 --> 01:11:54,640
+and the process of de-noising
+the noise to get an image.
+
+1114
+01:11:54,640 --> 01:11:58,300
+So this is all just motivating
+how image generation is done.
+
+1115
+01:11:58,300 --> 01:12:03,600
+So you start from noise, and
+you want to generate an image.
+
+1116
+01:12:03,600 --> 01:12:05,880
+So the way you do
+that for diffusion
+
+1117
+01:12:05,880 --> 01:12:09,640
+is to learn some
+transformation that would allow
+
+1118
+01:12:09,640 --> 01:12:13,580
+you to go from noise to image.
+
+1119
+01:12:16,160 --> 01:12:17,518
+So you have two steps.
+
+1120
+01:12:17,518 --> 01:12:19,060
+I mean, you have
+more than two steps,
+
+1121
+01:12:19,060 --> 01:12:21,840
+but we have these two main
+steps for diffusion models
+
+1122
+01:12:21,840 --> 01:12:28,360
+where you first want to
+start from clean images.
+
+1123
+01:12:28,360 --> 01:12:33,520
+And you add noise
+gradually until you
+
+1124
+01:12:33,520 --> 01:12:37,560
+obtain some very noisy image.
+
+1125
+01:12:37,560 --> 01:12:43,370
+And then from that, what
+diffusion models try to do
+
+1126
+01:12:43,370 --> 01:12:48,210
+is to predict the noise
+to remove in order
+
+1127
+01:12:48,210 --> 01:12:51,050
+to obtain the image.
+
+1128
+01:12:51,050 --> 01:12:55,890
+So it's a little bit like
+you're the sculpture person.
+
+1129
+01:12:55,890 --> 01:12:57,070
+And you have your rock.
+
+1130
+01:12:57,070 --> 01:12:59,730
+You just want to learn
+what pieces of rock
+
+1131
+01:12:59,730 --> 01:13:05,170
+you need to remove in order to
+obtain your final piece of art.
+
+1132
+01:13:05,170 --> 01:13:07,690
+So this is what diffusion is.
+
+1133
+01:13:07,690 --> 01:13:12,310
+So it works pretty well
+because noise, as I mentioned,
+
+1134
+01:13:12,310 --> 01:13:15,450
+is typically something
+that people draw
+
+1135
+01:13:15,450 --> 01:13:18,250
+from a Gaussian distribution.
+
+1136
+01:13:18,250 --> 01:13:21,010
+Gaussian distributions
+are mathematically
+
+1137
+01:13:21,010 --> 01:13:25,010
+very well defined, have
+a lot of nice properties.
+
+1138
+01:13:25,010 --> 01:13:28,610
+So that's why they work so well.
+
+1139
+01:13:28,610 --> 01:13:30,570
+But now the question
+is, how would you
+
+1140
+01:13:30,570 --> 01:13:33,430
+adapt this to the text world.
+
+1141
+01:13:33,430 --> 01:13:35,530
+Because in the text
+world, as you know,
+
+1142
+01:13:35,530 --> 01:13:38,730
+we're talking about tokens.
+
+1143
+01:13:38,730 --> 01:13:41,130
+Tokens are discrete.
+
+1144
+01:13:41,130 --> 01:13:44,370
+So there's not this
+concept adding noise.
+
+1145
+01:13:44,370 --> 01:13:47,290
+You cannot have that.
+
+1146
+01:13:47,290 --> 01:13:52,290
+So what people have
+tried to do was
+
+1147
+01:13:52,290 --> 01:13:56,370
+to find a text equivalent
+that would make sense.
+
+1148
+01:13:56,370 --> 01:14:00,130
+And this is what
+the current research
+
+1149
+01:14:00,130 --> 01:14:05,650
+points to which is
+that noise is to images
+
+1150
+01:14:05,650 --> 01:14:08,990
+what the mask token is to text.
+
+1151
+01:14:11,650 --> 01:14:16,290
+So mask is just a way
+for us to just not
+
+1152
+01:14:16,290 --> 01:14:21,330
+have the information coming
+from one part of the sequence.
+
+1153
+01:14:21,330 --> 01:14:25,370
+And I just want to go through
+the revised 2-step process that
+
+1154
+01:14:25,370 --> 01:14:28,050
+we saw here for text.
+
+1155
+01:14:28,050 --> 01:14:32,130
+So here, for the
+forward process,
+
+1156
+01:14:32,130 --> 01:14:35,410
+instead of noising
+your input, you
+
+1157
+01:14:35,410 --> 01:14:41,270
+would just have more and more
+inputs that would be masked.
+
+1158
+01:14:44,250 --> 01:14:45,750
+So that's the full process.
+
+1159
+01:14:45,750 --> 01:14:48,650
+And at the end, you would
+just obtain a sequence
+
+1160
+01:14:48,650 --> 01:14:52,330
+full of masked tokens.
+
+1161
+01:14:52,330 --> 01:14:59,490
+So what you want to do is
+to learn some model that
+
+1162
+01:14:59,490 --> 01:15:06,090
+allows you to unmask these
+masked tokens in a way that
+
+1163
+01:15:06,090 --> 01:15:10,610
+reconstructs the
+original sentence.
+
+1164
+01:15:10,610 --> 01:15:12,983
+So there's some math
+that goes into it.
+
+1165
+01:15:12,983 --> 01:15:14,650
+Obviously, in a few
+minutes, we will not
+
+1166
+01:15:14,650 --> 01:15:15,870
+have time to go into that.
+
+1167
+01:15:15,870 --> 01:15:19,650
+But I just want to emphasize
+on the key idea, which
+
+1168
+01:15:19,650 --> 01:15:24,330
+is you want to do
+diffusion, but in a way that
+
+1169
+01:15:24,330 --> 01:15:27,050
+makes sense for text inputs.
+
+1170
+01:15:27,050 --> 01:15:29,850
+And the way it
+would make sense is
+
+1171
+01:15:29,850 --> 01:15:33,650
+to consider the noise
+for images as being
+
+1172
+01:15:33,650 --> 01:15:38,120
+mask tokens for text input.
+
+1173
+01:15:41,780 --> 01:15:42,380
+Cool.
+
+1174
+01:15:42,380 --> 01:15:44,872
+And so with that
+in mind, you have
+
+1175
+01:15:44,872 --> 01:15:46,580
+a bunch of models that
+are being released
+
+1176
+01:15:46,580 --> 01:15:54,900
+these days which are called
+masked diffusion models, MDM.
+
+1177
+01:15:54,900 --> 01:15:58,580
+So whenever you see MDM, now
+you know what kind of model
+
+1178
+01:15:58,580 --> 01:16:00,300
+we're talking about.
+
+1179
+01:16:00,300 --> 01:16:07,280
+So notations are still
+not very well defined.
+
+1180
+01:16:07,280 --> 01:16:09,740
+So it may change in the future.
+
+1181
+01:16:09,740 --> 01:16:11,780
+But one other term
+you will see out there
+
+1182
+01:16:11,780 --> 01:16:18,140
+is also DLLM,
+diffusion based LLM.
+
+1183
+01:16:18,140 --> 01:16:20,560
+And this is what it's doing.
+
+1184
+01:16:20,560 --> 01:16:26,660
+So instead of predicting a token
+in an autoregressive fashion one
+
+1185
+01:16:26,660 --> 01:16:31,140
+at a time, what it does
+is that at inference time,
+
+1186
+01:16:31,140 --> 01:16:37,220
+it goes from a completely
+masked input sequence.
+
+1187
+01:16:37,220 --> 01:16:41,820
+And it tries to predict what
+tokens were behind these mask
+
+1188
+01:16:41,820 --> 01:16:44,340
+tokens.
+
+1189
+01:16:44,340 --> 01:16:47,340
+So of course, in a
+real life setting,
+
+1190
+01:16:47,340 --> 01:16:49,660
+you would have
+some prompts here.
+
+1191
+01:16:49,660 --> 01:16:51,020
+You would have some prompts.
+
+1192
+01:16:51,020 --> 01:16:54,860
+So of course, in order
+to predict these answer,
+
+1193
+01:16:54,860 --> 01:16:57,180
+you would have
+some conditioning.
+
+1194
+01:16:57,180 --> 01:16:58,600
+So you would tell
+your model, OK,
+
+1195
+01:16:58,600 --> 01:17:01,660
+given this prompts you're going
+to start with all these mask
+
+1196
+01:17:01,660 --> 01:17:02,580
+tokens.
+
+1197
+01:17:02,580 --> 01:17:08,420
+Just try to predict
+what the answer is.
+
+1198
+01:17:08,420 --> 01:17:12,700
+So in case you're having
+trouble with the intuition--
+
+1199
+01:17:12,700 --> 01:17:14,420
+so I also had trouble
+in the beginning.
+
+1200
+01:17:14,420 --> 01:17:18,180
+Why would it make
+sense for texts
+
+1201
+01:17:18,180 --> 01:17:20,740
+to be solved in a
+diffusion manner.
+
+1202
+01:17:20,740 --> 01:17:22,160
+Because typically,
+when you write,
+
+1203
+01:17:22,160 --> 01:17:24,100
+you write one word at a time.
+
+1204
+01:17:24,100 --> 01:17:27,700
+So one helpful way
+to think about this
+
+1205
+01:17:27,700 --> 01:17:33,500
+is let's suppose you
+want to write a speech.
+
+1206
+01:17:33,500 --> 01:17:38,670
+So you would not directly write
+your speech in a linear way.
+
+1207
+01:17:38,670 --> 01:17:41,970
+You would first
+have a rough plan.
+
+1208
+01:17:41,970 --> 01:17:44,610
+You say, OK, I'm going to talk
+about this in the first place,
+
+1209
+01:17:44,610 --> 01:17:45,530
+second, third.
+
+1210
+01:17:45,530 --> 01:17:47,830
+You have some kind of drafts.
+
+1211
+01:17:47,830 --> 01:17:53,270
+And then you try to refine what
+is in each of these sections.
+
+1212
+01:17:53,270 --> 01:17:57,990
+So you can think of diffusion
+as kind of working like this.
+
+1213
+01:17:57,990 --> 01:18:06,150
+So it tries to have a coarse to
+find refinement of the outputs
+
+1214
+01:18:06,150 --> 01:18:09,230
+so it can predict things that
+are after a certain token that
+
+1215
+01:18:09,230 --> 01:18:10,250
+has not been predicted.
+
+1216
+01:18:10,250 --> 01:18:14,910
+But you can think of
+this as being something
+
+1217
+01:18:14,910 --> 01:18:18,830
+that goes from a very drafty
+version to a very refined
+
+1218
+01:18:18,830 --> 01:18:21,550
+version.
+
+1219
+01:18:21,550 --> 01:18:24,450
+So that's what I think
+about this process.
+
+1220
+01:18:24,450 --> 01:18:26,350
+Hopefully, that's helpful.
+
+1221
+01:18:26,350 --> 01:18:31,830
+And the key advantage here is
+that the decoding is now done
+
+1222
+01:18:31,830 --> 01:18:36,790
+in much fewer forward passes,
+because previously you
+
+1223
+01:18:36,790 --> 01:18:44,430
+had to do as many forward passes
+as there are tokens to predict.
+
+1224
+01:18:44,430 --> 01:18:49,750
+But here for diffusion, you
+only need to do as many passes
+
+1225
+01:18:49,750 --> 01:18:54,030
+as there are steps in
+your diffusion process,
+
+1226
+01:18:54,030 --> 01:18:57,830
+and the number of steps
+is something you can fix.
+
+1227
+01:18:57,830 --> 01:19:00,510
+So the higher the step,
+the more high quality
+
+1228
+01:19:00,510 --> 01:19:04,790
+your output is, but it's
+typically much lower
+
+1229
+01:19:04,790 --> 01:19:09,630
+than the length of your output.
+
+1230
+01:19:09,630 --> 01:19:16,070
+So that is the core reason why
+this model is so much faster
+
+1231
+01:19:16,070 --> 01:19:19,230
+than the autoregressive one.
+
+1232
+01:19:19,230 --> 01:19:23,292
+And of course, we don't
+have that much time.
+
+1233
+01:19:23,292 --> 01:19:24,750
+But in case you're
+curious, in case
+
+1234
+01:19:24,750 --> 01:19:28,190
+you're interested, after the
+final, once you're completely
+
+1235
+01:19:28,190 --> 01:19:32,190
+freed in terms of
+things to think of,
+
+1236
+01:19:32,190 --> 01:19:36,632
+just put some references
+that could be helpful.
+
+1237
+01:19:36,632 --> 01:19:38,590
+There's a paper that came
+out earlier this year
+
+1238
+01:19:38,590 --> 01:19:47,090
+called LLaDA, large language
+diffusion model with masking.
+
+1239
+01:19:47,090 --> 01:19:49,010
+Actually, I don't
+remember the full acronym.
+
+1240
+01:19:49,010 --> 01:19:52,670
+But it is actually
+going through the math
+
+1241
+01:19:52,670 --> 01:19:56,510
+and why the thing that
+I just mentioned works.
+
+1242
+01:19:56,510 --> 01:19:58,190
+And then there's a
+bunch of other papers
+
+1243
+01:19:58,190 --> 01:19:59,970
+that would also be helpful.
+
+1244
+01:19:59,970 --> 01:20:02,790
+So the links are at
+the bottom of the slide
+
+1245
+01:20:02,790 --> 01:20:06,110
+in case you're interested.
+
+1246
+01:20:06,110 --> 01:20:09,470
+And I just want to go
+through two last things
+
+1247
+01:20:09,470 --> 01:20:12,470
+before giving it to Shervine.
+
+1248
+01:20:12,470 --> 01:20:17,150
+So first on the advantages
+of this new paradigm.
+
+1249
+01:20:17,150 --> 01:20:21,190
+So the first one is the speed.
+
+1250
+01:20:21,190 --> 01:20:24,270
+So as we mentioned, it's
+going to be much faster
+
+1251
+01:20:24,270 --> 01:20:28,080
+than traditional
+autoregressive models,
+
+1252
+01:20:28,080 --> 01:20:31,200
+especially for outputs
+that are longer.
+
+1253
+01:20:31,200 --> 01:20:34,600
+And so some benchmarks, they
+even say that it's something
+
+1254
+01:20:34,600 --> 01:20:38,600
+along the lines of 10x faster.
+
+1255
+01:20:38,600 --> 01:20:44,000
+So for cases like coding,
+it can be very powerful
+
+1256
+01:20:44,000 --> 01:20:48,160
+because you may have to
+do several model calls.
+
+1257
+01:20:48,160 --> 01:20:53,260
+And you as a user, you're just
+waiting for that code to happen.
+
+1258
+01:20:53,260 --> 01:20:58,280
+And just having a lower latency
+makes a lot of difference.
+
+1259
+01:20:58,280 --> 01:21:03,240
+The other thing is that
+the nature of this approach
+
+1260
+01:21:03,240 --> 01:21:07,520
+is actually considering
+the text as a whole
+
+1261
+01:21:07,520 --> 01:21:09,920
+in order to make
+the predictions.
+
+1262
+01:21:09,920 --> 01:21:13,760
+And so there is a
+category of coding tasks
+
+1263
+01:21:13,760 --> 01:21:20,280
+that are called fill in the
+middle, which is about trying
+
+1264
+01:21:20,280 --> 01:21:24,120
+to figure out-- you
+have a bunch of codes,
+
+1265
+01:21:24,120 --> 01:21:28,840
+and you want to know what's
+missing in the middle.
+
+1266
+01:21:28,840 --> 01:21:30,460
+And so fill in the middle.
+
+1267
+01:21:30,460 --> 01:21:34,200
+And diffusion models are
+typically better formulated
+
+1268
+01:21:34,200 --> 01:21:38,300
+for these kinds of tasks because
+they can consider, I guess,
+
+1269
+01:21:38,300 --> 01:21:41,920
+input from multiple directions.
+
+1270
+01:21:41,920 --> 01:21:46,560
+And that's why this
+approach can be probably
+
+1271
+01:21:46,560 --> 01:21:53,080
+something that can be useful
+for some applications.
+
+1272
+01:21:53,080 --> 01:21:56,080
+So in terms of the current
+work, so these models,
+
+1273
+01:21:56,080 --> 01:21:56,980
+they look great.
+
+1274
+01:21:56,980 --> 01:21:58,740
+What I mentioned
+to you looks great.
+
+1275
+01:21:58,740 --> 01:22:03,960
+But the performance was not on
+par with the current frontier
+
+1276
+01:22:03,960 --> 01:22:06,680
+models, at least for some time.
+
+1277
+01:22:06,680 --> 01:22:09,840
+But it's something
+that may change.
+
+1278
+01:22:09,840 --> 01:22:12,040
+So the papers that
+I mentioned, they
+
+1279
+01:22:12,040 --> 01:22:14,280
+are actually posting
+performance that
+
+1280
+01:22:14,280 --> 01:22:19,280
+is kind of catching up with the
+models that are autoregressive.
+
+1281
+01:22:19,280 --> 01:22:21,800
+So there is some
+promise in there.
+
+1282
+01:22:21,800 --> 01:22:24,560
+And then the other
+line of work is just
+
+1283
+01:22:24,560 --> 01:22:29,850
+to adapt all the techniques
+that people have come up with.
+
+1284
+01:22:29,850 --> 01:22:32,070
+Like for instance,
+reasoning chains,
+
+1285
+01:22:32,070 --> 01:22:36,790
+how do you adapt that
+for diffusion, and so on.
+
+1286
+01:22:36,790 --> 01:22:39,330
+There are so many techniques
+that are intrinsically
+
+1287
+01:22:39,330 --> 01:22:44,570
+more better suited for
+autoregressive kinds of models
+
+1288
+01:22:44,570 --> 01:22:49,650
+that can be adapted for that.
+
+1289
+01:22:49,650 --> 01:22:52,850
+And that's what
+people are working on.
+
+1290
+01:22:52,850 --> 01:22:57,970
+So long story short,
+what we saw was
+
+1291
+01:22:57,970 --> 01:23:03,550
+that things we saw in this class
+could be used in other domains.
+
+1292
+01:23:03,550 --> 01:23:08,570
+For instance, we saw
+the vision transformer
+
+1293
+01:23:08,570 --> 01:23:12,590
+that was boring the transformer
+for vision related tasks.
+
+1294
+01:23:12,590 --> 01:23:16,690
+But we also saw that
+things from other domains
+
+1295
+01:23:16,690 --> 01:23:20,250
+could also be used
+in the text world.
+
+1296
+01:23:20,250 --> 01:23:23,970
+And that's what we saw
+with diffusion LLMs.
+
+1297
+01:23:23,970 --> 01:23:27,090
+And so this is probably, of
+course, a subset of everything
+
+1298
+01:23:27,090 --> 01:23:30,090
+that's happening.
+
+1299
+01:23:30,090 --> 01:23:32,410
+And so with that, I
+think we're concluding
+
+1300
+01:23:32,410 --> 01:23:35,090
+our second item of our menu.
+
+1301
+01:23:35,090 --> 01:23:39,150
+And I'm going to just
+give it to Shervine.
+
+1302
+01:23:42,650 --> 01:23:44,570
+Thank you, Afshine.
+
+1303
+01:23:44,570 --> 01:23:48,090
+And with that, welcome to
+the last part of the season
+
+1304
+01:23:48,090 --> 01:23:50,730
+finale of CME 295.
+
+1305
+01:23:50,730 --> 01:23:54,010
+And as Afshine mentioned, now
+is the time for some closing
+
+1306
+01:23:54,010 --> 01:23:58,170
+thoughts and see
+what we can get away
+
+1307
+01:23:58,170 --> 01:24:05,690
+from this class and the concepts
+that are neighboring to it.
+
+1308
+01:24:05,690 --> 01:24:08,770
+So first, Afshine went
+through the concept
+
+1309
+01:24:08,770 --> 01:24:10,830
+of diffusion and images.
+
+1310
+01:24:10,830 --> 01:24:12,550
+And we saw some similarities.
+
+1311
+01:24:12,550 --> 01:24:14,570
+We could draw with text.
+
+1312
+01:24:14,570 --> 01:24:18,010
+And now we're going to see
+what kinds of inspirations
+
+1313
+01:24:18,010 --> 01:24:21,530
+have both modalities
+taken from each other.
+
+1314
+01:24:21,530 --> 01:24:25,890
+And we're going to see that
+actually, a lot of things
+
+1315
+01:24:25,890 --> 01:24:29,730
+can be reused.
+
+1316
+01:24:29,730 --> 01:24:32,170
+So the first thing
+that I want to mention
+
+1317
+01:24:32,170 --> 01:24:36,610
+in terms of what has been
+reused is the architecture part.
+
+1318
+01:24:36,610 --> 01:24:41,170
+So Afshine mentioned
+these diffusion concept
+
+1319
+01:24:41,170 --> 01:24:44,310
+that was born in
+the field of images,
+
+1320
+01:24:44,310 --> 01:24:47,130
+but that was taken
+for text, and was
+
+1321
+01:24:47,130 --> 01:24:51,650
+able to yield a lower latency
+like higher speed ups, which
+
+1322
+01:24:51,650 --> 01:24:54,050
+is great when you're an user.
+
+1323
+01:24:54,050 --> 01:24:57,570
+So this was one
+example of a win.
+
+1324
+01:24:57,570 --> 01:25:02,890
+And then on the other
+direction, traditionally, images
+
+1325
+01:25:02,890 --> 01:25:06,650
+have been dealing with
+convolutions mostly
+
+1326
+01:25:06,650 --> 01:25:10,890
+as model architecture type.
+
+1327
+01:25:10,890 --> 01:25:15,330
+But these papers saw that
+replacing convolutions
+
+1328
+01:25:15,330 --> 01:25:21,680
+with transformers was very good,
+even yielding better results.
+
+1329
+01:25:21,680 --> 01:25:24,700
+So all these latest
+diffusion-based papers
+
+1330
+01:25:24,700 --> 01:25:29,220
+in the field of images
+typically use transformers.
+
+1331
+01:25:29,220 --> 01:25:31,460
+And here, I'm linking
+one of the papers
+
+1332
+01:25:31,460 --> 01:25:36,980
+that Afshine already
+briefly went through.
+
+1333
+01:25:36,980 --> 01:25:41,980
+But not only is it the
+architecture side that
+
+1334
+01:25:41,980 --> 01:25:46,400
+is the subject of pollination
+between these modalities,
+
+1335
+01:25:46,400 --> 01:25:49,180
+you could even
+think of other kinds
+
+1336
+01:25:49,180 --> 01:25:51,620
+of components like the input.
+
+1337
+01:25:51,620 --> 01:25:54,700
+And for this one,
+I want to mention
+
+1338
+01:25:54,700 --> 01:25:57,860
+the example of DeepSeek OCR.
+
+1339
+01:25:57,860 --> 01:25:59,920
+So I don't know if you've
+heard of this paper.
+
+1340
+01:25:59,920 --> 01:26:02,260
+It just came out very recently.
+
+1341
+01:26:02,260 --> 01:26:06,520
+And contrary to what
+the name suggests,
+
+1342
+01:26:06,520 --> 01:26:13,300
+so OCR stands for optical
+character recognition.
+
+1343
+01:26:13,300 --> 01:26:17,780
+And it's usually a field
+that tries to converts
+
+1344
+01:26:17,780 --> 01:26:21,180
+some scanned image into text.
+
+1345
+01:26:21,180 --> 01:26:26,020
+But actually, that paper
+doesn't boast some improvements
+
+1346
+01:26:26,020 --> 01:26:28,860
+on the OCR task itself.
+
+1347
+01:26:28,860 --> 01:26:31,340
+Rather, it showed
+that you could learn
+
+1348
+01:26:31,340 --> 01:26:38,340
+some function that
+reconstructs text tokens based
+
+1349
+01:26:38,340 --> 01:26:40,460
+on vision tokens.
+
+1350
+01:26:40,460 --> 01:26:42,340
+And not only on vision tokens.
+
+1351
+01:26:42,340 --> 01:26:44,720
+On very few vision tokens.
+
+1352
+01:26:44,720 --> 01:26:48,060
+So it showed that
+the representation
+
+1353
+01:26:48,060 --> 01:26:53,820
+power of patches of images
+as tokens was very strong.
+
+1354
+01:26:53,820 --> 01:26:58,600
+And you have some researchers
+that bring some rationale to it
+
+1355
+01:26:58,600 --> 01:27:03,220
+like Hey Tokenizers are
+not the best tool anyway.
+
+1356
+01:27:03,220 --> 01:27:06,780
+And the things in patches
+convey the meaning of texts
+
+1357
+01:27:06,780 --> 01:27:09,660
+already with the
+example of emojis
+
+1358
+01:27:09,660 --> 01:27:11,780
+and so on that you
+would otherwise
+
+1359
+01:27:11,780 --> 01:27:17,140
+need to represent with
+way more tokens in text.
+
+1360
+01:27:17,140 --> 01:27:19,340
+And then another example
+I want to mention
+
+1361
+01:27:19,340 --> 01:27:23,100
+is even when you look
+inside the architectures,
+
+1362
+01:27:23,100 --> 01:27:28,620
+some of the tricks can be reused
+and adapted in each field.
+
+1363
+01:27:28,620 --> 01:27:30,460
+So here, I'm
+mentioning the example
+
+1364
+01:27:30,460 --> 01:27:34,740
+of rope, which Afshine
+mentioned in the recap that
+
+1365
+01:27:34,740 --> 01:27:40,020
+was used in texts to represent
+the relative position of tokens.
+
+1366
+01:27:40,020 --> 01:27:44,840
+And in the case of images
+or even multi-modal setting,
+
+1367
+01:27:44,840 --> 01:27:50,180
+where you have the presence
+of both text and image within
+
+1368
+01:27:50,180 --> 01:27:55,540
+the architecture, you're
+able to adapt that trick
+
+1369
+01:27:55,540 --> 01:27:59,100
+by reformulating it in 2D.
+
+1370
+01:27:59,100 --> 01:28:04,900
+So here the figure shows how
+you can attribute rope positions
+
+1371
+01:28:04,900 --> 01:28:09,500
+in the two degrees, and how you
+could place text tokens such
+
+1372
+01:28:09,500 --> 01:28:13,880
+that the relative computation
+of position still makes sense.
+
+1373
+01:28:17,230 --> 01:28:21,670
+And even beyond
+that, I would say
+
+1374
+01:28:21,670 --> 01:28:26,990
+that the ongoing research for
+transformers is very much alive
+
+1375
+01:28:26,990 --> 01:28:29,950
+and people are still
+figuring out all the details
+
+1376
+01:28:29,950 --> 01:28:32,030
+that we're working with today.
+
+1377
+01:28:32,030 --> 01:28:34,630
+And you see refinements
+all the time
+
+1378
+01:28:34,630 --> 01:28:37,170
+coming in terms of new papers.
+
+1379
+01:28:37,170 --> 01:28:42,310
+So it's something that
+is still developing.
+
+1380
+01:28:42,310 --> 01:28:46,990
+And you can look at it
+from multiple angles.
+
+1381
+01:28:46,990 --> 01:28:50,790
+One is each of these design
+decisions that we've had,
+
+1382
+01:28:50,790 --> 01:28:53,290
+they are still
+being iterated on.
+
+1383
+01:28:53,290 --> 01:28:57,310
+So I'm listing a few
+items here as an example.
+
+1384
+01:28:57,310 --> 01:29:00,750
+So one is the optimizer side.
+
+1385
+01:29:00,750 --> 01:29:04,190
+You might be familiar with the
+Adam optimizer and its update
+
+1386
+01:29:04,190 --> 01:29:08,350
+rule, which has been
+popular for quite some time.
+
+1387
+01:29:08,350 --> 01:29:13,770
+And it seems that state is being
+challenged with newer papers.
+
+1388
+01:29:13,770 --> 01:29:18,550
+So I referenced here
+the Kimi K2 paper
+
+1389
+01:29:18,550 --> 01:29:22,470
+that came out a few
+months ago that introduces
+
+1390
+01:29:22,470 --> 01:29:25,110
+a new kind of
+optimizer called Muon.
+
+1391
+01:29:25,110 --> 01:29:28,550
+And the latest version
+of that MuonClip
+
+1392
+01:29:28,550 --> 01:29:33,070
+seems to be a potential
+candidate for this optimizer
+
+1393
+01:29:33,070 --> 01:29:35,270
+to become the new standard.
+
+1394
+01:29:35,270 --> 01:29:43,270
+So this field, even as basic as
+it can be, is still developing.
+
+1395
+01:29:43,270 --> 01:29:45,650
+But it's not only
+the optimizer side.
+
+1396
+01:29:45,650 --> 01:29:48,550
+You also have the
+topic of normalization,
+
+1397
+01:29:48,550 --> 01:29:51,750
+where Afshine mentioned
+that the difference
+
+1398
+01:29:51,750 --> 01:29:54,150
+between the original
+transformer paper
+
+1399
+01:29:54,150 --> 01:29:58,630
+and what you see
+today in LLM papers,
+
+1400
+01:29:58,630 --> 01:30:01,330
+you don't have the same kind
+of normalization anymore.
+
+1401
+01:30:01,330 --> 01:30:04,590
+In the past, you had post norm.
+
+1402
+01:30:04,590 --> 01:30:08,910
+But now you have pre norm, which
+brings the normalization earlier
+
+1403
+01:30:08,910 --> 01:30:12,760
+on in the layer.
+
+1404
+01:30:12,760 --> 01:30:17,820
+But beyond that design choice of
+the location of normalization,
+
+1405
+01:30:17,820 --> 01:30:23,900
+you even have the type of
+normalization that changes.
+
+1406
+01:30:23,900 --> 01:30:28,160
+So the transformer
+paper used layer norm.
+
+1407
+01:30:28,160 --> 01:30:31,560
+But these days, you might see
+other kinds of normalization
+
+1408
+01:30:31,560 --> 01:30:36,340
+techniques like RMS norm which
+uses less parameters and others.
+
+1409
+01:30:36,340 --> 01:30:42,280
+So the theory behind
+it is not set just yet.
+
+1410
+01:30:42,280 --> 01:30:45,560
+So you have other
+kinds of parameters.
+
+1411
+01:30:45,560 --> 01:30:50,200
+I've seen mentioned the
+grouped query attention paper.
+
+1412
+01:30:50,200 --> 01:30:55,700
+And you see these days in LLM
+papers, not a fixed design.
+
+1413
+01:30:55,700 --> 01:30:59,460
+Rather every paper adopts
+their own technique.
+
+1414
+01:30:59,460 --> 01:31:05,100
+Sometimes you see one kind of
+attention used as a given layer,
+
+1415
+01:31:05,100 --> 01:31:08,560
+but then it switches,
+and different papers take
+
+1416
+01:31:08,560 --> 01:31:10,420
+different design decisions.
+
+1417
+01:31:10,420 --> 01:31:13,280
+So it's not set in stone.
+
+1418
+01:31:13,280 --> 01:31:16,020
+Then you also have
+activation functions.
+
+1419
+01:31:16,020 --> 01:31:19,480
+So traditionally, in deep
+learning, a lot of emphasis
+
+1420
+01:31:19,480 --> 01:31:23,720
+was put on ReLU,
+which is a very simple
+
+1421
+01:31:23,720 --> 01:31:26,240
+and used worked very well.
+
+1422
+01:31:26,240 --> 01:31:29,040
+But in the world
+of LLMs, the shift
+
+1423
+01:31:29,040 --> 01:31:36,360
+was towards ReLU like activation
+functions, but not exactly ReLU.
+
+1424
+01:31:36,360 --> 01:31:40,400
+So you had a Gaussian
+error, linear units
+
+1425
+01:31:40,400 --> 01:31:42,120
+you had other kinds.
+
+1426
+01:31:42,120 --> 01:31:44,460
+And the research there
+is still ongoing.
+
+1427
+01:31:44,460 --> 01:31:51,000
+So you still see new activation
+functions coming in now
+
+1428
+01:31:51,000 --> 01:31:52,480
+and then.
+
+1429
+01:31:52,480 --> 01:31:54,480
+And then you have
+also whether to take
+
+1430
+01:31:54,480 --> 01:32:00,600
+the design option of considering
+the LLM as an MOE or not.
+
+1431
+01:32:00,600 --> 01:32:03,760
+And even the number
+of layers of your LLM
+
+1432
+01:32:03,760 --> 01:32:08,560
+and other hyperparameters
+like number of heads.
+
+1433
+01:32:08,560 --> 01:32:13,200
+Size of the number of units
+in the FFN, all of that
+
+1434
+01:32:13,200 --> 01:32:16,900
+is still up for debate in
+terms of design decisions.
+
+1435
+01:32:16,900 --> 01:32:19,920
+So it's not fixed.
+
+1436
+01:32:19,920 --> 01:32:23,040
+And then another area of
+research I want to mention
+
+1437
+01:32:23,040 --> 01:32:27,160
+is the data part,
+which is crucial.
+
+1438
+01:32:27,160 --> 01:32:33,280
+So the first LLMs, they enjoyed
+a relatively clean state
+
+1439
+01:32:33,280 --> 01:32:36,280
+of things because you
+could scrape the internet
+
+1440
+01:32:36,280 --> 01:32:41,720
+and hope for a lot of data that
+was for sure human generated.
+
+1441
+01:32:41,720 --> 01:32:47,220
+So you could learn these
+patterns from, quote unquote,
+
+1442
+01:32:47,220 --> 01:32:51,400
+a high quality source, even
+though it's not in high quality
+
+1443
+01:32:51,400 --> 01:32:53,620
+format when you look at
+typical internet data,
+
+1444
+01:32:53,620 --> 01:32:57,760
+but it was still
+generated by human.
+
+1445
+01:32:57,760 --> 01:33:00,100
+So these days, the
+state has changed.
+
+1446
+01:33:00,100 --> 01:33:04,220
+You type anything you want in
+your favorite search browser.
+
+1447
+01:33:04,220 --> 01:33:08,470
+Chances are the first results
+are 80% LLM generated.
+
+1448
+01:33:08,470 --> 01:33:10,690
+So are we doomed?
+
+1449
+01:33:10,690 --> 01:33:16,690
+Maybe not, because actually
+you see the development more
+
+1450
+01:33:16,690 --> 01:33:19,410
+and more work in data curation.
+
+1451
+01:33:19,410 --> 01:33:22,130
+So in the past, you would
+just scrape the whole internet
+
+1452
+01:33:22,130 --> 01:33:24,730
+and train next token
+prediction on it.
+
+1453
+01:33:24,730 --> 01:33:28,490
+But now, you have more and more
+of this work of curating data
+
+1454
+01:33:28,490 --> 01:33:29,950
+sets of interest.
+
+1455
+01:33:29,950 --> 01:33:32,170
+And you have companies
+that work on it.
+
+1456
+01:33:32,170 --> 01:33:38,070
+And you have the emergence
+of newer fine tuning modes.
+
+1457
+01:33:38,070 --> 01:33:40,570
+So in the past, you had
+pre-training and then fine
+
+1458
+01:33:40,570 --> 01:33:41,690
+tuning.
+
+1459
+01:33:41,690 --> 01:33:45,690
+Now you have pre-training,
+mid training, and fine tuning.
+
+1460
+01:33:45,690 --> 01:33:50,530
+And the mid training part trains
+still on a large corpus of data,
+
+1461
+01:33:50,530 --> 01:33:52,450
+but higher quality.
+
+1462
+01:33:52,450 --> 01:33:55,770
+So people are finding
+ways around it.
+
+1463
+01:33:55,770 --> 01:33:59,250
+And I would say the
+picture is not all grim,
+
+1464
+01:33:59,250 --> 01:34:04,050
+but it's just that we need to
+do more work in order to have
+
+1465
+01:34:04,050 --> 01:34:05,850
+meaningful data at hand.
+
+1466
+01:34:05,850 --> 01:34:09,810
+And the paper that is linked
+at the bottom of the slide
+
+1467
+01:34:09,810 --> 01:34:14,210
+is dealing with the
+phenomenon of what
+
+1468
+01:34:14,210 --> 01:34:17,170
+if you were training
+on LLM generated data
+
+1469
+01:34:17,170 --> 01:34:21,330
+and it's talking about a
+concept called model collapse.
+
+1470
+01:34:21,330 --> 01:34:28,730
+And it says that LLM generated
+text is typically less diverse.
+
+1471
+01:34:28,730 --> 01:34:32,650
+So the data distribution that
+you would see at training time
+
+1472
+01:34:32,650 --> 01:34:36,530
+changes and it leads to
+less meaningful learning
+
+1473
+01:34:36,530 --> 01:34:39,730
+at training time, which
+is why it's typically bad.
+
+1474
+01:34:39,730 --> 01:34:45,650
+And it motivates the need for
+more work on the data part.
+
+1475
+01:34:45,650 --> 01:34:47,690
+OK, nice.
+
+1476
+01:34:47,690 --> 01:34:51,790
+And then even taking a step
+back on the very architecture
+
+1477
+01:34:51,790 --> 01:34:55,030
+we've been using all along.
+
+1478
+01:34:55,030 --> 01:34:58,810
+Is it the best one?
+it's not clear.
+
+1479
+01:34:58,810 --> 01:35:02,210
+So that itself is
+an area of research.
+
+1480
+01:35:02,210 --> 01:35:05,930
+And future
+breakthroughs might come
+
+1481
+01:35:05,930 --> 01:35:09,150
+from redesigning
+this architecture.
+
+1482
+01:35:11,810 --> 01:35:16,370
+So in the past few years,
+a lot of the research
+
+1483
+01:35:16,370 --> 01:35:21,450
+that we have seen has been
+on improving benchmarks
+
+1484
+01:35:21,450 --> 01:35:23,590
+even more each time.
+
+1485
+01:35:23,590 --> 01:35:24,990
+So you have a set of benchmarks.
+
+1486
+01:35:24,990 --> 01:35:27,750
+Everyone tries to
+get the best results.
+
+1487
+01:35:27,750 --> 01:35:30,050
+So it's a natural
+trend because you
+
+1488
+01:35:30,050 --> 01:35:31,650
+want to have more
+and more powerful
+
+1489
+01:35:31,650 --> 01:35:36,170
+models that fulfill
+all your use cases.
+
+1490
+01:35:36,170 --> 01:35:39,330
+But let's say we reach a
+point where all the use
+
+1491
+01:35:39,330 --> 01:35:42,810
+cases we care about are solved.
+
+1492
+01:35:42,810 --> 01:35:44,770
+Then what?
+
+1493
+01:35:44,770 --> 01:35:47,890
+So I think we're going
+to see the emergence
+
+1494
+01:35:47,890 --> 01:35:51,810
+of these second border
+of the Pareto frontier,
+
+1495
+01:35:51,810 --> 01:35:58,210
+where we care most about
+making predictions from LLM
+
+1496
+01:35:58,210 --> 01:36:03,380
+cost effective and
+still very high quality.
+
+1497
+01:36:03,380 --> 01:36:10,540
+So we see this emergence of
+smaller and smaller LLMs.
+
+1498
+01:36:10,540 --> 01:36:13,060
+I think it has been
+dubbed small language
+
+1499
+01:36:13,060 --> 01:36:16,860
+models, SLM, in the literature.
+
+1500
+01:36:16,860 --> 01:36:21,860
+And typically, you hear
+sometimes LLM providers
+
+1501
+01:36:21,860 --> 01:36:26,220
+say that they lose money even
+on the highest tier plans.
+
+1502
+01:36:26,220 --> 01:36:30,300
+So I think it reflects the fact
+that you need to be smarter
+
+1503
+01:36:30,300 --> 01:36:34,900
+in the compute that you spend
+for serving LLM queries at test
+
+1504
+01:36:34,900 --> 01:36:35,700
+time.
+
+1505
+01:36:35,700 --> 01:36:39,780
+And I think this will
+motivate more and more
+
+1506
+01:36:39,780 --> 01:36:44,820
+this line of research
+in the coming years.
+
+1507
+01:36:44,820 --> 01:36:47,860
+And then there is another
+area that we've not
+
+1508
+01:36:47,860 --> 01:36:51,700
+touched on at all in this class,
+which is the hardware part.
+
+1509
+01:36:51,700 --> 01:36:56,780
+So typically, the kind of device
+that you use to train these LLMs
+
+1510
+01:36:56,780 --> 01:37:00,220
+are GPUs, which are
+great at one thing--
+
+1511
+01:37:00,220 --> 01:37:02,420
+matrix multiply.
+
+1512
+01:37:02,420 --> 01:37:06,140
+But the thing is, we've kept
+these kinds of architectures
+
+1513
+01:37:06,140 --> 01:37:10,140
+to train our models, even though
+the architecture doesn't only
+
+1514
+01:37:10,140 --> 01:37:18,580
+need matrix multiplies as
+a foundational atomic unit
+
+1515
+01:37:18,580 --> 01:37:24,020
+of compute, the self-attention
+world and the transformer world
+
+1516
+01:37:24,020 --> 01:37:28,260
+has all these special needs.
+
+1517
+01:37:28,260 --> 01:37:35,140
+The qk transpose part we saw
+was actually very expensive,
+
+1518
+01:37:35,140 --> 01:37:38,900
+which has motivated papers
+such as flash attention
+
+1519
+01:37:38,900 --> 01:37:43,180
+to, as I've seen mentioned,
+actually forego of some
+
+1520
+01:37:43,180 --> 01:37:47,180
+of the data for the sake of
+not doing too much movements
+
+1521
+01:37:47,180 --> 01:37:52,060
+on the memory side, even
+if it meant recomputing
+
+1522
+01:37:52,060 --> 01:37:53,920
+the same things afterwards.
+
+1523
+01:37:53,920 --> 01:37:56,630
+And then a lot of work
+has been on optimizing
+
+1524
+01:37:56,630 --> 01:38:00,790
+where the flow of memory
+within the GPU resides.
+
+1525
+01:38:00,790 --> 01:38:07,830
+And this shows that maybe you
+need a more optimized hardware
+
+1526
+01:38:07,830 --> 01:38:15,070
+architecture in order to
+solve these use cases.
+
+1527
+01:38:15,070 --> 01:38:18,550
+So there is a recent
+paper that came out
+
+1528
+01:38:18,550 --> 01:38:22,390
+that actually encodes
+all of these operations
+
+1529
+01:38:22,390 --> 01:38:24,310
+as part of the hardware.
+
+1530
+01:38:24,310 --> 01:38:29,030
+So in the past,
+the core operation
+
+1531
+01:38:29,030 --> 01:38:32,370
+that the GPU was great
+at is matrix multiply.
+
+1532
+01:38:32,370 --> 01:38:36,390
+And based on it, you try to
+build all of the input output
+
+1533
+01:38:36,390 --> 01:38:38,070
+that you want.
+
+1534
+01:38:38,070 --> 01:38:42,830
+But here this paper that came
+out, I think, in September
+
+1535
+01:38:42,830 --> 01:38:46,070
+shows a proof of
+concept where you
+
+1536
+01:38:46,070 --> 01:38:49,950
+can do all of these
+computations as a side
+
+1537
+01:38:49,950 --> 01:38:55,230
+effect of implementing input
+and outputs with analog signals.
+
+1538
+01:38:55,230 --> 01:38:58,270
+So you have all of these
+computations that are embedded
+
+1539
+01:38:58,270 --> 01:38:59,870
+as part of the hardware.
+
+1540
+01:38:59,870 --> 01:39:05,150
+And based on pulses as input
+that simulates your array
+
+1541
+01:39:05,150 --> 01:39:10,270
+values, these
+hardware architectures
+
+1542
+01:39:10,270 --> 01:39:12,630
+have some physical
+properties, you
+
+1543
+01:39:12,630 --> 01:39:19,030
+could think of a Kirchhoff
+law in the field of, I think,
+
+1544
+01:39:19,030 --> 01:39:20,430
+intensity.
+
+1545
+01:39:20,430 --> 01:39:22,710
+You can add them up.
+
+1546
+01:39:22,710 --> 01:39:28,070
+And it uses properties like this
+to have what you need as inputs
+
+1547
+01:39:28,070 --> 01:39:34,750
+and just read out the
+results as output.
+
+1548
+01:39:34,750 --> 01:39:39,990
+So when the paper simulated
+this kind of architecture,
+
+1549
+01:39:39,990 --> 01:39:44,830
+they observed, without too
+much surprise quite a bit
+
+1550
+01:39:44,830 --> 01:39:46,910
+of improvement
+both on the latency
+
+1551
+01:39:46,910 --> 01:39:50,870
+and energy saving
+parts both explained
+
+1552
+01:39:50,870 --> 01:39:54,230
+because you don't need to do
+the computations yourself.
+
+1553
+01:39:54,230 --> 01:39:58,690
+You just get them as a side
+effect of your hardware.
+
+1554
+01:40:01,710 --> 01:40:05,150
+Now I want to take
+a step back and look
+
+1555
+01:40:05,150 --> 01:40:09,310
+at our users, at our
+use cases of LLMs today
+
+1556
+01:40:09,310 --> 01:40:13,350
+and what could lie ahead, what
+could be the most exciting
+
+1557
+01:40:13,350 --> 01:40:14,750
+for you.
+
+1558
+01:40:14,750 --> 01:40:18,590
+So today, we've seen
+that in just a few years,
+
+1559
+01:40:18,590 --> 01:40:21,470
+I think it has become
+quite important to know how
+
+1560
+01:40:21,470 --> 01:40:24,070
+to use them if you want
+to speed up everything
+
+1561
+01:40:24,070 --> 01:40:26,310
+you do in your daily life.
+
+1562
+01:40:26,310 --> 01:40:30,750
+So a few lectures ago, we
+talked about the coding case
+
+1563
+01:40:30,750 --> 01:40:35,390
+where do you have all these
+AI systems coding tools
+
+1564
+01:40:35,390 --> 01:40:41,110
+that enable you
+to turn into code,
+
+1565
+01:40:41,110 --> 01:40:43,830
+some natural language prompts.
+
+1566
+01:40:43,830 --> 01:40:46,190
+So you just ask for
+something and it
+
+1567
+01:40:46,190 --> 01:40:50,640
+will help you do that task
+with a so-called agent mode.
+
+1568
+01:40:50,640 --> 01:40:55,920
+And this is just something that
+you would do as an engineer.
+
+1569
+01:40:55,920 --> 01:41:01,800
+But even beyond that, other use
+cases are deeply impacted by it
+
+1570
+01:41:01,800 --> 01:41:04,200
+because you have
+a lot of problems
+
+1571
+01:41:04,200 --> 01:41:09,960
+that today can be turned
+into a text to query or text
+
+1572
+01:41:09,960 --> 01:41:12,320
+to code problem.
+
+1573
+01:41:12,320 --> 01:41:17,000
+So you could think of even the
+visualization world, you could--
+
+1574
+01:41:17,000 --> 01:41:21,240
+So for example, there was a
+launch from Google recently
+
+1575
+01:41:21,240 --> 01:41:24,320
+that showed that you could
+generate visualizations
+
+1576
+01:41:24,320 --> 01:41:26,920
+on the fly based
+on some principles.
+
+1577
+01:41:26,920 --> 01:41:30,880
+And this is already
+changing quite a bit
+
+1578
+01:41:30,880 --> 01:41:35,200
+the picture of what
+you can do today.
+
+1579
+01:41:35,200 --> 01:41:38,520
+Something else that I think is
+used by most people actually
+
+1580
+01:41:38,520 --> 01:41:42,840
+today when using
+these chatbots is
+
+1581
+01:41:42,840 --> 01:41:44,440
+like being a general
+assistant, so you
+
+1582
+01:41:44,440 --> 01:41:47,280
+ask about common facts
+and all the facts
+
+1583
+01:41:47,280 --> 01:41:50,440
+that it has learned at
+training time becomes useful.
+
+1584
+01:41:50,440 --> 01:41:54,520
+It browses the web more
+efficiently than you
+
+1585
+01:41:54,520 --> 01:41:56,920
+and converts into
+natural language
+
+1586
+01:41:56,920 --> 01:41:59,680
+the things that you care about.
+
+1587
+01:41:59,680 --> 01:42:02,760
+But then there are
+also other domains
+
+1588
+01:42:02,760 --> 01:42:04,220
+that were impacted by it.
+
+1589
+01:42:04,220 --> 01:42:07,480
+So you could think
+creativity where
+
+1590
+01:42:07,480 --> 01:42:11,840
+a lot of jobs such as
+marketing or others
+
+1591
+01:42:11,840 --> 01:42:16,000
+rely on getting something
+out of a blank page.
+
+1592
+01:42:16,000 --> 01:42:18,060
+And usually, if you
+start from a draft,
+
+1593
+01:42:18,060 --> 01:42:21,320
+it's much easier to get
+something done rather than just
+
+1594
+01:42:21,320 --> 01:42:23,580
+thinking of it from scratch.
+
+1595
+01:42:23,580 --> 01:42:25,880
+So it's used as a net here.
+
+1596
+01:42:25,880 --> 01:42:29,760
+And also, one use case that
+I've seen in class that I think
+
+1597
+01:42:29,760 --> 01:42:32,680
+is great that some of you do--
+
+1598
+01:42:32,680 --> 01:42:34,182
+sometimes I talk
+about something,
+
+1599
+01:42:34,182 --> 01:42:35,640
+or I've seen talks
+about something,
+
+1600
+01:42:35,640 --> 01:42:40,280
+and I see people typing on
+ChatGPT related concepts.
+
+1601
+01:42:40,280 --> 01:42:44,120
+And I think it's very smart to
+do that because brainstorming
+
+1602
+01:42:44,120 --> 01:42:48,410
+the concepts that you learn
+is great for actually grasping
+
+1603
+01:42:48,410 --> 01:42:50,330
+the concepts of interest.
+
+1604
+01:42:50,330 --> 01:42:52,970
+And getting that
+early feedback loop
+
+1605
+01:42:52,970 --> 01:42:55,630
+is very useful for learning.
+
+1606
+01:42:55,630 --> 01:43:01,050
+So I have a lot of hopes
+regarding how great of a time
+
+1607
+01:43:01,050 --> 01:43:05,050
+it is for you to learn as
+opposed to maybe having
+
+1608
+01:43:05,050 --> 01:43:07,690
+a nice time maybe 10 years ago.
+
+1609
+01:43:07,690 --> 01:43:08,870
+So yeah, keep doing that.
+
+1610
+01:43:08,870 --> 01:43:11,970
+And I think it will
+be a growing use case.
+
+1611
+01:43:11,970 --> 01:43:15,850
+So looking forward.
+
+1612
+01:43:15,850 --> 01:43:17,750
+So I said, tomorrow
+on the slide,
+
+1613
+01:43:17,750 --> 01:43:20,810
+but actually two
+days ago, there was
+
+1614
+01:43:20,810 --> 01:43:25,970
+a launch that went in the
+direction of what I was thinking
+
+1615
+01:43:25,970 --> 01:43:31,810
+about, which is all the agentic
+things that we talked about,
+
+1616
+01:43:31,810 --> 01:43:34,690
+there are still
+very much confined
+
+1617
+01:43:34,690 --> 01:43:37,770
+into people that
+about the field.
+
+1618
+01:43:37,770 --> 01:43:40,490
+Everyday people, they
+wouldn't typically use,
+
+1619
+01:43:40,490 --> 01:43:43,290
+quote unquote,
+agentic workflows.
+
+1620
+01:43:43,290 --> 01:43:45,290
+So I think one
+field of development
+
+1621
+01:43:45,290 --> 01:43:48,370
+that we will see more
+and more is all these use
+
+1622
+01:43:48,370 --> 01:43:50,450
+cases being democratized.
+
+1623
+01:43:50,450 --> 01:43:54,850
+So people can now create things
+that can be useful to them
+
+1624
+01:43:54,850 --> 01:43:59,650
+with easier mediums, just
+natural language, no need
+
+1625
+01:43:59,650 --> 01:44:06,050
+to code moving forward to later.
+
+1626
+01:44:06,050 --> 01:44:09,050
+So all these AI assisted
+coding that I was mentioning,
+
+1627
+01:44:09,050 --> 01:44:12,290
+you could think of it as
+helping you browse the internet
+
+1628
+01:44:12,290 --> 01:44:14,170
+in a very natural fashion.
+
+1629
+01:44:14,170 --> 01:44:17,570
+So it seems, right now,
+when you just execute tasks,
+
+1630
+01:44:17,570 --> 01:44:20,790
+you're way too microscopic
+in what you do.
+
+1631
+01:44:20,790 --> 01:44:25,490
+And this is typically what AI
+assistant could help you do.
+
+1632
+01:44:25,490 --> 01:44:28,010
+So there are recent
+product launches
+
+1633
+01:44:28,010 --> 01:44:32,530
+that reflect this growing
+interest, such as ChatGPT's
+
+1634
+01:44:32,530 --> 01:44:33,890
+Atlas.
+
+1635
+01:44:33,890 --> 01:44:35,850
+So I think it
+launched in October.
+
+1636
+01:44:35,850 --> 01:44:40,890
+I don't know if they released
+some public number on usage.
+
+1637
+01:44:40,890 --> 01:44:44,250
+I suspect it's still
+timid because you still
+
+1638
+01:44:44,250 --> 01:44:47,930
+have challenges when
+it comes to security.
+
+1639
+01:44:47,930 --> 01:44:51,450
+Anyone could inject
+some bad prompt in there
+
+1640
+01:44:51,450 --> 01:44:54,770
+and maybe exfiltrate
+things from you.
+
+1641
+01:44:54,770 --> 01:44:59,290
+But I'm sure the community
+will come up with more ways
+
+1642
+01:44:59,290 --> 01:45:00,430
+to get around it.
+
+1643
+01:45:00,430 --> 01:45:03,630
+So in the past, you
+had HTTPS, for example,
+
+1644
+01:45:03,630 --> 01:45:06,150
+to say that the
+connection was secure.
+
+1645
+01:45:06,150 --> 01:45:08,850
+Maybe tomorrow, you'll
+have some certificate
+
+1646
+01:45:08,850 --> 01:45:12,690
+that will guarantee that a site
+website is safe for AI assistant
+
+1647
+01:45:12,690 --> 01:45:17,770
+browsing and looking
+even at a higher level,
+
+1648
+01:45:17,770 --> 01:45:22,250
+maybe just browsing on your
+desktop or your mobile phone
+
+1649
+01:45:22,250 --> 01:45:24,050
+at the LLM level.
+
+1650
+01:45:24,050 --> 01:45:31,170
+At the OS level, might be
+something that the LLM can help.
+
+1651
+01:45:31,170 --> 01:45:32,810
+So when we talked
+about agents, we
+
+1652
+01:45:32,810 --> 01:45:38,170
+mentioned how
+non-reliable it could
+
+1653
+01:45:38,170 --> 01:45:40,910
+be because as you have
+more and more steps,
+
+1654
+01:45:40,910 --> 01:45:43,540
+the probability for
+a failure increases.
+
+1655
+01:45:43,540 --> 01:45:47,660
+And stabilizing predictions
+is something of interest.
+
+1656
+01:45:47,660 --> 01:45:50,340
+And even in the
+longer run, I think
+
+1657
+01:45:50,340 --> 01:45:54,620
+one test that we can have in
+mind as to how far we've come
+
+1658
+01:45:54,620 --> 01:45:58,260
+is whether the common
+use case of having
+
+1659
+01:45:58,260 --> 01:46:02,180
+a customer service that is
+served by AI is truly useful.
+
+1660
+01:46:02,180 --> 01:46:04,740
+So I don't about you, but
+every time I have a problem,
+
+1661
+01:46:04,740 --> 01:46:08,300
+and I'm on the phone, and I
+hear some AI assistant, maybe
+
+1662
+01:46:08,300 --> 01:46:11,760
+LLM powered robot, I'm kind
+of quick, quick, quick,
+
+1663
+01:46:11,760 --> 01:46:14,140
+I want a human, I
+don't want that.
+
+1664
+01:46:14,140 --> 01:46:18,540
+And I think it shows
+how hard this space is,
+
+1665
+01:46:18,540 --> 01:46:22,700
+the space of problems is because
+human has way more dimensions
+
+1666
+01:46:22,700 --> 01:46:27,300
+of value that an
+LLM could bring.
+
+1667
+01:46:27,300 --> 01:46:31,260
+So empathy, groundedness,
+there are some things
+
+1668
+01:46:31,260 --> 01:46:34,400
+that you and we perceive
+as things that make sense,
+
+1669
+01:46:34,400 --> 01:46:36,780
+even though they're not
+in our system prompts.
+
+1670
+01:46:36,780 --> 01:46:41,940
+So I think there are hard
+problems to solve there.
+
+1671
+01:46:41,940 --> 01:46:47,700
+And even moving forward,
+there are some key challenges
+
+1672
+01:46:47,700 --> 01:46:50,380
+that we have with the
+current architecture.
+
+1673
+01:46:50,380 --> 01:46:53,740
+So we saw during
+the class that you
+
+1674
+01:46:53,740 --> 01:46:57,220
+had to go through a
+training process that
+
+1675
+01:46:57,220 --> 01:46:59,860
+went to fix some weights.
+
+1676
+01:46:59,860 --> 01:47:03,400
+But these weights are
+not changing afterwards.
+
+1677
+01:47:03,400 --> 01:47:08,740
+And we use tricks such as RAG or
+tools to get around this issue.
+
+1678
+01:47:08,740 --> 01:47:12,180
+But could we think of a system
+that learns continuously?
+
+1679
+01:47:12,180 --> 01:47:14,100
+I think that is
+an open question.
+
+1680
+01:47:14,100 --> 01:47:16,540
+Then there is a topic
+of hallucinations
+
+1681
+01:47:16,540 --> 01:47:19,260
+which I put into quotation
+marks because I'm not sure
+
+1682
+01:47:19,260 --> 01:47:23,900
+if it's fair to say that the LLM
+hallucinates just because we've
+
+1683
+01:47:23,900 --> 01:47:27,620
+trained the LLM to predict
+the next token by nature,
+
+1684
+01:47:27,620 --> 01:47:31,220
+not map statements to facts.
+
+1685
+01:47:31,220 --> 01:47:34,540
+So hallucinating
+is, in some sense,
+
+1686
+01:47:34,540 --> 01:47:40,140
+a core design choice
+of these LLMs.
+
+1687
+01:47:40,140 --> 01:47:42,280
+Personalization,
+interpretability,
+
+1688
+01:47:42,280 --> 01:47:44,120
+safety the list goes on.
+
+1689
+01:47:46,980 --> 01:47:52,100
+Now I want to
+briefly cover how you
+
+1690
+01:47:52,100 --> 01:47:55,740
+can exercise this muscle of
+staying up to date from now.
+
+1691
+01:47:55,740 --> 01:47:59,260
+So you have archive
+that usually contains
+
+1692
+01:47:59,260 --> 01:48:01,540
+all these greatest
+and latest papers
+
+1693
+01:48:01,540 --> 01:48:03,900
+that you can take a look at.
+
+1694
+01:48:03,900 --> 01:48:06,340
+Of course, the
+venues like NeurIPS
+
+1695
+01:48:06,340 --> 01:48:12,540
+right now are great to
+highlight some papers.
+
+1696
+01:48:12,540 --> 01:48:18,020
+And then I highly encourage
+you, besides the papers,
+
+1697
+01:48:18,020 --> 01:48:20,020
+looking at the
+associated codebases
+
+1698
+01:48:20,020 --> 01:48:21,480
+that the authors provide.
+
+1699
+01:48:21,480 --> 01:48:24,420
+So right now, it's a
+commonplace to just provide
+
+1700
+01:48:24,420 --> 01:48:27,040
+the implementation of
+what you're proposing.
+
+1701
+01:48:27,040 --> 01:48:30,340
+And I think it's very insightful
+to learn the concepts.
+
+1702
+01:48:30,340 --> 01:48:33,780
+And there is a paper with
+code that existed in the past.
+
+1703
+01:48:33,780 --> 01:48:38,930
+And that has been replaced by
+HuggingFace trending papers,
+
+1704
+01:48:38,930 --> 01:48:43,790
+which I think is a good place
+to take a look at the latest
+
+1705
+01:48:43,790 --> 01:48:45,550
+methods.
+
+1706
+01:48:45,550 --> 01:48:50,350
+And then on the
+social network side,
+
+1707
+01:48:50,350 --> 01:48:57,170
+Twitter or X has a lot of the
+latest that is often discussed.
+
+1708
+01:48:57,170 --> 01:48:58,890
+So you have a strong
+community there.
+
+1709
+01:48:58,890 --> 01:49:01,970
+And if you have an account
+on that social media,
+
+1710
+01:49:01,970 --> 01:49:06,710
+you have a lot of great people
+to follow to stay updated.
+
+1711
+01:49:06,710 --> 01:49:10,450
+But also, you have
+resources on YouTube,
+
+1712
+01:49:10,450 --> 01:49:13,110
+which highlight on Yannic
+Kilcher, which I think
+
+1713
+01:49:13,110 --> 01:49:17,710
+was the first YouTuber to cover
+the transformer paper back
+
+1714
+01:49:17,710 --> 01:49:20,190
+in 2017 in great detail.
+
+1715
+01:49:20,190 --> 01:49:22,530
+And I think some
+of these YouTubers,
+
+1716
+01:49:22,530 --> 01:49:28,910
+they're very good at talking
+through papers in great detail.
+
+1717
+01:49:28,910 --> 01:49:32,990
+And another highlight
+is Andrej Karpathy,
+
+1718
+01:49:32,990 --> 01:49:35,410
+who was at Stanford
+about 10 years ago.
+
+1719
+01:49:35,410 --> 01:49:38,970
+And he's, I think, one of
+the best educators out there.
+
+1720
+01:49:38,970 --> 01:49:41,390
+So I highly
+recommend his videos.
+
+1721
+01:49:41,390 --> 01:49:45,630
+And you have company
+blogs that are also great.
+
+1722
+01:49:45,630 --> 01:49:51,950
+And this study guide that we
+associated with the class,
+
+1723
+01:49:51,950 --> 01:49:53,650
+so we've had it for this year.
+
+1724
+01:49:53,650 --> 01:49:56,590
+And what we'll try to
+do in the coming years
+
+1725
+01:49:56,590 --> 01:50:00,050
+is try to keep it updated
+at least on a yearly basis.
+
+1726
+01:50:00,050 --> 01:50:02,630
+So you can consider
+this resource
+
+1727
+01:50:02,630 --> 01:50:05,150
+as maybe some companion.
+
+1728
+01:50:05,150 --> 01:50:09,030
+And we've got the chance
+to collaborate with experts
+
+1729
+01:50:09,030 --> 01:50:11,530
+around the world to make it
+available in other languages,
+
+1730
+01:50:11,530 --> 01:50:14,430
+in case you're interested.
+
+1731
+01:50:14,430 --> 01:50:16,150
+And taking a step
+back, just want
+
+1732
+01:50:16,150 --> 01:50:20,030
+to say that Afshine and I
+were very grateful to teach
+
+1733
+01:50:20,030 --> 01:50:22,830
+this class this quarter.
+
+1734
+01:50:22,830 --> 01:50:27,710
+Thank you so much for coming
+here on Friday evening, which
+
+1735
+01:50:27,710 --> 01:50:30,790
+is quite telling, because
+Friday evening is usually
+
+1736
+01:50:30,790 --> 01:50:33,280
+a time for fun,
+not for lectures.
+
+1737
+01:50:33,280 --> 01:50:34,880
+And also now, I
+think it's probably
+
+1738
+01:50:34,880 --> 01:50:37,520
+your last lecture
+of the whole quarter
+
+1739
+01:50:37,520 --> 01:50:39,980
+because next week is finals.
+
+1740
+01:50:39,980 --> 01:50:42,520
+So yeah, thank you for
+coming and for asking
+
+1741
+01:50:42,520 --> 01:50:44,260
+all these great questions.
+
+1742
+01:50:44,260 --> 01:50:47,240
+You were one of the
+reasons why this class was
+
+1743
+01:50:47,240 --> 01:50:49,640
+so great and interactive.
+
+1744
+01:50:49,640 --> 01:50:54,320
+Also, thank you to the folks who
+are watching online from home.
+
+1745
+01:50:54,320 --> 01:50:56,820
+I was one of you
+eight years ago.
+
+1746
+01:50:56,820 --> 01:50:59,120
+I would almost never
+go to class, always
+
+1747
+01:50:59,120 --> 01:51:01,560
+watching lectures from
+home, from a cozy place.
+
+1748
+01:51:01,560 --> 01:51:04,640
+I hope the lectures
+were entertaining
+
+1749
+01:51:04,640 --> 01:51:09,080
+and that you got
+something from it.
+
+1750
+01:51:09,080 --> 01:51:14,800
+And I couldn't conclude without
+bringing our favorite Teddy bear
+
+1751
+01:51:14,800 --> 01:51:16,240
+one last time.
+
+1752
+01:51:16,240 --> 01:51:19,720
+Thanking you all
+for your attention
+
+1753
+01:51:19,720 --> 01:51:21,840
+and wishing you all the best.
+
+1754
+01:51:21,840 --> 01:51:22,980
+Thank you.
+
+1755
+01:51:22,980 --> 01:51:26,630
+[APPLAUSE]
